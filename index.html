@@ -4054,8 +4054,9 @@ async function loadAccountsFromSalesforce() {
     const records = data?.AccountDetails?.records || [];
     _sfTotalSize  = data?.AccountDetails?.totalSize || 0;
     if (!records.length) throw new Error('No records returned');
-    // Filter to real customer accounts (exclude zero-ARR internal/unknown accounts)
-    const filtered = records.filter(r => r.Name);
+    // Filter to real customer accounts (must have Id; Name fallback to Id if missing)
+    records.forEach(r => { if (!r.Name && r.Id) r.Name = r.Id; });
+    const filtered = records.filter(r => r.Id);
     ACCOUNTS = filtered.map(sfRecordToAccount);
     _sfLastSync = new Date();
     _sfLoading = false;           // clear flag BEFORE rendering so table check passes
