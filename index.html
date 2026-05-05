@@ -4118,46 +4118,25 @@ async function loadReferenceFromSalesforce() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
-    // Debug: log raw response to understand structure
-    console.log('[REF DEBUG] Raw response:', JSON.stringify(data).slice(0, 300));
+    // Response: ReferenceDetails.records[] with Account__c = Salesforce Account Id
+    const records = data?.ReferenceDetails?.records || [];
 
-    // Try common response shapes
-    const records =
-      data?.ReferenceDetails?.records ||
-      data?.references?.records       ||
-      data?.AccountDetails?.records   ||
-      data?.records                   ||
-      (Array.isArray(data) ? data : null);
+    // Salesforce IDs can be 15-char or 18-char — normalise to first 15 chars for matching
+    const norm = id => id ? String(id).substring(0, 15).toLowerCase() : '';
+    const refAccountIds = new Set(records.map(r => norm(r.Account__c)).filter(Boolean));
+    console.log('[REF] ' + refAccountIds.size + ' unique referenceable IDs');
+    console.log('[REF] Sample ref IDs:', [...refAccountIds].slice(0, 3));
+    console.log('[REF] Sample account IDs:', ACCOUNTS.slice(0, 3).map(a => norm(a.id)));
 
-    if (records) {
-      // Stamp ref=true on matching accounts by Id or Name
-      const refIds  = new Set(records.map(r => r.Id).filter(Boolean));
-      const refNames = new Set(records.map(r => r.Name).filter(Boolean));
+    // Stamp ref=true on matching accounts
+    ACCOUNTS.forEach(a => {
+      if (refAccountIds.has(norm(a.id))) a.ref = true;
+    });
 
-      ACCOUNTS.forEach(a => {
-        if (refIds.has(a.id) || refNames.has(a.name)) a.ref = true;
-      });
+    const refCount = ACCOUNTS.filter(a => a.ref).length;
+    console.log('[REF] ' + refCount + ' accounts matched as referenceable');
 
-      const refCount = ACCOUNTS.filter(a => a.ref).length;
-      console.log('[REF] ' + refCount + ' referenceable accounts loaded');
-    } else {
-      // Response might just be a count
-      const count = data?.count || data?.total || data?.totalSize || data?.ReferenceCount;
-      if (count !== undefined) {
-        console.log('[REF] Count from API:', count);
-        // Update tiles directly with count
-        const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-        s('csm-stat-ref',  count);
-        s('lead-stat-ref', count);
-        s('csm-stat-ref-pct',  count + ' referenceable');
-        s('lead-stat-ref-pct', count + ' referenceable');
-        _refLoading = false;
-        return;
-      }
-      console.warn('[REF DEBUG] Unknown response shape — check console for raw response above');
-    }
-
-    // Re-render dashboard to update ref counts in tiles
+    // Re-render to update tiles and account table
     renderDashboard();
     renderAccountsTable();
 
