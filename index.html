@@ -4179,84 +4179,71 @@ async function loadAdoptionFromSalesforce() {
     console.log('[ADOPT] Step 3 — raw response (first 800 chars):', JSON.stringify(raw).substring(0, 800));
     console.log('[ADOPT] Top-level keys:', Object.keys(raw || {}).join(', '));
 
-    // ── Parse: support multiple likely response shapes ──
-    // Shape A: { AdoptionDetails: { records: [ { AccountName, Module, Status, ... } ] } }
-    // Shape B: { records: [ ... ] }
-    // Shape C: [ ... ]  (plain array)
-    let records = [];
-    if (Array.isArray(raw))                              records = raw;
-    else if (Array.isArray(raw.records))                 records = raw.records;
-    else if (raw.AdoptionDetails?.records)               records = raw.AdoptionDetails.records;
-    else if (raw.AdoptionData?.records)                  records = raw.AdoptionData.records;
-    else if (raw.value && Array.isArray(raw.value))      records = raw.value;
-    // Shape D: single object with account keys
-    else if (typeof raw === 'object' && !Array.isArray(raw)) {
-      // Maybe it's already { "AccountName": { ... } }
-      const firstKey = Object.keys(raw)[0];
-      if (firstKey && typeof raw[firstKey] === 'object' && !raw[firstKey].records) {
-        ADOPTION_LIVE = raw;
-        _adoptionLoaded = true;
-        console.log('[ADOPT] Parsed as keyed object, accounts:', Object.keys(raw).length);
-        renderAdoptionPanels();
-        return;
-      }
-    }
-
+    // ── Extract records from { AdoptionDetails: { records: [...] } } ──
+    const records = raw?.AdoptionDetails?.records || raw?.records || (Array.isArray(raw) ? raw : []);
     console.log('[ADOPT] Record count:', records.length);
-    if (records.length > 0) {
-      console.log('[ADOPT] Sample record keys:', Object.keys(records[0]).join(', '));
-      console.log('[ADOPT] Sample record:', JSON.stringify(records[0]));
-    }
+    if (records.length === 0) { console.log('[ADOPT] No records — keeping static data'); return; }
 
-    if (records.length === 0) {
-      console.warn('[ADOPT] No records returned — keeping static data');
-      return;
-    }
+    // ── Module definitions: each AppCentral_App_Adoption__c record is ONE ROW PER ACCOUNT
+    //    with every module as a separate column (ERP__c, EAM__c, etc.)
+    const ADOPT_MODULES = [
+      { f:'ERP__c',                   label:'ERP',                  c:'ERP_Comment__c',                  d:'ERP_Last_Updated_Date__c' },
+      { f:'EAM__c',                   label:'EAM',                  c:'EAM_Comment__c',                  d:'EAM_Last_Updated_Date__c' },
+      { f:'EDI__c',                   label:'EDI',                  c:'EDI_Comment__c',                  d:'EDI_Last_Updated_Date__c' },
+      { f:'Insights__c',              label:'Insights',             c:'Insights_Comment__c',             d:'Insights_Last_Updated_Date__c' },
+      { f:'CRM__c',                   label:'CRM',                  c:'CRM_Comment__c',                  d:'CRM_Last_Updated_Date__c' },
+      { f:'Agents__c',                label:'Agents',               c:'Agents_Comment__c',               d:'Agents_Last_Updated_Date__c' },
+      { f:'Fixed_Assets__c',          label:'Fixed Assets',         c:'Fixed_Assets_Comment__c',         d:'Fixed_Assets_Last_Updated_Date__c' },
+      { f:'Gen_Ai__c',                label:'Gen AI',               c:'Gen_AI_Comment__c',               d:'Gen_AI_Last_Updated_Date__c' },
+      { f:'Intelligent_Workflows__c', label:'Intelligent Workflows',c:'Intelligent_Workflows_Comment__c',d:'Intelligent_Workflows_Last_Updated_Date__c' },
+      { f:'Invoice_automation__c',    label:'Invoice Automation',   c:'Invoice_automation_Comment__c',   d:'Invoice_automation_Last_Updated_Date__c' },
+      { f:'PO_Req__c',                label:'PO Requisition',       c:'PO_Req_Comment__c',               d:'PO_Req_Last_Updated_Date__c' },
+      { f:'Pay__c',                   label:'Pay',                  c:'Pay_Comment__c',                  d:'Pay_Last_Updated_Date__c' },
+      { f:'Ship__c',                  label:'Ship',                 c:'Ship_Comment__c',                 d:'Ship_Last_Updated_Date__c' },
+      { f:'Workspaces__c',            label:'Workspaces',           c:'Workspaces_Comment__c',           d:'Workspaces_Last_Updated_Date__c' },
+    ];
 
-    // ── Build ADOPTION_LIVE from flat records ──
-    // Detect field names flexibly
-    const sample = records[0];
-    const getField = (obj, ...candidates) => {
-      for (const c of candidates) {
-        if (obj[c] !== undefined && obj[c] !== null) return obj[c];
-      }
-      return null;
-    };
+    // Normalise SF IDs to 15-char for matching
+    const norm15 = id => id ? String(id).substring(0, 15).toLowerCase() : '';
 
     ADOPTION_LIVE = {};
+    let skipped = 0;
     records.forEach(rec => {
-      const accountName = getField(rec,
-        'AccountName', 'Account_Name', 'AccountName__c', 'Account__r.Name',
-        'Account_Name__c', 'Name', 'Account');
-      const module = getField(rec,
-        'Module', 'Module__c', 'ModuleName', 'Product', 'Product__c', 'AppModule__c');
-      const status = getField(rec,
-        'Adoption_Status', 'Adoption_Status__c', 'Status', 'Status__c', 'AdoptionStatus');
-      const comment = getField(rec,
-        'Comment', 'Comments', 'Comment__c', 'Comments__c', 'Notes', 'Notes__c');
-      const updated = getField(rec,
-        'LastModifiedDate', 'Last_Updated__c', 'UpdatedDate', 'CreatedDate', 'Date__c');
-      const section = getField(rec,
-        'Category', 'Category__c', 'Section', 'Section__c', 'ProductLine', 'ProductLine__c') || 'General';
+      // Match account by Salesforce ID → get display name from ACCOUNTS
+      const recId = norm15(rec.Account__c);
+      const acct  = (ACCOUNTS || []).find(a => norm15(a.id) === recId);
+      const accountName = acct ? acct.name : null;
 
-      if (!accountName || !module || !status) return; // skip incomplete records
+      if (!accountName) { skipped++; return; } // account not in synced list
+
+      const sectionLabel = rec.Bundle__c || 'AppCentral';
 
       if (!ADOPTION_LIVE[accountName]) {
         ADOPTION_LIVE[accountName] = { adoption: { sections: [] } };
       }
 
-      // Find or create section
-      let sec = ADOPTION_LIVE[accountName].adoption.sections.find(s => s.label === section);
+      // Find or create section for this Bundle
+      let sec = ADOPTION_LIVE[accountName].adoption.sections.find(s => s.label === sectionLabel);
       if (!sec) {
-        sec = { label: section, fields: [] };
+        sec = { label: sectionLabel, fields: [] };
         ADOPTION_LIVE[accountName].adoption.sections.push(sec);
       }
-      sec.fields.push({ module, status, comment: comment || '', updated: updated || '' });
+
+      // Add each module column that has a non-null status
+      ADOPT_MODULES.forEach(m => {
+        const status = rec[m.f];
+        if (!status) return;
+        sec.fields.push({
+          module:  m.label,
+          status:  status,  // normalised by computeAdoptionStats
+          comment: rec[m.c] || '',
+          updated: rec[m.d] || ''
+        });
+      });
     });
 
     _adoptionLoaded = true;
-    console.log('[ADOPT] Built ADOPTION_LIVE for', Object.keys(ADOPTION_LIVE).length, 'accounts');
-    console.log('[ADOPT] Account names:', Object.keys(ADOPTION_LIVE).slice(0, 5).join(', '));
+    console.log('[ADOPT] Built ADOPTION_LIVE for', Object.keys(ADOPTION_LIVE).length, 'accounts (' + skipped + ' skipped — ID not in synced accounts)');
 
     // Re-render adoption panel with live data
     renderAdoptionPanels();
@@ -8484,6 +8471,7 @@ function computeAdoptionStats(csmFilter) {
     const lower = raw.toLowerCase().trim();
     if (lower === 'adopted')              return 'Adopted';
     if (lower === 'adopting')             return 'Adopting';
+    if (lower === 'demo')                 return 'Adopting';  // Demo → actively engaging
     if (lower.includes('not right'))      return 'Not right timing';
     if (lower.includes('no business'))    return 'No business need';
     if (lower === 'discovery')            return 'Discovery';
