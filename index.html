@@ -3064,7 +3064,7 @@ async function loadNPSFromSalesforce() {
   if (_npsLoading) return;
   _npsLoading = true;
   try {
-    const res = await fetch(NPS_API_URL, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+    const res = await fetch(NPS_API_URL, { method:'GET' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     NPS_RAW = data?.NPSDetails?.records || [];
@@ -3166,7 +3166,7 @@ async function loadCasesFromSalesforce() {
     // Salesforce REST returns at most 2000 records per page; additional pages are
     // served via `nextRecordsUrl` on each response. If the Logic App wrapper supports
     // `?page=N` or `?offset=N` instead, we fall back to those before giving up.
-    const firstRes = await fetch(CASES_API_URL, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+    const firstRes = await fetch(CASES_API_URL, { method:'GET' });
     if (!firstRes.ok) throw new Error('HTTP ' + firstRes.status);
     const firstData = await firstRes.json();
 
@@ -3192,7 +3192,7 @@ async function loadCasesFromSalesforce() {
         urls.push(abs);
         for (const u of urls) {
           try {
-            const r = await fetch(u, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+            const r = await fetch(u, { method:'GET' });
             if (r.ok) return await r.json();
           } catch(_) {}
         }
@@ -3232,7 +3232,7 @@ async function loadCasesFromSalesforce() {
       for (const scheme of candidateSchemes) {
         try {
           const probeUrl = CASES_API_URL + scheme(1);
-          const pr = await fetch(probeUrl, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+          const pr = await fetch(probeUrl, { method:'GET' });
           if (!pr.ok) continue;
           const pd = await pr.json();
           const pp = extractPayload(pd);
@@ -3255,7 +3255,7 @@ async function loadCasesFromSalesforce() {
         while (records.length < _casesTotalSize && guard-- > 0) {
           try {
             const u = CASES_API_URL + workingScheme(page);
-            const r = await fetch(u, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+            const r = await fetch(u, { method:'GET' });
             if (!r.ok) break;
             const d = await r.json();
             const pl = extractPayload(d);
@@ -4050,7 +4050,7 @@ async function loadAccountsFromSalesforce() {
   _sfLoading = true;
   _setSFStatus('syncing');
   try {
-    const res = await fetch(SF_API_URL, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+    const res = await fetch(SF_API_URL, { method:'GET' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const records = data?.AccountDetails?.records || [];
@@ -4116,7 +4116,7 @@ async function loadReferenceFromSalesforce() {
   if (_refLoading) return;
   _refLoading = true;
   try {
-    const res = await fetch(REFERENCE_API_URL, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+    const res = await fetch(REFERENCE_API_URL, { method:'GET' });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
 
@@ -4164,10 +4164,10 @@ async function loadAdoptionFromSalesforce() {
   _adoptionLoading = true;
   try {
     console.log('[ADOPT] Step 1 — sending request to Adoption API…');
-    // Try GET first, then POST (some Logic Apps require POST)
+    // No Content-Type header on GET → avoids CORS preflight (simple request)
     let res;
     try {
-      res = await fetch(ADOPTION_API_URL, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+      res = await fetch(ADOPTION_API_URL, { method:'GET' });
       console.log('[ADOPT] Step 2 — GET response status:', res.status, res.statusText);
     } catch(fetchErr) {
       console.log('[ADOPT] GET failed (' + fetchErr.message + '), retrying with POST…');
