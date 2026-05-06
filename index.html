@@ -1669,19 +1669,43 @@ button { cursor: pointer; }
         <div id="adopt-exec-bars" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;"></div>
       </div>
 
-      <!-- Product Adoption Depth card (exec) -->
+      <!-- Exec: Adoption KPI Tiles -->
       <div style="background:#fff;border-radius:16px;padding:22px 24px;border:1px solid #e8eaf0;margin-bottom:16px;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
           <div>
-            <div style="font-size:14px;font-weight:700;color:#111827;">Product Adoption Depth</div>
-            <div style="font-size:12px;color:#6b7280;margin-top:2px;">Accounts by number of active products (Adopted + Adopting)</div>
+            <div style="font-size:15px;font-weight:800;color:#111827;letter-spacing:-.02em;">Adoption KPIs</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:2px;">Portfolio-level adoption health at a glance</div>
           </div>
-          <div style="font-size:11px;color:#9ca3af;font-weight:500;" id="adopt-exec-depth-label"></div>
+          <div style="font-size:11px;color:#9ca3af;font-weight:600;" id="exec-adoption-kpi-label">All accounts</div>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;" id="adopt-exec-depth-tiles"></div>
-        <div style="border-top:1px solid #f0f0f0;padding-top:14px;">
-          <div style="font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">All Statuses — module count across accounts</div>
-          <div id="adopt-exec-status-table" style="display:flex;flex-direction:column;gap:7px;"></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;" id="exec-adoption-kpi-tiles">
+          <div style="background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:14px;padding:16px 18px;text-align:center;color:#9ca3af;font-size:12px;">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Exec: Customer Journey -->
+      <div style="background:#fff;border-radius:16px;padding:22px 24px;border:1px solid #e8eaf0;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <div style="font-size:15px;font-weight:800;color:#111827;letter-spacing:-.02em;">Customer Journey</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:2px;">Where accounts stand in their adoption journey</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;" id="exec-adoption-journey">
+          <div style="background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:14px;padding:16px;text-align:center;color:#9ca3af;font-size:12px;">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Exec: Product Penetration Chart -->
+      <div style="background:#fff;border-radius:16px;padding:22px 24px;border:1px solid #e8eaf0;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <div style="font-size:15px;font-weight:800;color:#111827;letter-spacing:-.02em;">Product Penetration</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:2px;">% of accounts with Adopted or Adopting status — sorted by penetration</div>
+          </div>
+        </div>
+        <div id="exec-adoption-penetration">
+          <div style="color:#9ca3af;font-size:12px;padding:8px 0;">Loading…</div>
         </div>
       </div>
 
@@ -2038,7 +2062,7 @@ button { cursor: pointer; }
 
     <!-- Table -->
     <div style="background:#fff;border-radius:14px;overflow-x:auto;border:1px solid #f0f0f0;">
-      <table style="width:100%;min-width:1100px;border-collapse:collapse;" id="accounts-table">
+      <table style="width:100%;min-width:1200px;border-collapse:collapse;" id="accounts-table">
         <thead>
           <tr style="background:#F9FAFB;border-bottom:1.5px solid #f0f0f0;">
             <th onclick="sortAccounts('name')"    style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;position:sticky;left:0;z-index:3;background:#F9FAFB;box-shadow:2px 0 6px rgba(0,0,0,.06);">Account ↕</th>
@@ -2052,11 +2076,27 @@ button { cursor: pointer; }
             <th onclick="sortAccounts('renewal')" style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;">Renewal ↕</th>
             <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">🔴</th>
             <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">⭐</th>
+            <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Active Modules</th>
             <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Actions</th>
           </tr>
         </thead>
         <tbody id="accounts-tbody"></tbody>
       </table>
+    </div>
+
+    <!-- Product Adoption Grid -->
+    <div id="accounts-adoption-section" style="margin-top:24px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#111827;">Product Adoption by Account</div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:2px;">Module-level adoption status — sorted by number of active products</div>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:14px;overflow-x:auto;border:1px solid #f0f0f0;">
+        <div id="accounts-adoption-grid" style="">
+          <div style="color:#9ca3af;font-size:12px;padding:24px;text-align:center;">Connect the Adoption API to see module status by account</div>
+        </div>
+      </div>
     </div>
 
   </div><!-- end section-accounts -->
@@ -4269,7 +4309,8 @@ async function loadAdoptionFromSalesforce() {
         if (!status) return;
         sec.fields.push({
           module:  m.label,
-          status:  status,  // normalised by computeAdoptionStats
+          label:   m.label, // alias used by exec/grid functions
+          status:  status,
           comment: rec[m.c] || '',
           updated: rec[m.d] || ''
         });
@@ -4281,6 +4322,8 @@ async function loadAdoptionFromSalesforce() {
 
     // Re-render adoption panel with live data
     renderAdoptionPanels();
+    // Refresh accounts table to show active module counts
+    renderAccountsTable();
 
   } catch(err) {
     console.log('[ADOPT] ❌ ERROR — ' + err.message);
@@ -4411,11 +4454,11 @@ function renderAccountsTable() {
   const tbody = document.getElementById('accounts-tbody');
   if (!tbody) return;
   if (_sfLoading) {
-    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">⏳ Loading accounts from Salesforce…</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">⏳ Loading accounts from Salesforce…</td></tr>`;
     return;
   }
   if (!ACCOUNTS.length) {
-    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">No accounts loaded. <button onclick="loadAccountsFromSalesforce()" style="background:none;border:none;color:#1B4D3E;font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;">Sync now</button></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">No accounts loaded. <button onclick="loadAccountsFromSalesforce()" style="background:none;border:none;color:#1B4D3E;font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;">Sync now</button></td></tr>`;
     return;
   }
   let rows = getFilteredAccounts();
@@ -4445,6 +4488,35 @@ function renderAccountsTable() {
     const npsColor = a.nps >= 60 ? '#059669' : a.nps >= 40 ? '#d97706' : '#dc2626';
     const rowBg = i % 2 === 0 ? '#fff' : '#FAFAFA';
     const idx = ACCOUNTS.indexOf(a);
+
+    // Compute active modules for this account
+    const adoptionSrc = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) ? ADOPTION_LIVE : null;
+    let activeModules = 0, adoptedModules = 0, adoptingModules = 0;
+    if (adoptionSrc && adoptionSrc[a.name]) {
+      const normSt = (raw) => {
+        if (!raw) return null;
+        const l = raw.toLowerCase().trim();
+        if (l === 'adopted') return 'adopted';
+        if (l === 'adopting' || l === 'demo') return 'adopting';
+        return 'other';
+      };
+      (adoptionSrc[a.name]?.adoption?.sections || []).forEach(sec =>
+        (sec.fields || []).forEach(f => {
+          const st = normSt(f.status);
+          if (st === 'adopted') { adoptedModules++; activeModules++; }
+          else if (st === 'adopting') { adoptingModules++; activeModules++; }
+        })
+      );
+    }
+    const activeModuleCell = adoptionSrc
+      ? (activeModules > 0
+          ? `<span style="display:inline-flex;align-items:center;gap:3px;">
+               <span style="background:#D1FAE5;color:#065f46;font-size:12px;font-weight:800;padding:3px 9px;border-radius:12px;">${activeModules}</span>
+               ${adoptedModules > 0 ? `<span style="font-size:10px;color:#059669;font-weight:600;">${adoptedModules}✅</span>` : ''}
+             </span>`
+          : '<span style="color:#d1d5db;font-size:12px;">—</span>')
+      : '<span style="color:#e5e7eb;font-size:11px;" title="Load Adoption API">·</span>';
+
     return `<tr onclick="openAccount(${idx})" style="background:${rowBg};border-bottom:1px solid #f3f4f6;transition:background .12s;cursor:pointer;" onmouseenter="this.style.background='#F0FDF4';this.querySelector('.sticky-col').style.background='#F0FDF4'" onmouseleave="this.style.background='${rowBg}';this.querySelector('.sticky-col').style.background='${rowBg}'">
       <td class="sticky-col" style="padding:10px 12px;position:sticky;left:0;z-index:2;background:${rowBg};box-shadow:2px 0 6px rgba(0,0,0,.06);">
         <span style="font-size:13px;font-weight:600;color:#1B4D3E;white-space:nowrap;text-decoration:underline;text-underline-offset:2px;text-decoration-color:#c6e8da;">${a.name}</span>
@@ -4463,6 +4535,7 @@ function renderAccountsTable() {
         ${a.redProj > 0 ? `<span style="background:#FEE2E2;color:#991b1b;font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;">${a.redProj}</span>` : '<span style="color:#d1d5db;font-size:12px;">—</span>'}
       </td>
       <td style="padding:10px 12px;text-align:center;font-size:15px;">${a.ref ? '⭐' : '<span style="color:#e5e7eb;">—</span>'}</td>
+      <td style="padding:10px 12px;text-align:center;" onclick="event.stopPropagation()">${activeModuleCell}</td>
       <td style="padding:10px 12px;text-align:center;" onclick="event.stopPropagation()">
         <button onclick="openAccountTab(${idx},'activities')" style="background:#F5F6FA;border:none;color:#374151;font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;cursor:pointer;">Log</button>
       </td>
@@ -8654,11 +8727,241 @@ function renderAdoptionPanels() {
   h('adopt-exec-bars',         exec.barsHtml);
   _setSegBar('adopt-exec-bar-', exec);
 
-  // ── Product Depth ──
-  const csmDepth  = computeProductDepth(csmVal === 'all' ? null : csmVal);
-  const execDepth = computeProductDepth(null);
-  renderDepthCard('adopt-csm-depth-tiles',  'adopt-csm-depth-label',  'adopt-csm-status-table',  csmDepth);
-  renderDepthCard('adopt-exec-depth-tiles', 'adopt-exec-depth-label', 'adopt-exec-status-table', execDepth);
+  // ── Consultant Depth (keep in consultant view) ──
+  const csmDepth = computeProductDepth(csmVal === 'all' ? null : csmVal);
+  renderDepthCard('adopt-csm-depth-tiles', 'adopt-csm-depth-label', 'adopt-csm-status-table', csmDepth);
+
+  // ── Executive: new cleaner metrics ──
+  renderExecAdoptionMetrics();
+
+  // ── Accounts adoption grid ──
+  renderAccountAdoptionGrid();
+}
+
+// ── Exec Adoption Metrics ──────────────────────────────────────
+function computeExecAdoptionMetrics() {
+  const dataSource = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0)
+    ? ADOPTION_LIVE : ACCOUNT_DETAIL;
+
+  const normalise = (raw) => {
+    if (!raw) return null;
+    const l = raw.toLowerCase().trim();
+    if (l === 'adopted') return 'adopted';
+    if (l === 'adopting' || l === 'demo') return 'adopting';
+    if (l.includes('not right')) return 'nrt';
+    if (l.includes('no business')) return 'nbn';
+    if (l === 'discovery') return 'discovery';
+    return null;
+  };
+
+  const accountNames = Object.keys(dataSource).filter(k => k !== 'default');
+  const total = accountNames.length;
+  if (total === 0) return null;
+
+  const MOD_LABELS = ['ERP','EAM','EDI','Insights','CRM','Agents','Fixed Assets','Gen AI',
+    'Intelligent Workflows','Invoice Automation','PO Requisition','Pay','Ship','Workspaces'];
+  const MOD_COLORS = {
+    'ERP':'#059669','EAM':'#2563EB','EDI':'#7C3AED','Insights':'#DC2626','CRM':'#D97706',
+    'Agents':'#0891B2','Fixed Assets':'#065F46','Gen AI':'#9333EA','Intelligent Workflows':'#4F46E5',
+    'Invoice Automation':'#BE185D','PO Requisition':'#9D174D','Pay':'#047857','Ship':'#1D4ED8','Workspaces':'#374151',
+  };
+
+  const moduleCounts = {};
+  MOD_LABELS.forEach(l => moduleCounts[l] = 0);
+
+  let totalActiveModules = 0, accountsWithAnyActive = 0, count3plus = 0;
+  let fullyActive = 0, inProgress = 0, notStarted = 0;
+
+  accountNames.forEach(name => {
+    const detail = dataSource[name];
+    if (!detail?.adoption) { notStarted++; return; }
+    let adoptedCount = 0, adoptingCount = 0;
+    (detail.adoption.sections || []).forEach(sec =>
+      (sec.fields || []).forEach(f => {
+        const st = normalise(f.status);
+        if (!st) return;
+        if ((st === 'adopted' || st === 'adopting') && f.label && moduleCounts.hasOwnProperty(f.label)) {
+          moduleCounts[f.label]++;
+        }
+        if (st === 'adopted') adoptedCount++;
+        else if (st === 'adopting') adoptingCount++;
+      })
+    );
+    const active = adoptedCount + adoptingCount;
+    totalActiveModules += active;
+    if (active > 0) accountsWithAnyActive++;
+    if (active >= 3) count3plus++;
+    if (adoptedCount > 0) fullyActive++;
+    else if (adoptingCount > 0) inProgress++;
+    else notStarted++;
+  });
+
+  const avgActive = total > 0 ? (totalActiveModules / total).toFixed(1) : '0.0';
+  const pctAnyActive = total > 0 ? Math.round((accountsWithAnyActive / total) * 100) : 0;
+
+  const penetration = MOD_LABELS
+    .map(label => ({
+      label,
+      count: moduleCounts[label],
+      pct: total > 0 ? Math.round((moduleCounts[label] / total) * 100) : 0,
+      color: MOD_COLORS[label] || '#374151',
+    }))
+    .filter(p => p.count > 0)
+    .sort((a, b) => b.pct - a.pct);
+
+  return { total, avgActive, pctAnyActive, count3plus, accountsWithAnyActive,
+           penetration, journey: { fullyActive, inProgress, notStarted } };
+}
+
+function renderExecAdoptionMetrics() {
+  const h = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+  const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+  const m = computeExecAdoptionMetrics();
+  if (!m) {
+    h('exec-adoption-kpi-tiles', '<div style="color:#9ca3af;font-size:12px;grid-column:1/-1;padding:8px;">No adoption data loaded yet</div>');
+    return;
+  }
+
+  s('exec-adoption-kpi-label', `${m.total} account${m.total !== 1 ? 's' : ''} with data`);
+
+  // ── 4 KPI tiles ──
+  const kpiDefs = [
+    { icon:'📊', value: m.total,          label:'Accounts Tracked',    sub:'in adoption data',         bg:'#F0FDF4', border:'#BBF7D0', num:'#059669', txt:'#065f46' },
+    { icon:'📦', value: m.avgActive,       label:'Avg Active Products', sub:'per account',              bg:'#EFF6FF', border:'#BFDBFE', num:'#2563EB', txt:'#1d4ed8' },
+    { icon:'✅', value: m.pctAnyActive+'%',label:'Have Active Modules', sub:`${m.accountsWithAnyActive} accounts`,   bg:'#F5F3FF', border:'#DDD6FE', num:'#7C3AED', txt:'#5b21b6' },
+    { icon:'🚀', value: m.count3plus,      label:'3+ Products Active',  sub:`${m.total > 0 ? Math.round((m.count3plus/m.total)*100) : 0}% of accounts`, bg:'#FFF7ED', border:'#FED7AA', num:'#EA580C', txt:'#c2410c' },
+  ];
+  h('exec-adoption-kpi-tiles', kpiDefs.map(k => `
+    <div style="background:${k.bg};border:1.5px solid ${k.border};border-radius:14px;padding:18px 20px;">
+      <div style="font-size:22px;margin-bottom:8px;">${k.icon}</div>
+      <div style="font-size:28px;font-weight:900;color:${k.num};line-height:1;">${k.value}</div>
+      <div style="font-size:12.5px;font-weight:700;color:${k.txt};margin-top:7px;">${k.label}</div>
+      <div style="font-size:11px;color:#9ca3af;margin-top:3px;">${k.sub}</div>
+    </div>
+  `).join(''));
+
+  // ── Customer Journey ──
+  const journeyDefs = [
+    { label:'Fully Adopted',  count: m.journey.fullyActive, sub:'≥1 Adopted module',         icon:'🟢', bg:'#F0FDF4', border:'#BBF7D0', num:'#059669', txt:'#047857' },
+    { label:'In Progress',    count: m.journey.inProgress,  sub:'Adopting, none Adopted yet', icon:'🔄', bg:'#EFF6FF', border:'#BFDBFE', num:'#2563EB', txt:'#1d4ed8' },
+    { label:'Not Started',    count: m.journey.notStarted,  sub:'No active modules yet',      icon:'⬜', bg:'#F9FAFB', border:'#E5E7EB', num:'#9CA3AF', txt:'#6b7280' },
+  ];
+  h('exec-adoption-journey', journeyDefs.map(j => {
+    const pct = m.total > 0 ? Math.round((j.count / m.total) * 100) : 0;
+    return `
+      <div style="background:${j.bg};border:1.5px solid ${j.border};border-radius:14px;padding:22px 20px;text-align:center;">
+        <div style="font-size:32px;margin-bottom:6px;">${j.icon}</div>
+        <div style="font-size:36px;font-weight:900;color:${j.num};line-height:1;">${j.count}</div>
+        <div style="font-size:20px;font-weight:700;color:${j.num};margin-top:6px;opacity:.55;">${pct}%</div>
+        <div style="font-size:13px;font-weight:700;color:${j.txt};margin-top:8px;">${j.label}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:3px;">${j.sub}</div>
+      </div>`;
+  }).join(''));
+
+  // ── Product Penetration ──
+  if (m.penetration.length === 0) {
+    h('exec-adoption-penetration', '<div style="color:#9ca3af;font-size:12px;padding:4px 0;">No module data available yet</div>');
+    return;
+  }
+  h('exec-adoption-penetration', m.penetration.map(p => `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px;">
+      <span style="font-size:12.5px;font-weight:600;color:#374151;width:175px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.label}</span>
+      <div style="flex:1;height:12px;background:#f0f0f0;border-radius:6px;overflow:hidden;position:relative;">
+        <div style="height:100%;width:${p.pct}%;background:${p.color};border-radius:6px;transition:width .6s;opacity:.85;"></div>
+      </div>
+      <span style="font-size:13px;font-weight:800;color:${p.color};width:42px;text-align:right;flex-shrink:0;">${p.pct}%</span>
+      <span style="font-size:11px;color:#9ca3af;width:75px;flex-shrink:0;">${p.count} acct${p.count !== 1 ? 's' : ''}</span>
+    </div>
+  `).join(''));
+}
+
+// ── Account × Product Adoption Grid ───────────────────────────
+function renderAccountAdoptionGrid() {
+  const el = document.getElementById('accounts-adoption-grid');
+  if (!el) return;
+
+  const dataSource = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) ? ADOPTION_LIVE : null;
+  if (!dataSource || Object.keys(dataSource).length === 0) {
+    el.innerHTML = '<div style="color:#9ca3af;font-size:12.5px;padding:28px;text-align:center;">Connect the Adoption API to see module status by account</div>';
+    return;
+  }
+
+  const MODS = ['ERP','EAM','EDI','Insights','CRM','Agents','Fixed Assets','Gen AI',
+    'Intelligent Workflows','Invoice Automation','PO Requisition','Pay','Ship','Workspaces'];
+
+  const STATUS_MAP = {
+    adopted:   { bg:'#D1FAE5', color:'#065f46', short:'A', label:'Adopted' },
+    adopting:  { bg:'#DBEAFE', color:'#1d4ed8', short:'P', label:'In Progress' },
+    nrt:       { bg:'#FEF3C7', color:'#92400e', short:'D', label:'Not Right Timing' },
+    nbn:       { bg:'#FEE2E2', color:'#991b1b', short:'N', label:'No Business Need' },
+    discovery: { bg:'#EDE9FE', color:'#5b21b6', short:'?', label:'Discovery' },
+  };
+
+  const normSt = (raw) => {
+    if (!raw) return null;
+    const l = raw.toLowerCase().trim();
+    if (l === 'adopted') return 'adopted';
+    if (l === 'adopting' || l === 'demo') return 'adopting';
+    if (l.includes('not right')) return 'nrt';
+    if (l.includes('no business')) return 'nbn';
+    if (l === 'discovery') return 'discovery';
+    return null;
+  };
+
+  // Build matrix
+  const accountRows = Object.keys(dataSource).filter(k => k !== 'default').map(name => {
+    const modStatus = {};
+    MODS.forEach(m => modStatus[m] = null);
+    (dataSource[name]?.adoption?.sections || []).forEach(sec =>
+      (sec.fields || []).forEach(f => {
+        const st = normSt(f.status);
+        if (st && MODS.includes(f.label)) modStatus[f.label] = st;
+      })
+    );
+    const active = Object.values(modStatus).filter(s => s === 'adopted' || s === 'adopting').length;
+    const adopted = Object.values(modStatus).filter(s => s === 'adopted').length;
+    return { name, modStatus, active, adopted };
+  }).sort((a, b) => b.active - a.active || b.adopted - a.adopted);
+
+  const CW = 34; // cell width px
+  let html = `<table style="border-collapse:collapse;font-size:11px;width:100%;min-width:${220 + MODS.length * CW + 60}px;">
+    <thead>
+      <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;">
+        <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;min-width:210px;position:sticky;left:0;background:#F9FAFB;z-index:2;box-shadow:2px 0 4px rgba(0,0,0,.05);">Account</th>
+        <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:700;color:#059669;min-width:52px;">Active</th>
+        ${MODS.map(m => `<th style="padding:6px 2px;text-align:center;font-size:9.5px;font-weight:600;color:#6b7280;width:${CW}px;" title="${m}"><span style="writing-mode:vertical-lr;transform:rotate(180deg);display:inline-block;padding:2px 0;line-height:1.2;">${m}</span></th>`).join('')}
+      </tr>
+    </thead>
+    <tbody>`;
+
+  accountRows.forEach((r, i) => {
+    const rowBg = i % 2 === 0 ? '#fff' : '#FAFAFA';
+    html += `<tr style="background:${rowBg};border-bottom:1px solid #f3f4f6;">
+      <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#1B4D3E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px;position:sticky;left:0;background:${rowBg};z-index:1;box-shadow:2px 0 4px rgba(0,0,0,.04);">${r.name}</td>
+      <td style="padding:7px 6px;text-align:center;">
+        ${r.active > 0 ? `<span style="background:#D1FAE5;color:#065f46;font-size:12px;font-weight:800;padding:2px 8px;border-radius:10px;">${r.active}</span>` : '<span style="color:#e5e7eb;">—</span>'}
+      </td>
+      ${MODS.map(m => {
+        const st = r.modStatus[m];
+        if (!st) return `<td style="padding:3px 2px;text-align:center;"><span style="color:#e5e7eb;font-size:12px;">·</span></td>`;
+        const cfg = STATUS_MAP[st];
+        return `<td style="padding:3px 2px;text-align:center;" title="${m}: ${cfg.label}"><div style="background:${cfg.bg};color:${cfg.color};font-size:10px;font-weight:700;border-radius:4px;padding:3px 0;width:26px;margin:0 auto;">${cfg.short}</div></td>`;
+      }).join('')}
+    </tr>`;
+  });
+
+  html += `</tbody></table>
+    <div style="display:flex;gap:18px;padding:10px 14px;border-top:1px solid #f0f0f0;flex-wrap:wrap;background:#FAFBFD;border-radius:0 0 14px 14px;">
+      ${Object.entries(STATUS_MAP).map(([, cfg]) => `
+        <span style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:${cfg.color};">
+          <span style="background:${cfg.bg};color:${cfg.color};font-size:10px;font-weight:700;border-radius:4px;padding:2px 7px;">${cfg.short}</span>
+          ${cfg.label}
+        </span>`).join('')}
+      <span style="font-size:11px;color:#d1d5db;">· = no data</span>
+    </div>`;
+
+  el.innerHTML = html;
 }
 
 // ── Product Depth computation ──────────────────────────────────
