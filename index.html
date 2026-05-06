@@ -3970,6 +3970,7 @@ const SF_API_URL    = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azu
 const NPS_API_URL   = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/GetNPSdata/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=DYbRiCKo1-ZRJmt4EHDTJCl6va7PNRpC7cahvPHdgfY';
 const CASES_API_URL     = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/Getcasedata/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=CVoCCUlI3veHGWyuykBYk_0etVLVM-fl1yrhMGCGYok';
 const REFERENCE_API_URL = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/GetReference/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=KQCaebRDz_nA6rif0juAkf6J5n6JIm5vgowFYJKtQkQ';
+const ADOPTION_API_URL  = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/AdoptionData/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=HkesKSXfwVffF-1oM61JhX9wQ7uXk2ptD5Yw7oG8sZM';
 
 // (variables declared earlier — see top of script)
 
@@ -4071,6 +4072,7 @@ async function loadAccountsFromSalesforce() {
     loadNPSFromSalesforce();      // load NPS once accounts are ready
     loadCasesFromSalesforce();    // load Cases once account map is ready
     loadReferenceFromSalesforce(); // load Reference count
+    loadAdoptionFromSalesforce();  // load Adoption data for the panel
   } catch(err) {
     console.error('SF sync error:', err);
     const hint = err.message === 'Failed to fetch'
@@ -4148,6 +4150,115 @@ async function loadReferenceFromSalesforce() {
     _setSFStatus('warn', hint);
   } finally {
     _refLoading = false;
+  }
+}
+
+// ── Adoption API integration ──
+// ADOPTION_LIVE holds parsed data: { "Account Name" → { adoption: { sections: [...] } } }
+var ADOPTION_LIVE = {};
+var _adoptionLoaded = false;
+var _adoptionLoading = false;
+
+async function loadAdoptionFromSalesforce() {
+  if (_adoptionLoading) return;
+  _adoptionLoading = true;
+  try {
+    console.log('[ADOPT] Fetching adoption data…');
+    const res = await fetch(ADOPTION_API_URL, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const raw = await res.json();
+    console.log('[ADOPT] Raw response:', JSON.stringify(raw).substring(0, 600));
+
+    // ── Parse: support multiple likely response shapes ──
+    // Shape A: { AdoptionDetails: { records: [ { AccountName, Module, Status, ... } ] } }
+    // Shape B: { records: [ ... ] }
+    // Shape C: [ ... ]  (plain array)
+    let records = [];
+    if (Array.isArray(raw))                              records = raw;
+    else if (Array.isArray(raw.records))                 records = raw.records;
+    else if (raw.AdoptionDetails?.records)               records = raw.AdoptionDetails.records;
+    else if (raw.AdoptionData?.records)                  records = raw.AdoptionData.records;
+    else if (raw.value && Array.isArray(raw.value))      records = raw.value;
+    // Shape D: single object with account keys
+    else if (typeof raw === 'object' && !Array.isArray(raw)) {
+      // Maybe it's already { "AccountName": { ... } }
+      const firstKey = Object.keys(raw)[0];
+      if (firstKey && typeof raw[firstKey] === 'object' && !raw[firstKey].records) {
+        ADOPTION_LIVE = raw;
+        _adoptionLoaded = true;
+        console.log('[ADOPT] Parsed as keyed object, accounts:', Object.keys(raw).length);
+        renderAdoptionPanels();
+        return;
+      }
+    }
+
+    console.log('[ADOPT] Record count:', records.length);
+    if (records.length > 0) {
+      console.log('[ADOPT] Sample record keys:', Object.keys(records[0]).join(', '));
+      console.log('[ADOPT] Sample record:', JSON.stringify(records[0]));
+    }
+
+    if (records.length === 0) {
+      console.warn('[ADOPT] No records returned — keeping static data');
+      return;
+    }
+
+    // ── Build ADOPTION_LIVE from flat records ──
+    // Detect field names flexibly
+    const sample = records[0];
+    const getField = (obj, ...candidates) => {
+      for (const c of candidates) {
+        if (obj[c] !== undefined && obj[c] !== null) return obj[c];
+      }
+      return null;
+    };
+
+    ADOPTION_LIVE = {};
+    records.forEach(rec => {
+      const accountName = getField(rec,
+        'AccountName', 'Account_Name', 'AccountName__c', 'Account__r.Name',
+        'Account_Name__c', 'Name', 'Account');
+      const module = getField(rec,
+        'Module', 'Module__c', 'ModuleName', 'Product', 'Product__c', 'AppModule__c');
+      const status = getField(rec,
+        'Adoption_Status', 'Adoption_Status__c', 'Status', 'Status__c', 'AdoptionStatus');
+      const comment = getField(rec,
+        'Comment', 'Comments', 'Comment__c', 'Comments__c', 'Notes', 'Notes__c');
+      const updated = getField(rec,
+        'LastModifiedDate', 'Last_Updated__c', 'UpdatedDate', 'CreatedDate', 'Date__c');
+      const section = getField(rec,
+        'Category', 'Category__c', 'Section', 'Section__c', 'ProductLine', 'ProductLine__c') || 'General';
+
+      if (!accountName || !module || !status) return; // skip incomplete records
+
+      if (!ADOPTION_LIVE[accountName]) {
+        ADOPTION_LIVE[accountName] = { adoption: { sections: [] } };
+      }
+
+      // Find or create section
+      let sec = ADOPTION_LIVE[accountName].adoption.sections.find(s => s.label === section);
+      if (!sec) {
+        sec = { label: section, fields: [] };
+        ADOPTION_LIVE[accountName].adoption.sections.push(sec);
+      }
+      sec.fields.push({ module, status, comment: comment || '', updated: updated || '' });
+    });
+
+    _adoptionLoaded = true;
+    console.log('[ADOPT] Built ADOPTION_LIVE for', Object.keys(ADOPTION_LIVE).length, 'accounts');
+    console.log('[ADOPT] Account names:', Object.keys(ADOPTION_LIVE).slice(0, 5).join(', '));
+
+    // Re-render adoption panel with live data
+    renderAdoptionPanels();
+
+  } catch(err) {
+    const hint = err.message === 'Failed to fetch'
+      ? 'Adoption API — CORS or network block'
+      : 'Adoption API — ' + err.message;
+    console.error('[ADOPT] Error:', hint);
+    // Don't set error status — adoption panel keeps showing static data gracefully
+  } finally {
+    _adoptionLoading = false;
   }
 }
 
@@ -8344,7 +8455,8 @@ updateCasesBadge();
 
 
 // ══════════════════════════════════════════════════════════
-// ADOPTION STATS — computed from ACCOUNT_DETAIL
+// ADOPTION STATS — prefers live ADOPTION_LIVE (from API),
+//                  falls back to static ACCOUNT_DETAIL
 // ══════════════════════════════════════════════════════════
 
 function computeAdoptionStats(csmFilter) {
@@ -8372,9 +8484,14 @@ function computeAdoptionStats(csmFilter) {
   // sectionMap: { label → { adopted, adopting, nrt, nbn, discovery, total } }
   const sectionMap = {};
 
-  const allKeys = Object.keys(ACCOUNT_DETAIL).filter(k => k !== 'default');
+  // Use live API data if loaded, otherwise fall back to static ACCOUNT_DETAIL
+  const dataSource = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0)
+    ? ADOPTION_LIVE
+    : ACCOUNT_DETAIL;
+
+  const allKeys = Object.keys(dataSource).filter(k => k !== 'default');
   allKeys.forEach(key => {
-    const detail = ACCOUNT_DETAIL[key];
+    const detail = dataSource[key];
     if (!detail || !detail.adoption) return;
     if (csmFilter && csmFilter !== 'all') {
       const acct = (ACCOUNTS || []).find(a => a.name === key);
@@ -8461,6 +8578,14 @@ function _setSegBar(prefix, stats) {
 function renderAdoptionPanels() {
   const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   const h = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML  = v; };
+
+  // Show whether data is live from Salesforce or static fallback
+  const isLive = _adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0;
+  const dataTag = isLive
+    ? '✅ Live from Salesforce'
+    : '⚠️ Sample data · connect Adoption API';
+  s('adopt-csm-subtitle',  `My portfolio · ${dataTag}`);
+  s('adopt-exec-subtitle', `All accounts · ${dataTag}`);
 
   // ── Consultant view ──
   const csmSel = document.getElementById('csm-filter');
