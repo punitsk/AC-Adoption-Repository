@@ -4163,11 +4163,21 @@ async function loadAdoptionFromSalesforce() {
   if (_adoptionLoading) return;
   _adoptionLoading = true;
   try {
-    console.log('[ADOPT] Fetching adoption data…');
-    const res = await fetch(ADOPTION_API_URL, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+    console.log('[ADOPT] Step 1 — sending request to Adoption API…');
+    // Try GET first, then POST (some Logic Apps require POST)
+    let res;
+    try {
+      res = await fetch(ADOPTION_API_URL, { method:'GET', headers:{ 'Content-Type':'application/json' } });
+      console.log('[ADOPT] Step 2 — GET response status:', res.status, res.statusText);
+    } catch(fetchErr) {
+      console.log('[ADOPT] GET failed (' + fetchErr.message + '), retrying with POST…');
+      res = await fetch(ADOPTION_API_URL, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: '{}' });
+      console.log('[ADOPT] Step 2b — POST response status:', res.status, res.statusText);
+    }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const raw = await res.json();
-    console.log('[ADOPT] Raw response:', JSON.stringify(raw).substring(0, 600));
+    console.log('[ADOPT] Step 3 — raw response (first 800 chars):', JSON.stringify(raw).substring(0, 800));
+    console.log('[ADOPT] Top-level keys:', Object.keys(raw || {}).join(', '));
 
     // ── Parse: support multiple likely response shapes ──
     // Shape A: { AdoptionDetails: { records: [ { AccountName, Module, Status, ... } ] } }
@@ -4252,12 +4262,13 @@ async function loadAdoptionFromSalesforce() {
     renderAdoptionPanels();
 
   } catch(err) {
-    const hint = err.message === 'Failed to fetch'
-      ? 'Adoption API — CORS or network block'
-      : 'Adoption API — ' + err.message;
-    console.error('[ADOPT] Error:', hint);
-    // Don't set error status — adoption panel keeps showing static data gracefully
+    console.log('[ADOPT] ❌ ERROR — ' + err.message);
+    console.log('[ADOPT] ❌ Full error:', err);
+    if (err.message === 'Failed to fetch') {
+      console.log('[ADOPT] ❌ This is a CORS or network block. The Adoption Logic App needs Access-Control-Allow-Origin: * on its Response action (same fix as the accounts API).');
+    }
   } finally {
+    console.log('[ADOPT] Step 4 — done. _adoptionLoaded=' + _adoptionLoaded);
     _adoptionLoading = false;
   }
 }
