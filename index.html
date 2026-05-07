@@ -4036,20 +4036,24 @@ function navTo(section) {
 
 function navToAccounts(filter) {
   // Reset all filters first
-  document.getElementById('acct-search').value  = '';
-  document.getElementById('acct-csm').value     = '';
-  document.getElementById('acct-product').value = '';
-  document.getElementById('acct-health').value  = '';
-  document.getElementById('acct-stale').checked = false;
-  document.getElementById('acct-red').checked   = false;
+  const ge = id => document.getElementById(id);
+  if (ge('acct-search'))          ge('acct-search').value = '';
+  if (ge('acct-csm'))             ge('acct-csm').value = '';
+  if (ge('acct-product'))         ge('acct-product').value = '';
+  if (ge('acct-adoption-status')) ge('acct-adoption-status').value = '';
 
-  // Apply the relevant filter
-  if (filter === 'healthy') document.getElementById('acct-health').value = 'Healthy';
-  if (filter === 'stale')   document.getElementById('acct-stale').checked = true;
-  if (filter === 'red')     document.getElementById('acct-red').checked   = true;
-  if (filter === 'ref')     document.getElementById('acct-search').value  = '';  // handled by sort below
-  if (filter === 'arr')     { acctSortKey = 'arr'; acctSortAsc = false; }
-  else                      { acctSortKey = 'health'; acctSortAsc = true; }
+  // Apply the relevant adoption filter
+  if (filter === 'healthy' || filter === 'adopted') {
+    if (ge('acct-adoption-status')) ge('acct-adoption-status').value = 'adopted';
+  }
+  if (filter === 'inprogress') {
+    if (ge('acct-adoption-status')) ge('acct-adoption-status').value = 'inprogress';
+  }
+  if (filter === 'notstarted') {
+    if (ge('acct-adoption-status')) ge('acct-adoption-status').value = 'notstarted';
+  }
+  if (filter === 'arr') { acctSortKey = 'arr'; acctSortAsc = false; }
+  else                  { acctSortKey = 'name'; acctSortAsc = true; }
 
   // For referenceable, we filter in JS after render
   window._acctRefFilter = (filter === 'ref');
