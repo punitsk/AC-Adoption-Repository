@@ -1194,7 +1194,7 @@ button { cursor: pointer; }
   </header>
 
   <!-- ══ SECTION: DASHBOARD ══ -->
-  <div id="section-dashboard" style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;">
+  <div id="section-dashboard" style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;overflow:hidden;">
   <!-- Filter Bar -->
   <div class="filter-bar">
     <div class="view-toggle">
@@ -2111,14 +2111,14 @@ button { cursor: pointer; }
       <table style="width:100%;min-width:900px;border-collapse:collapse;" id="accounts-table">
         <thead>
           <tr style="background:#F9FAFB;border-bottom:1.5px solid #f0f0f0;">
-            <th onclick="sortAccounts('name')"    style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;position:sticky;left:0;z-index:3;background:#F9FAFB;box-shadow:2px 0 6px rgba(0,0,0,.06);">Account ↕</th>
-            <th onclick="sortAccounts('product')" style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;">Primary Product ↕</th>
-            <th onclick="sortAccounts('csm')"     style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;">Consultant ↕</th>
-            <th onclick="sortAccounts('am')"      style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;">Account Manager ↕</th>
-            <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Adoption Status</th>
-            <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Active Modules</th>
-            <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;">Active Products</th>
-            <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Actions</th>
+            <th onclick="sortAccounts('name')"    style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;position:sticky;left:0;z-index:3;background:#F9FAFB;box-shadow:2px 0 6px rgba(0,0,0,.06);min-width:160px;max-width:200px;">Account ↕</th>
+            <th onclick="sortAccounts('product')" style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;min-width:100px;">Primary Product ↕</th>
+            <th onclick="sortAccounts('csm')"     style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;min-width:110px;">Consultant ↕</th>
+            <th onclick="sortAccounts('am')"      style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;min-width:130px;">Account Manager ↕</th>
+            <th style="padding:11px 14px;text-align:center;font-size:12px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:140px;">Adoption Status</th>
+            <th style="padding:11px 14px;text-align:center;font-size:12px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:90px;">Active Modules</th>
+            <th style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;min-width:220px;">Active Products</th>
+            <th style="padding:11px 14px;text-align:center;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;min-width:70px;">Actions</th>
           </tr>
         </thead>
         <tbody id="accounts-tbody"></tbody>
@@ -3102,6 +3102,7 @@ function applyFilters() {
   updateBanner();
   renderChips();
   renderDashboard();
+  renderAdoptionPanels(); // keep adoption stats in sync with consultant/product filter
 }
 
 // Product label normalizer — supports legacy lowercase codes ('erp') AND exact product values ('ERP', 'Routing', etc.)
@@ -4561,29 +4562,29 @@ function renderAccountsTable() {
 
     // Active product tags (max 4 shown)
     const tagHtml = activeProductNames.length > 0
-      ? activeProductNames.slice(0, 4).map(p =>
-          `<span style="font-size:10px;font-weight:600;background:${p.status==='adopted'?'#D1FAE5':'#DBEAFE'};color:${p.status==='adopted'?'#065f46':'#1d4ed8'};padding:2px 7px;border-radius:8px;white-space:nowrap;">${p.label}</span>`
-        ).join('') + (activeProductNames.length > 4 ? `<span style="font-size:10px;color:#9ca3af;font-weight:600;">+${activeProductNames.length-4}</span>` : '')
-      : (adoptionSrc ? '<span style="color:#d1d5db;font-size:11px;">—</span>' : '<span style="color:#e5e7eb;font-size:11px;" title="Connect Adoption API">·</span>');
+      ? activeProductNames.slice(0, 5).map(p =>
+          `<span style="font-size:11.5px;font-weight:600;background:${p.status==='adopted'?'#D1FAE5':'#DBEAFE'};color:${p.status==='adopted'?'#065f46':'#1d4ed8'};padding:3px 9px;border-radius:8px;white-space:nowrap;">${p.label}</span>`
+        ).join('') + (activeProductNames.length > 5 ? `<span style="font-size:11.5px;color:#9ca3af;font-weight:600;">+${activeProductNames.length-5}</span>` : '')
+      : (adoptionSrc ? '<span style="color:#d1d5db;font-size:13px;">—</span>' : '<span style="color:#e5e7eb;font-size:12px;" title="Connect Adoption API">·</span>');
 
     return `<tr onclick="openAccount(${idx})" style="background:${rowBg};border-bottom:1px solid #f3f4f6;transition:background .12s;cursor:pointer;" onmouseenter="this.style.background='#F0FDF4';this.querySelector('.sticky-col').style.background='#F0FDF4'" onmouseleave="this.style.background='${rowBg}';this.querySelector('.sticky-col').style.background='${rowBg}'">
-      <td class="sticky-col" style="padding:10px 12px;position:sticky;left:0;z-index:2;background:${rowBg};box-shadow:2px 0 6px rgba(0,0,0,.06);">
-        <span style="font-size:13px;font-weight:600;color:#1B4D3E;white-space:nowrap;text-decoration:underline;text-underline-offset:2px;text-decoration-color:#c6e8da;">${a.name}</span>
+      <td class="sticky-col" style="padding:11px 14px;position:sticky;left:0;z-index:2;background:${rowBg};box-shadow:2px 0 6px rgba(0,0,0,.06);max-width:200px;min-width:160px;">
+        <span style="font-size:13.5px;font-weight:600;color:#1B4D3E;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:underline;text-underline-offset:2px;text-decoration-color:#c6e8da;" title="${a.name}">${a.name}</span>
       </td>
-      <td style="padding:10px 12px;font-size:12.5px;color:#374151;font-weight:600;">${a.product}</td>
-      <td style="padding:10px 12px;font-size:12.5px;color:#374151;">${a.csm}</td>
-      <td style="padding:10px 12px;font-size:12.5px;color:#374151;">${a.am}</td>
-      <td style="padding:10px 12px;text-align:center;">
-        <span style="font-size:11px;font-weight:700;background:${journeyBg};color:${journeyColor};padding:4px 10px;border-radius:20px;white-space:nowrap;">${journeyStatus}</span>
+      <td style="padding:11px 14px;font-size:13px;color:#374151;font-weight:600;white-space:nowrap;">${a.product}</td>
+      <td style="padding:11px 14px;font-size:13px;color:#374151;white-space:nowrap;">${a.csm}</td>
+      <td style="padding:11px 14px;font-size:13px;color:#374151;white-space:nowrap;">${a.am}</td>
+      <td style="padding:11px 14px;text-align:center;">
+        <span style="font-size:12px;font-weight:700;background:${journeyBg};color:${journeyColor};padding:5px 12px;border-radius:20px;white-space:nowrap;">${journeyStatus}</span>
       </td>
-      <td style="padding:10px 12px;text-align:center;">
-        ${activeTotal > 0 ? `<span style="background:#D1FAE5;color:#065f46;font-size:13px;font-weight:900;padding:3px 11px;border-radius:12px;">${activeTotal}</span>` : '<span style="color:#d1d5db;font-size:12px;">—</span>'}
+      <td style="padding:11px 14px;text-align:center;">
+        ${activeTotal > 0 ? `<span style="background:#D1FAE5;color:#065f46;font-size:15px;font-weight:900;padding:3px 12px;border-radius:12px;">${activeTotal}</span>` : '<span style="color:#d1d5db;font-size:13px;">—</span>'}
       </td>
-      <td style="padding:10px 12px;">
-        <div style="display:flex;flex-wrap:wrap;gap:4px;">${tagHtml}</div>
+      <td style="padding:11px 14px;">
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">${tagHtml}</div>
       </td>
-      <td style="padding:10px 12px;text-align:center;" onclick="event.stopPropagation()">
-        <button onclick="openAccountTab(${idx},'activities')" style="background:#F5F6FA;border:none;color:#374151;font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;cursor:pointer;">View</button>
+      <td style="padding:11px 14px;text-align:center;" onclick="event.stopPropagation()">
+        <button onclick="openAccountTab(${idx},'activities')" style="background:#F0FDF4;border:1.5px solid #BBF7D0;color:#065f46;font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px;cursor:pointer;">View</button>
       </td>
     </tr>`;
   }).join('');
