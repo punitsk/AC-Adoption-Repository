@@ -3073,10 +3073,13 @@ let _casesTotalSize = 0;
 
 function switchView(view) {
   currentView = view;
-  const csmView = document.getElementById('consultant-view');
+  const csmView    = document.getElementById('consultant-view');
   const leaderView = document.getElementById('leadership-view');
-  const btnCsm = document.getElementById('btn-consultant');
-  const btnLeader = document.getElementById('btn-leadership');
+  const btnCsm     = document.getElementById('btn-consultant');
+  const btnLeader  = document.getElementById('btn-leadership');
+  // .content wraps consultant-view and has flex:1 — hide it when exec view is
+  // active so it doesn't occupy the remaining space and push leadership-view down.
+  const contentDiv = document.querySelector('#section-dashboard .content');
 
   if (view === 'consultant') {
     csmView.classList.remove('hidden');
@@ -3084,12 +3087,14 @@ function switchView(view) {
     csmView.classList.add('fade-in');
     btnCsm.classList.add('active');
     btnLeader.classList.remove('active');
+    if (contentDiv) contentDiv.style.display = '';          // restore flex:1
   } else {
     leaderView.classList.remove('hidden');
     csmView.classList.add('hidden');
     leaderView.classList.add('fade-in');
     btnLeader.classList.add('active');
     btnCsm.classList.remove('active');
+    if (contentDiv) contentDiv.style.display = 'none';      // collapse so leadership-view fills space
   }
   updateBanner();
   setTimeout(() => {
