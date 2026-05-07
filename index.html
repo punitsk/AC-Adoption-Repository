@@ -3997,7 +3997,10 @@ function renderDashboardUpcoming() {
   }).join('');
 }
 
-applyFilters();
+// Initial render — skipping renderAdoptionPanels() here because
+// ACCOUNT_DETAIL and ALL_SECTIONS are declared further below.
+// renderAdoptionPanels() is called explicitly after all data declarations (~line 6873).
+updateBanner(); renderChips(); renderDashboard();
 
 // ══════════════════════════════
 // NAVIGATION
