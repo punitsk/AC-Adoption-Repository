@@ -193,7 +193,7 @@ button { cursor: pointer; }
 }
 
 /* ── Main ── */
-.main { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
 
 /* Topbar */
 .topbar {
@@ -1601,6 +1601,52 @@ button { cursor: pointer; }
         </div>
       </div>
 
+      <!-- Exec: Strategic KPI Focus Areas -->
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:18px;" id="exec-kpi-focus-row">
+        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;padding:14px 14px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 12px rgba(52,211,153,.12)'" onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+          <div style="font-size:18px;margin-bottom:6px;">🚀</div>
+          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Customer Onboarding</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">(AppCentral)</div>
+          <div style="font-size:20px;font-weight:900;color:#1B4D3E;margin-top:8px;line-height:1;" id="exec-kpi-onboarding">—</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">accounts total</div>
+        </div>
+        <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:13px;padding:14px 14px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onmouseenter="this.style.borderColor='#F59E0B';this.style.boxShadow='0 2px 12px rgba(245,158,11,.15)'" onmouseleave="this.style.borderColor='#FDE68A';this.style.boxShadow='none'">
+          <div style="font-size:18px;margin-bottom:6px;">📈</div>
+          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Drive Adoption</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">& Retention</div>
+          <div style="font-size:20px;font-weight:900;color:#D97706;margin-top:8px;line-height:1;" id="exec-kpi-adoption">—</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">active accounts</div>
+        </div>
+        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;padding:14px 14px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onmouseenter="this.style.borderColor='#818CF8';this.style.boxShadow='0 2px 12px rgba(129,140,248,.12)'" onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+          <div style="font-size:18px;margin-bottom:6px;">🔍</div>
+          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Identify Usage</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">Gaps</div>
+          <div style="font-size:20px;font-weight:900;color:#4F46E5;margin-top:8px;line-height:1;" id="exec-kpi-gaps">—</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">not started</div>
+        </div>
+        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;padding:14px 14px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 12px rgba(52,211,153,.12)'" onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+          <div style="font-size:18px;margin-bottom:6px;">🤝</div>
+          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Upsell & Cross-sell</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">with AMs</div>
+          <div style="font-size:20px;font-weight:900;color:#059669;margin-top:8px;line-height:1;" id="exec-kpi-upsell">—</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">1-product accounts</div>
+        </div>
+        <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:13px;padding:14px 14px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onmouseenter="this.style.borderColor='#F59E0B';this.style.boxShadow='0 2px 12px rgba(245,158,11,.15)'" onmouseleave="this.style.borderColor='#FDE68A';this.style.boxShadow='none'">
+          <div style="font-size:18px;margin-bottom:6px;">⭐</div>
+          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Customer</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">Advocacy</div>
+          <div style="font-size:20px;font-weight:900;color:#D97706;margin-top:8px;line-height:1;" id="exec-kpi-advocacy">—</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">3+ products</div>
+        </div>
+        <div style="background:#F0F9FF;border:1.5px solid #BAE6FD;border-radius:13px;padding:14px 14px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onmouseenter="this.style.borderColor='#0EA5E9';this.style.boxShadow='0 2px 12px rgba(14,165,233,.12)'" onmouseleave="this.style.borderColor='#BAE6FD';this.style.boxShadow='none'">
+          <div style="font-size:18px;margin-bottom:6px;">🤖</div>
+          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">AI Agent</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">Adoption</div>
+          <div style="font-size:20px;font-weight:900;color:#0284C7;margin-top:8px;line-height:1;" id="exec-kpi-ai">—</div>
+          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">Gen AI + Agents</div>
+        </div>
+      </div>
+
       <!-- Exec: Product Adoption Hero (redesigned) -->
       <div style="background:linear-gradient(135deg,#0E2A22 0%,#1B4D3E 100%);border-radius:18px;padding:28px 30px;margin-bottom:18px;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(11,31,25,.25);">
         <!-- Decorative circles -->
@@ -1973,27 +2019,31 @@ button { cursor: pointer; }
       </div>
     </div>
 
-    <!-- Account summary tiles -->
+    <!-- Adoption summary tiles -->
     <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;">
       <div style="background:#1B4D3E;border-radius:12px;padding:14px 16px;">
-        <div style="font-size:10.5px;font-weight:600;color:#a7f3d0;text-transform:uppercase;letter-spacing:.5px;">Total</div>
+        <div style="font-size:10.5px;font-weight:600;color:#a7f3d0;text-transform:uppercase;letter-spacing:.5px;">Total Accounts</div>
         <div id="sf-tile-total" style="font-size:26px;font-weight:800;color:#fff;margin-top:4px;">—</div>
       </div>
-      <div style="background:#fff;border-radius:12px;padding:14px 16px;border:1.5px solid #e5e7eb;">
-        <div style="font-size:10.5px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">Healthy</div>
-        <div id="sf-tile-healthy" style="font-size:26px;font-weight:800;color:#059669;margin-top:4px;">—</div>
+      <div style="background:#F0FDF4;border-radius:12px;padding:14px 16px;border:1.5px solid #BBF7D0;">
+        <div style="font-size:10.5px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">✅ Fully Adopted</div>
+        <div id="acct-tile-adopted" style="font-size:26px;font-weight:800;color:#059669;margin-top:4px;">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:2px;">≥1 module adopted</div>
       </div>
-      <div style="background:#fff;border-radius:12px;padding:14px 16px;border:1.5px solid #FDE68A;">
-        <div style="font-size:10.5px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">At-Risk</div>
-        <div id="sf-tile-atrisk" style="font-size:26px;font-weight:800;color:#d97706;margin-top:4px;">—</div>
+      <div style="background:#EFF6FF;border-radius:12px;padding:14px 16px;border:1.5px solid #BFDBFE;">
+        <div style="font-size:10.5px;font-weight:600;color:#1d4ed8;text-transform:uppercase;letter-spacing:.5px;">🔄 In Progress</div>
+        <div id="acct-tile-inprogress" style="font-size:26px;font-weight:800;color:#2563eb;margin-top:4px;">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:2px;">adopting, none done</div>
       </div>
-      <div style="background:#fff;border-radius:12px;padding:14px 16px;border:1.5px solid #FECACA;">
-        <div style="font-size:10.5px;font-weight:600;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;">Churn Risk</div>
-        <div id="sf-tile-churn" style="font-size:26px;font-weight:800;color:#dc2626;margin-top:4px;">—</div>
+      <div style="background:#F9FAFB;border-radius:12px;padding:14px 16px;border:1.5px solid #e5e7eb;">
+        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">⬜ Not Started</div>
+        <div id="acct-tile-notstarted" style="font-size:26px;font-weight:800;color:#9ca3af;margin-top:4px;">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:2px;">no active modules</div>
       </div>
-      <div style="background:#fff;border-radius:12px;padding:14px 16px;border:1.5px solid #e5e7eb;">
-        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Total ARR</div>
-        <div id="sf-tile-arr" style="font-size:26px;font-weight:800;color:#1B4D3E;margin-top:4px;">—</div>
+      <div style="background:#F5F3FF;border-radius:12px;padding:14px 16px;border:1.5px solid #DDD6FE;">
+        <div style="font-size:10.5px;font-weight:600;color:#5b21b6;text-transform:uppercase;letter-spacing:.5px;">📦 Avg Active</div>
+        <div id="acct-tile-avg" style="font-size:26px;font-weight:800;color:#7C3AED;margin-top:4px;">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:2px;">products per account</div>
       </div>
     </div>
 
@@ -2027,30 +2077,16 @@ button { cursor: pointer; }
         </select>
         <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10px;color:#6b7280;pointer-events:none;">▾</span>
       </div>
-      <!-- Health -->
+      <!-- Adoption Status filter -->
       <div style="position:relative;">
-        <select id="acct-health" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:7px 30px 7px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:140px;">
-          <option value="">All Temperament</option>
-          <option value="Green">🟢 Green</option>
-          <option value="Yellow">🟡 Yellow</option>
-          <option value="Orange">🟠 Orange</option>
-          <option value="Red">🔴 Red</option>
-          <option value="Black">⚫ Black</option>
-          <option value="Blue">🔵 Blue</option>
-          <option value="Unknown">❓ Unknown</option>
+        <select id="acct-adoption-status" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:7px 30px 7px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:160px;">
+          <option value="">All Adoption Statuses</option>
+          <option value="adopted">✅ Fully Adopted</option>
+          <option value="inprogress">🔄 In Progress</option>
+          <option value="notstarted">⬜ Not Started</option>
         </select>
         <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10px;color:#6b7280;pointer-events:none;">▾</span>
       </div>
-      <!-- Stale toggle -->
-      <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;">
-        <input type="checkbox" id="acct-stale" onchange="filterAccounts()" style="accent-color:#1B4D3E;width:14px;height:14px;"/>
-        ⏱ Stale only
-      </label>
-      <!-- Red toggle -->
-      <label style="display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;">
-        <input type="checkbox" id="acct-red" onchange="filterAccounts()" style="accent-color:#ef4444;width:14px;height:14px;"/>
-        🔴 Red projects
-      </label>
       <button onclick="resetAccountFilters()" style="margin-left:auto;background:none;border:none;font-size:12px;color:#9ca3af;cursor:pointer;font-weight:600;">↺ Reset</button>
       <div id="acct-count" style="font-size:12px;color:#6b7280;white-space:nowrap;font-weight:600;"></div>
     </div>
@@ -2072,21 +2108,16 @@ button { cursor: pointer; }
 
     <!-- Table -->
     <div style="background:#fff;border-radius:14px;overflow-x:auto;border:1px solid #f0f0f0;">
-      <table style="width:100%;min-width:1200px;border-collapse:collapse;" id="accounts-table">
+      <table style="width:100%;min-width:900px;border-collapse:collapse;" id="accounts-table">
         <thead>
           <tr style="background:#F9FAFB;border-bottom:1.5px solid #f0f0f0;">
             <th onclick="sortAccounts('name')"    style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;position:sticky;left:0;z-index:3;background:#F9FAFB;box-shadow:2px 0 6px rgba(0,0,0,.06);">Account ↕</th>
             <th onclick="sortAccounts('product')" style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;">Primary Product ↕</th>
             <th onclick="sortAccounts('csm')"     style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;">Consultant ↕</th>
             <th onclick="sortAccounts('am')"      style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;">Account Manager ↕</th>
-            <th onclick="sortAccounts('health')"  style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;">Health ↕</th>
-            <th onclick="sortAccounts('arr')"     style="padding:10px 12px;text-align:right;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;">ARR ↕</th>
-            <th onclick="sortAccounts('nps')"     style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;">NPS ↕</th>
-            <th onclick="sortAccounts('lastContact')" style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;">Last Contact ↕</th>
-            <th onclick="sortAccounts('renewal')" style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;">Renewal ↕</th>
-            <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">🔴</th>
-            <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">⭐</th>
+            <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Adoption Status</th>
             <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Active Modules</th>
+            <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;">Active Products</th>
             <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Actions</th>
           </tr>
         </thead>
@@ -4408,20 +4439,33 @@ function fmtContact(days) {
 }
 
 function getFilteredAccounts() {
-  const search  = (document.getElementById('acct-search')?.value  || '').toLowerCase();
-  const csm     = document.getElementById('acct-csm')?.value     || '';
-  const product = document.getElementById('acct-product')?.value || '';
-  const health  = document.getElementById('acct-health')?.value  || '';
-  const stale   = document.getElementById('acct-stale')?.checked || false;
-  const red     = document.getElementById('acct-red')?.checked   || false;
+  const search         = (document.getElementById('acct-search')?.value || '').toLowerCase();
+  const csm            = document.getElementById('acct-csm')?.value     || '';
+  const product        = document.getElementById('acct-product')?.value || '';
+  const adoptionFilter = document.getElementById('acct-adoption-status')?.value || '';
+
+  const adoptionSrc = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) ? ADOPTION_LIVE : null;
+
+  const getJourney = (name) => {
+    if (!adoptionSrc || !adoptionSrc[name]) return 'notstarted';
+    let adopted = 0, adopting = 0;
+    (adoptionSrc[name]?.adoption?.sections || []).forEach(sec =>
+      (sec.fields || []).forEach(f => {
+        const l = (f.status||'').toLowerCase().trim();
+        if (l === 'adopted') adopted++;
+        else if (l === 'adopting' || l === 'demo') adopting++;
+      })
+    );
+    if (adopted > 0) return 'adopted';
+    if (adopting > 0) return 'inprogress';
+    return 'notstarted';
+  };
 
   return (ACCOUNTS || []).filter(a => {
     if (search  && !a.name.toLowerCase().includes(search)) return false;
     if (csm     && a.csm !== csm)       return false;
     if (product && !_accountHasProduct(a, product)) return false;
-    if (health  && a.health !== health) return false;
-    if (stale   && a.lastDays <= 30)    return false;
-    if (red     && a.redProj === 0)     return false;
+    if (adoptionFilter && getJourney(a.name) !== adoptionFilter) return false;
     if (window._acctRefFilter && !a.ref) return false;
     return true;
   });
@@ -4436,12 +4480,11 @@ function sortAccounts(key) {
 function filterAccounts() { window._acctRefFilter = false; renderAccountsTable(); }
 function resetAccountFilters() {
   window._acctRefFilter = false;
-  document.getElementById('acct-search').value = '';
-  document.getElementById('acct-csm').value = '';
-  document.getElementById('acct-product').value = '';
-  document.getElementById('acct-health').value = '';
-  document.getElementById('acct-stale').checked = false;
-  document.getElementById('acct-red').checked = false;
+  const el = id => document.getElementById(id);
+  if (el('acct-search'))          el('acct-search').value = '';
+  if (el('acct-csm'))             el('acct-csm').value = '';
+  if (el('acct-product'))         el('acct-product').value = '';
+  if (el('acct-adoption-status')) el('acct-adoption-status').value = '';
   filterAccounts();
 }
 
@@ -4449,11 +4492,11 @@ function renderAccountsTable() {
   const tbody = document.getElementById('accounts-tbody');
   if (!tbody) return;
   if (_sfLoading) {
-    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">⏳ Loading accounts from Salesforce…</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">⏳ Loading accounts from Salesforce…</td></tr>`;
     return;
   }
   if (!ACCOUNTS.length) {
-    tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">No accounts loaded. <button onclick="loadAccountsFromSalesforce()" style="background:none;border:none;color:#1B4D3E;font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;">Sync now</button></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">No accounts loaded. <button onclick="loadAccountsFromSalesforce()" style="background:none;border:none;color:#1B4D3E;font-weight:700;cursor:pointer;font-size:13px;text-decoration:underline;">Sync now</button></td></tr>`;
     return;
   }
   let rows = getFilteredAccounts();
@@ -4479,38 +4522,49 @@ function renderAccountsTable() {
   document.getElementById('acct-count').textContent = rows.length + ' of ' + ACCOUNTS.length + ' accounts';
 
   tbody.innerHTML = rows.map((a, i) => {
-    const hs = healthStyle[a.health] || healthStyle['Unknown'];
-    const npsColor = a.nps >= 60 ? '#059669' : a.nps >= 40 ? '#d97706' : '#dc2626';
     const rowBg = i % 2 === 0 ? '#fff' : '#FAFAFA';
     const idx = ACCOUNTS.indexOf(a);
 
-    // Compute active modules for this account
+    // Compute adoption data for this account
     const adoptionSrc = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) ? ADOPTION_LIVE : null;
-    let activeModules = 0, adoptedModules = 0, adoptingModules = 0;
+    let adoptedCount = 0, adoptingCount = 0;
+    const activeProductNames = [];
     if (adoptionSrc && adoptionSrc[a.name]) {
-      const normSt = (raw) => {
-        if (!raw) return null;
-        const l = raw.toLowerCase().trim();
+      const normSt = r => {
+        if (!r) return null;
+        const l = r.toLowerCase().trim();
         if (l === 'adopted') return 'adopted';
         if (l === 'adopting' || l === 'demo') return 'adopting';
-        return 'other';
+        return null;
       };
       (adoptionSrc[a.name]?.adoption?.sections || []).forEach(sec =>
         (sec.fields || []).forEach(f => {
           const st = normSt(f.status);
-          if (st === 'adopted') { adoptedModules++; activeModules++; }
-          else if (st === 'adopting') { adoptingModules++; activeModules++; }
+          if (st === 'adopted') { adoptedCount++; activeProductNames.push({ label: f.label || f.module, status: 'adopted' }); }
+          else if (st === 'adopting') { adoptingCount++; activeProductNames.push({ label: f.label || f.module, status: 'adopting' }); }
         })
       );
     }
-    const activeModuleCell = adoptionSrc
-      ? (activeModules > 0
-          ? `<span style="display:inline-flex;align-items:center;gap:3px;">
-               <span style="background:#D1FAE5;color:#065f46;font-size:12px;font-weight:800;padding:3px 9px;border-radius:12px;">${activeModules}</span>
-               ${adoptedModules > 0 ? `<span style="font-size:10px;color:#059669;font-weight:600;">${adoptedModules}✅</span>` : ''}
-             </span>`
-          : '<span style="color:#d1d5db;font-size:12px;">—</span>')
-      : '<span style="color:#e5e7eb;font-size:11px;" title="Load Adoption API">·</span>';
+    const activeTotal = adoptedCount + adoptingCount;
+
+    // Journey status
+    let journeyStatus, journeyBg, journeyColor;
+    if (!adoptionSrc) {
+      journeyStatus = '—'; journeyBg = '#f3f4f6'; journeyColor = '#9ca3af';
+    } else if (adoptedCount > 0) {
+      journeyStatus = '✅ Fully Adopted'; journeyBg = '#D1FAE5'; journeyColor = '#065f46';
+    } else if (adoptingCount > 0) {
+      journeyStatus = '🔄 In Progress'; journeyBg = '#DBEAFE'; journeyColor = '#1d4ed8';
+    } else {
+      journeyStatus = '⬜ Not Started'; journeyBg = '#F3F4F6'; journeyColor = '#6b7280';
+    }
+
+    // Active product tags (max 4 shown)
+    const tagHtml = activeProductNames.length > 0
+      ? activeProductNames.slice(0, 4).map(p =>
+          `<span style="font-size:10px;font-weight:600;background:${p.status==='adopted'?'#D1FAE5':'#DBEAFE'};color:${p.status==='adopted'?'#065f46':'#1d4ed8'};padding:2px 7px;border-radius:8px;white-space:nowrap;">${p.label}</span>`
+        ).join('') + (activeProductNames.length > 4 ? `<span style="font-size:10px;color:#9ca3af;font-weight:600;">+${activeProductNames.length-4}</span>` : '')
+      : (adoptionSrc ? '<span style="color:#d1d5db;font-size:11px;">—</span>' : '<span style="color:#e5e7eb;font-size:11px;" title="Connect Adoption API">·</span>');
 
     return `<tr onclick="openAccount(${idx})" style="background:${rowBg};border-bottom:1px solid #f3f4f6;transition:background .12s;cursor:pointer;" onmouseenter="this.style.background='#F0FDF4';this.querySelector('.sticky-col').style.background='#F0FDF4'" onmouseleave="this.style.background='${rowBg}';this.querySelector('.sticky-col').style.background='${rowBg}'">
       <td class="sticky-col" style="padding:10px 12px;position:sticky;left:0;z-index:2;background:${rowBg};box-shadow:2px 0 6px rgba(0,0,0,.06);">
@@ -4519,20 +4573,17 @@ function renderAccountsTable() {
       <td style="padding:10px 12px;font-size:12.5px;color:#374151;font-weight:600;">${a.product}</td>
       <td style="padding:10px 12px;font-size:12.5px;color:#374151;">${a.csm}</td>
       <td style="padding:10px 12px;font-size:12.5px;color:#374151;">${a.am}</td>
-      <td style="padding:10px 12px;">
-        <span style="font-size:11px;font-weight:600;background:${hs.bg};color:${hs.color};padding:3px 9px;border-radius:20px;white-space:nowrap;">${a.health}</span>
-      </td>
-      <td style="padding:10px 12px;text-align:right;font-size:13px;font-weight:700;color:#1B4D3E;">${fmtARR(a.arr)}</td>
-      <td style="padding:10px 12px;text-align:center;font-size:13px;font-weight:700;color:${npsColor};">${a.nps > 0 ? '+'+a.nps : a.nps}</td>
-      <td style="padding:10px 12px;font-size:12px;">${fmtContact(a.lastDays)}</td>
-      <td style="padding:10px 12px;font-size:12px;color:#374151;white-space:nowrap;">${a.renewal}</td>
       <td style="padding:10px 12px;text-align:center;">
-        ${a.redProj > 0 ? `<span style="background:#FEE2E2;color:#991b1b;font-size:11px;font-weight:700;padding:2px 7px;border-radius:8px;">${a.redProj}</span>` : '<span style="color:#d1d5db;font-size:12px;">—</span>'}
+        <span style="font-size:11px;font-weight:700;background:${journeyBg};color:${journeyColor};padding:4px 10px;border-radius:20px;white-space:nowrap;">${journeyStatus}</span>
       </td>
-      <td style="padding:10px 12px;text-align:center;font-size:15px;">${a.ref ? '⭐' : '<span style="color:#e5e7eb;">—</span>'}</td>
-      <td style="padding:10px 12px;text-align:center;" onclick="event.stopPropagation()">${activeModuleCell}</td>
+      <td style="padding:10px 12px;text-align:center;">
+        ${activeTotal > 0 ? `<span style="background:#D1FAE5;color:#065f46;font-size:13px;font-weight:900;padding:3px 11px;border-radius:12px;">${activeTotal}</span>` : '<span style="color:#d1d5db;font-size:12px;">—</span>'}
+      </td>
+      <td style="padding:10px 12px;">
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">${tagHtml}</div>
+      </td>
       <td style="padding:10px 12px;text-align:center;" onclick="event.stopPropagation()">
-        <button onclick="openAccountTab(${idx},'activities')" style="background:#F5F6FA;border:none;color:#374151;font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;cursor:pointer;">Log</button>
+        <button onclick="openAccountTab(${idx},'activities')" style="background:#F5F6FA;border:none;color:#374151;font-size:11px;font-weight:600;padding:4px 10px;border-radius:7px;cursor:pointer;">View</button>
       </td>
     </tr>`;
   }).join('');
@@ -8846,6 +8897,37 @@ function renderExecAdoptionMetrics() {
   }).join(''));
 
   s('exec-adoption-kpi-label', `${m.total} account${m.total !== 1 ? 's' : ''} with data`);
+
+  // ── Executive Strategic KPI tiles ──
+  const sfEl = id => document.getElementById(id);
+  if (sfEl('exec-kpi-onboarding')) sfEl('exec-kpi-onboarding').textContent = (ACCOUNTS||[]).length || '—';
+  if (sfEl('exec-kpi-adoption'))   sfEl('exec-kpi-adoption').textContent   = m.accountsWithAnyActive || '—';
+  if (sfEl('exec-kpi-gaps'))       sfEl('exec-kpi-gaps').textContent       = m.journey.notStarted ?? '—';
+  if (sfEl('exec-kpi-upsell')) {
+    const depth = computeProductDepth(null);
+    sfEl('exec-kpi-upsell').textContent = (depth.buckets[1]||[]).length || '—';
+  }
+  if (sfEl('exec-kpi-advocacy'))   sfEl('exec-kpi-advocacy').textContent   = m.count3plus || '—';
+  if (sfEl('exec-kpi-ai')) {
+    // AI = accounts with Gen AI or Agents active
+    const aiSrc = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) ? ADOPTION_LIVE : ACCOUNT_DETAIL;
+    let aiCount = 0;
+    Object.keys(aiSrc).filter(k=>k!=='default').forEach(name => {
+      (aiSrc[name]?.adoption?.sections||[]).forEach(sec =>
+        (sec.fields||[]).forEach(f => {
+          if ((f.label==='Gen AI'||f.label==='Agents') && (f.status||'').toLowerCase().match(/adopted|adopting|demo/))
+            aiCount++;
+        })
+      );
+    });
+    sfEl('exec-kpi-ai').textContent = aiCount || '—';
+  }
+
+  // ── Accounts section adoption summary tiles ──
+  if (sfEl('acct-tile-adopted'))   sfEl('acct-tile-adopted').textContent   = m.journey.fullyActive ?? '—';
+  if (sfEl('acct-tile-inprogress'))sfEl('acct-tile-inprogress').textContent= m.journey.inProgress  ?? '—';
+  if (sfEl('acct-tile-notstarted'))sfEl('acct-tile-notstarted').textContent = m.journey.notStarted  ?? '—';
+  if (sfEl('acct-tile-avg'))       sfEl('acct-tile-avg').textContent       = m.avgActive || '—';
 
   // ── 4 KPI tiles ──
   const kpiDefs = [
