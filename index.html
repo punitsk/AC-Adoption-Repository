@@ -8917,11 +8917,11 @@ function renderAccountAdoptionGrid() {
   }
 
   const CW = 34; // cell width px
-  let html = `<table style="border-collapse:collapse;font-size:11px;width:100%;min-width:${220 + activeMODS.length * CW + 60}px;">
+  let html = `<table style="border-collapse:collapse;font-size:11px;width:auto;table-layout:auto;">
     <thead>
       <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;">
-        <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;min-width:210px;position:sticky;left:0;background:#F9FAFB;z-index:2;box-shadow:2px 0 4px rgba(0,0,0,.05);">Account</th>
-        <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:700;color:#059669;min-width:52px;">Active</th>
+        <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;width:220px;max-width:260px;position:sticky;left:0;background:#F9FAFB;z-index:2;box-shadow:2px 0 4px rgba(0,0,0,.05);">Account</th>
+        <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:700;color:#059669;width:52px;white-space:nowrap;">Active</th>
         ${activeMODS.map(m => `<th style="padding:6px 2px;text-align:center;font-size:9.5px;font-weight:600;color:#6b7280;width:${CW}px;" title="${m}"><span style="writing-mode:vertical-lr;transform:rotate(180deg);display:inline-block;padding:2px 0;line-height:1.2;">${m}</span></th>`).join('')}
       </tr>
     </thead>
@@ -8930,7 +8930,7 @@ function renderAccountAdoptionGrid() {
   accountRows.forEach((r, i) => {
     const rowBg = i % 2 === 0 ? '#fff' : '#FAFAFA';
     html += `<tr style="background:${rowBg};border-bottom:1px solid #f3f4f6;">
-      <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#1B4D3E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px;position:sticky;left:0;background:${rowBg};z-index:1;box-shadow:2px 0 4px rgba(0,0,0,.04);">${r.name}</td>
+      <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#1B4D3E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:220px;max-width:260px;position:sticky;left:0;background:${rowBg};z-index:1;box-shadow:2px 0 4px rgba(0,0,0,.04);">${r.name}</td>
       <td style="padding:7px 6px;text-align:center;">
         ${r.active > 0 ? `<span style="background:#D1FAE5;color:#065f46;font-size:12px;font-weight:800;padding:2px 8px;border-radius:10px;">${r.active}</span>` : '<span style="color:#e5e7eb;">—</span>'}
       </td>
