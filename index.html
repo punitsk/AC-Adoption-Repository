@@ -3454,8 +3454,12 @@ function renderDashboard() {
     return true;
   });
 
-  // All accounts (for leadership view, respecting product filter only)
-  const allAccts = prodFilter ? ACCOUNTS.filter(a => _accountHasProduct(a, prodFilter)) : ACCOUNTS;
+  // All accounts (for leadership view, respecting both CSM and product filters)
+  const allAccts = ACCOUNTS.filter(a => {
+    if (csmSel !== 'all' && a.csm !== csmSel) return false;
+    if (prodFilter && !_accountHasProduct(a, prodFilter)) return false;
+    return true;
+  });
 
   const pct = (n, d) => d ? Math.round(n / d * 100) + '%' : '0%';
 
@@ -3498,10 +3502,11 @@ function renderDashboard() {
   const leadRef     = allAccts.filter(a => a.ref).length;
   const csmCount    = new Set(allAccts.map(a => a.csm).filter(c => c !== 'Unassigned')).size;
 
+  const isFiltered = csmSel !== 'all' || prodFilter;
   set$('lead-stat-total',       leadTotal);
-  set$('lead-stat-total-trend', 'from Salesforce');
+  set$('lead-stat-total-trend', isFiltered ? 'filtered accounts' : 'from Salesforce');
   set$('lead-stat-arr',         fmtARR(leadArr));
-  set$('lead-stat-arr-trend',   'across all accounts');
+  set$('lead-stat-arr-trend',   isFiltered ? 'filtered portfolio' : 'across all accounts');
   set$('lead-stat-healthy',     leadHealthy);
   set$('lead-stat-healthy-pct', pct(leadHealthy, leadTotal) + ' of portfolio');
   set$('lead-stat-stale',       leadStale);
@@ -8903,13 +8908,21 @@ function renderAccountAdoptionGrid() {
     return { name, modStatus, active, adopted };
   }).sort((a, b) => b.active - a.active || b.adopted - a.adopted);
 
+  // Only show module columns that have at least one account with real data
+  const activeMODS = MODS.filter(mod => accountRows.some(r => r.modStatus[mod] !== null));
+
+  if (activeMODS.length === 0) {
+    el.innerHTML = '<div style="color:#9ca3af;font-size:12.5px;padding:28px;text-align:center;">No module adoption data for the selected accounts</div>';
+    return;
+  }
+
   const CW = 34; // cell width px
-  let html = `<table style="border-collapse:collapse;font-size:11px;width:100%;min-width:${220 + MODS.length * CW + 60}px;">
+  let html = `<table style="border-collapse:collapse;font-size:11px;width:100%;min-width:${220 + activeMODS.length * CW + 60}px;">
     <thead>
       <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;">
         <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;min-width:210px;position:sticky;left:0;background:#F9FAFB;z-index:2;box-shadow:2px 0 4px rgba(0,0,0,.05);">Account</th>
         <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:700;color:#059669;min-width:52px;">Active</th>
-        ${MODS.map(m => `<th style="padding:6px 2px;text-align:center;font-size:9.5px;font-weight:600;color:#6b7280;width:${CW}px;" title="${m}"><span style="writing-mode:vertical-lr;transform:rotate(180deg);display:inline-block;padding:2px 0;line-height:1.2;">${m}</span></th>`).join('')}
+        ${activeMODS.map(m => `<th style="padding:6px 2px;text-align:center;font-size:9.5px;font-weight:600;color:#6b7280;width:${CW}px;" title="${m}"><span style="writing-mode:vertical-lr;transform:rotate(180deg);display:inline-block;padding:2px 0;line-height:1.2;">${m}</span></th>`).join('')}
       </tr>
     </thead>
     <tbody>`;
@@ -8921,7 +8934,7 @@ function renderAccountAdoptionGrid() {
       <td style="padding:7px 6px;text-align:center;">
         ${r.active > 0 ? `<span style="background:#D1FAE5;color:#065f46;font-size:12px;font-weight:800;padding:2px 8px;border-radius:10px;">${r.active}</span>` : '<span style="color:#e5e7eb;">—</span>'}
       </td>
-      ${MODS.map(m => {
+      ${activeMODS.map(m => {
         const st = r.modStatus[m];
         if (!st) return `<td style="padding:3px 2px;text-align:center;"><span style="color:#e5e7eb;font-size:12px;">·</span></td>`;
         const cfg = STATUS_MAP[st];
