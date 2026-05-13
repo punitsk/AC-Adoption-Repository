@@ -4394,7 +4394,7 @@ function sortAccounts(key) {
   renderAccountsTable();
 }
 
-function filterAccounts() { window._acctRefFilter = false; renderAccountsTable(); }
+function filterAccounts() { window._acctRefFilter = false; renderAccountsTable(); renderAccountAdoptionGrid(); }
 function resetAccountFilters() {
   window._acctRefFilter = false;
   const el = id => document.getElementById(id);
@@ -8975,8 +8975,12 @@ function renderAccountAdoptionGrid() {
     return null;
   };
 
-  // Build matrix
-  const accountRows = Object.keys(dataSource).filter(k => k !== 'default').map(name => {
+  // Build matrix — respect account-level filters
+  const filteredNames = new Set(getFilteredAccounts().map(a => a.name));
+  const allGridNames = Object.keys(dataSource).filter(k => k !== 'default');
+  const visibleNames = allGridNames.filter(n => filteredNames.size === 0 || filteredNames.has(n));
+
+  const accountRows = visibleNames.map(name => {
     const modStatus = {};
     MODS.forEach(m => modStatus[m] = null);
     (dataSource[name]?.adoption?.sections || []).forEach(sec =>
