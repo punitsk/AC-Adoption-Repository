@@ -1902,45 +1902,17 @@ button { cursor: pointer; }
       </div>
     </div>
 
-    <!-- Adoption summary tiles -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;">
-      <div style="background:#1B4D3E;border-radius:12px;padding:14px 16px;">
-        <div style="font-size:10.5px;font-weight:600;color:#a7f3d0;text-transform:uppercase;letter-spacing:.5px;">Total Accounts</div>
-        <div id="sf-tile-total" style="font-size:26px;font-weight:800;color:#fff;margin-top:4px;">—</div>
-      </div>
-      <div style="background:#F0FDF4;border-radius:12px;padding:14px 16px;border:1.5px solid #BBF7D0;">
-        <div style="font-size:10.5px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">✅ Fully Adopted</div>
-        <div id="acct-tile-adopted" style="font-size:26px;font-weight:800;color:#059669;margin-top:4px;">—</div>
-        <div style="font-size:10px;color:#6b7280;margin-top:2px;">≥1 module adopted</div>
-      </div>
-      <div style="background:#EFF6FF;border-radius:12px;padding:14px 16px;border:1.5px solid #BFDBFE;">
-        <div style="font-size:10.5px;font-weight:600;color:#1d4ed8;text-transform:uppercase;letter-spacing:.5px;">🔄 In Progress</div>
-        <div id="acct-tile-inprogress" style="font-size:26px;font-weight:800;color:#2563eb;margin-top:4px;">—</div>
-        <div style="font-size:10px;color:#6b7280;margin-top:2px;">adopting, none done</div>
-      </div>
-      <div style="background:#F9FAFB;border-radius:12px;padding:14px 16px;border:1.5px solid #e5e7eb;">
-        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">⬜ Not Started</div>
-        <div id="acct-tile-notstarted" style="font-size:26px;font-weight:800;color:#9ca3af;margin-top:4px;">—</div>
-        <div style="font-size:10px;color:#6b7280;margin-top:2px;">no active modules</div>
-      </div>
-      <div style="background:#F5F3FF;border-radius:12px;padding:14px 16px;border:1.5px solid #DDD6FE;">
-        <div style="font-size:10.5px;font-weight:600;color:#5b21b6;text-transform:uppercase;letter-spacing:.5px;">📦 Avg Active</div>
-        <div id="acct-tile-avg" style="font-size:26px;font-weight:800;color:#7C3AED;margin-top:4px;">—</div>
-        <div style="font-size:10px;color:#6b7280;margin-top:2px;">products per account</div>
-      </div>
-    </div>
-
-    <!-- Filters -->
-    <div style="background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border:1px solid #f0f0f0;">
+    <!-- Filters — pinned at top so they're the first thing you interact with -->
+    <div style="background:#fff;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;border:1.5px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.04);">
       <!-- Search -->
-      <div style="display:flex;align-items:center;gap:8px;background:#F5F6FA;border-radius:9px;padding:8px 12px;flex:1;max-width:280px;">
+      <div style="display:flex;align-items:center;gap:8px;background:#F5F6FA;border-radius:9px;padding:7px 12px;flex:1;max-width:260px;border:1.5px solid transparent;transition:border-color .15s;" onfocusin="this.style.borderColor='#34d399'" onfocusout="this.style.borderColor='transparent'">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input id="acct-search" type="text" placeholder="Search accounts…" oninput="filterAccounts()"
           style="background:none;border:none;outline:none;font-size:12.5px;color:#374151;width:100%;"/>
       </div>
       <!-- CSM -->
       <div style="position:relative;">
-        <select id="acct-csm" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:7px 30px 7px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:130px;">
+        <select id="acct-csm" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px 28px 6px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:130px;transition:border-color .15s;" onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='#e5e7eb'">
           <option value="">All Consultants</option>
           <option value="Praveen">Kambi G.</option>
           <option value="Sara">Pratik P.</option>
@@ -1951,7 +1923,7 @@ button { cursor: pointer; }
       </div>
       <!-- Product -->
       <div style="position:relative;">
-        <select id="acct-product" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:7px 30px 7px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:130px;">
+        <select id="acct-product" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px 28px 6px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:120px;transition:border-color .15s;" onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='#e5e7eb'">
           <option value="">All Products</option>
           <option value="ERP">ERP</option>
           <option value="WMS">WMS</option>
@@ -1962,7 +1934,7 @@ button { cursor: pointer; }
       </div>
       <!-- Adoption Status filter -->
       <div style="position:relative;">
-        <select id="acct-adoption-status" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:7px 30px 7px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:160px;">
+        <select id="acct-adoption-status" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px 28px 6px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:155px;transition:border-color .15s;" onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='#e5e7eb'">
           <option value="">All Adoption Statuses</option>
           <option value="adopted">✅ Fully Adopted</option>
           <option value="inprogress">🔄 In Progress</option>
@@ -1970,8 +1942,36 @@ button { cursor: pointer; }
         </select>
         <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10px;color:#6b7280;pointer-events:none;">▾</span>
       </div>
-      <button onclick="resetAccountFilters()" style="margin-left:auto;background:none;border:none;font-size:12px;color:#9ca3af;cursor:pointer;font-weight:600;">↺ Reset</button>
-      <div id="acct-count" style="font-size:12px;color:#6b7280;white-space:nowrap;font-weight:600;"></div>
+      <div id="acct-count" style="font-size:12px;color:#6b7280;white-space:nowrap;font-weight:600;padding:0 4px;"></div>
+      <button onclick="resetAccountFilters()" style="margin-left:auto;background:none;border:1px solid #e5e7eb;border-radius:8px;font-size:12px;color:#9ca3af;cursor:pointer;font-weight:600;padding:5px 12px;transition:all .15s;" onmouseenter="this.style.borderColor='#ef4444';this.style.color='#ef4444'" onmouseleave="this.style.borderColor='#e5e7eb';this.style.color='#9ca3af'">↺ Reset Filters</button>
+    </div>
+
+    <!-- Adoption summary tiles — update dynamically when filters change -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;">
+      <div style="background:#1B4D3E;border-radius:12px;padding:12px 16px;cursor:pointer;" onclick="resetAccountFilters()" title="All accounts">
+        <div style="font-size:10.5px;font-weight:600;color:#a7f3d0;text-transform:uppercase;letter-spacing:.5px;">Total Accounts</div>
+        <div id="sf-tile-total" style="font-size:26px;font-weight:800;color:#fff;margin-top:4px;">—</div>
+      </div>
+      <div style="background:#F0FDF4;border-radius:12px;padding:12px 16px;border:1.5px solid #BBF7D0;cursor:pointer;transition:box-shadow .15s;" onclick="document.getElementById('acct-adoption-status').value='adopted';filterAccounts();" title="Filter: Fully Adopted" onmouseenter="this.style.boxShadow='0 2px 10px rgba(5,150,105,.2)'" onmouseleave="this.style.boxShadow='none'">
+        <div style="font-size:10.5px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">✅ Fully Adopted</div>
+        <div id="acct-tile-adopted" style="font-size:26px;font-weight:800;color:#059669;margin-top:4px;">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:2px;">click to filter</div>
+      </div>
+      <div style="background:#EFF6FF;border-radius:12px;padding:12px 16px;border:1.5px solid #BFDBFE;cursor:pointer;transition:box-shadow .15s;" onclick="document.getElementById('acct-adoption-status').value='inprogress';filterAccounts();" title="Filter: In Progress" onmouseenter="this.style.boxShadow='0 2px 10px rgba(37,99,235,.2)'" onmouseleave="this.style.boxShadow='none'">
+        <div style="font-size:10.5px;font-weight:600;color:#1d4ed8;text-transform:uppercase;letter-spacing:.5px;">🔄 In Progress</div>
+        <div id="acct-tile-inprogress" style="font-size:26px;font-weight:800;color:#2563eb;margin-top:4px;">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:2px;">click to filter</div>
+      </div>
+      <div style="background:#F9FAFB;border-radius:12px;padding:12px 16px;border:1.5px solid #e5e7eb;cursor:pointer;transition:box-shadow .15s;" onclick="document.getElementById('acct-adoption-status').value='notstarted';filterAccounts();" title="Filter: Not Started" onmouseenter="this.style.boxShadow='0 2px 10px rgba(107,114,128,.15)'" onmouseleave="this.style.boxShadow='none'">
+        <div style="font-size:10.5px;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">⬜ Not Started</div>
+        <div id="acct-tile-notstarted" style="font-size:26px;font-weight:800;color:#9ca3af;margin-top:4px;">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:2px;">click to filter</div>
+      </div>
+      <div style="background:#F5F3FF;border-radius:12px;padding:12px 16px;border:1.5px solid #DDD6FE;">
+        <div style="font-size:10.5px;font-weight:600;color:#5b21b6;text-transform:uppercase;letter-spacing:.5px;">📦 Avg Active</div>
+        <div id="acct-tile-avg" style="font-size:26px;font-weight:800;color:#7C3AED;margin-top:4px;">—</div>
+        <div style="font-size:10px;color:#6b7280;margin-top:2px;">products per account</div>
+      </div>
     </div>
 
     <!-- Product Adoption Grid (top) -->
@@ -2306,167 +2306,6 @@ button { cursor: pointer; }
 
       <!-- Settings content panel -->
       <div id="settings-panel"></div>
-    </div>
-  </div>
-
-  <!-- ══ SECTION: CASES ══ -->
-  <div id="section-cases" class="hidden" style="flex:1;min-width:0;overflow-y:auto;padding:20px 28px 28px;">
-
-    <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-      <div>
-        <div style="font-size:24px;font-weight:700;color:#111827;">Support Cases</div>
-        <div style="font-size:13px;color:#9ca3af;margin-top:3px;">All customer support cases synced from Salesforce</div>
-      </div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn-outline" onclick="exportCases()" style="display:flex;align-items:center;gap:7px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          Export CSV
-        </button>
-        <button class="btn-primary" onclick="openCaseModal()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Log New Case
-        </button>
-      </div>
-    </div>
-
-    <!-- Summary tiles -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;" id="cases-summary-tiles"></div>
-
-    <!-- Filters -->
-    <div style="background:#fff;border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;border:1px solid #f0f0f0;">
-      <!-- Search -->
-      <div style="display:flex;align-items:center;gap:8px;background:#F5F6FA;border-radius:8px;padding:6px 12px;min-width:220px;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input id="case-search" type="text" placeholder="Search cases, accounts…" oninput="renderCasesTable()" style="border:none;background:transparent;font-size:12.5px;color:#374151;outline:none;width:180px;">
-      </div>
-
-      <div style="width:1px;height:24px;background:#e5e7eb;"></div>
-
-      <!-- Customer filter -->
-      <select id="case-account" onchange="renderCasesTable()" style="font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
-        <option value="">All Customers</option>
-      </select>
-
-      <!-- Status filter -->
-      <select id="case-status" onchange="renderCasesTable()" style="font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
-        <option value="">All Statuses</option>
-        <option value="New">New</option>
-        <option value="Open">Open</option>
-        <option value="In Progress">In Progress</option>
-        <option value="Waiting on Customer">Waiting on Customer</option>
-        <option value="Escalated">Escalated</option>
-        <option value="Resolved">Resolved</option>
-        <option value="Closed">Closed</option>
-      </select>
-
-      <!-- Priority filter -->
-      <select id="case-priority" onchange="renderCasesTable()" style="font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
-        <option value="">All Priorities</option>
-        <option value="Critical">Critical</option>
-        <option value="High">High</option>
-        <option value="Medium">Medium</option>
-        <option value="Low">Low</option>
-      </select>
-
-      <!-- Type filter -->
-      <select id="case-type" onchange="renderCasesTable()" style="font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
-        <option value="">All Types</option>
-        <option value="Bug">Bug</option>
-        <option value="Feature Request">Feature Request</option>
-        <option value="Question">Question</option>
-        <option value="Integration Issue">Integration Issue</option>
-        <option value="Performance">Performance</option>
-        <option value="Data Issue">Data Issue</option>
-      </select>
-
-      <!-- Open only toggle -->
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#374151;cursor:pointer;white-space:nowrap;">
-        <input type="checkbox" id="case-open-only" onchange="renderCasesTable()" style="accent-color:#1B4D3E;width:14px;height:14px;">
-        Open only
-      </label>
-
-      <button onclick="resetCaseFilters()" style="margin-left:auto;font-size:12px;font-weight:600;color:#6b7280;background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px;" onmouseenter="this.style.background='#F5F6FA'" onmouseleave="this.style.background='none'">Reset</button>
-    </div>
-
-    <!-- Count + Sort bar -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-      <div style="font-size:12.5px;color:#9ca3af;" id="case-count-label"></div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <span style="font-size:12px;color:#6b7280;font-weight:600;">Sort:</span>
-        <select id="case-sort" onchange="renderCasesTable()" style="font-size:12px;padding:4px 8px;border-radius:7px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
-          <option value="opened">Date Opened</option>
-          <option value="priority">Priority</option>
-          <option value="account">Customer</option>
-          <option value="age">Age (oldest first)</option>
-          <option value="status">Status</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- Cases Table -->
-    <div style="background:#fff;border-radius:14px;border:1px solid #f0f0f0;overflow:hidden;">
-      <table style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr style="background:#F8F9FA;border-bottom:2px solid #e5e7eb;">
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Case #</th>
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Created</th>
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Subject</th>
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Customer</th>
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Type</th>
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Priority</th>
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Status</th>
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Assigned To</th>
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Age</th>
-            <th style="padding:11px 14px;text-align:left;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Last Updated</th>
-            <th style="padding:11px 14px;text-align:center;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Action</th>
-          </tr>
-        </thead>
-        <tbody id="cases-tbody"></tbody>
-      </table>
-      <div id="cases-empty" style="display:none;text-align:center;padding:60px 0;color:#9ca3af;">
-        <div style="font-size:36px;margin-bottom:12px;">📭</div>
-        <div style="font-size:15px;font-weight:600;color:#374151;">No cases found</div>
-        <div style="font-size:13px;margin-top:4px;">Try adjusting your filters.</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══ SECTION: HELP ══ -->
-  <div id="section-help" class="hidden" style="flex:1;min-width:0;overflow-y:auto;padding:20px 28px 40px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-      <div>
-        <div style="font-size:24px;font-weight:700;color:#111827;">Help & Support</div>
-        <div style="font-size:13px;color:#9ca3af;margin-top:3px;">Documentation, guides, and support resources</div>
-      </div>
-    </div>
-
-    <!-- Coming soon card -->
-    <div style="background:#fff;border-radius:18px;padding:64px 40px;text-align:center;border:1.5px dashed #e5e7eb;max-width:560px;margin:40px auto;">
-      <div style="font-size:52px;margin-bottom:20px;">🚧</div>
-      <div style="font-size:22px;font-weight:800;color:#111827;margin-bottom:10px;">Help Center Coming Soon</div>
-      <div style="font-size:14px;color:#6b7280;line-height:1.7;margin-bottom:28px;">We're building a full help center with guides, video walkthroughs, FAQs, and live support. Check back soon!</div>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <div style="background:#E8F5F0;border-radius:12px;padding:16px 22px;min-width:140px;">
-          <div style="font-size:22px;margin-bottom:6px;">📖</div>
-          <div style="font-size:13px;font-weight:700;color:#1B4D3E;">User Guide</div>
-          <div style="font-size:11.5px;color:#6b7280;margin-top:2px;">Coming soon</div>
-        </div>
-        <div style="background:#EFF6FF;border-radius:12px;padding:16px 22px;min-width:140px;">
-          <div style="font-size:22px;margin-bottom:6px;">🎬</div>
-          <div style="font-size:13px;font-weight:700;color:#1d4ed8;">Video Tutorials</div>
-          <div style="font-size:11.5px;color:#6b7280;margin-top:2px;">Coming soon</div>
-        </div>
-        <div style="background:#F5F3FF;border-radius:12px;padding:16px 22px;min-width:140px;">
-          <div style="font-size:22px;margin-bottom:6px;">💬</div>
-          <div style="font-size:13px;font-weight:700;color:#5b21b6;">Live Support</div>
-          <div style="font-size:11.5px;color:#6b7280;margin-top:2px;">Coming soon</div>
-        </div>
-      </div>
-      <div style="margin-top:28px;padding-top:24px;border-top:1px solid #f0f0f0;">
-        <div style="font-size:13px;color:#6b7280;margin-bottom:10px;">Need help now? Reach out directly.</div>
-        <a href="mailto:support@aptean.com" style="display:inline-flex;align-items:center;gap:8px;background:#1B4D3E;color:#fff;font-size:13px;font-weight:600;padding:10px 20px;border-radius:10px;text-decoration:none;">✉️ Contact Support</a>
-      </div>
     </div>
   </div>
 
@@ -3909,7 +3748,7 @@ updateBanner(); renderChips(); renderDashboard();
 // ══════════════════════════════
 // NAVIGATION
 // ══════════════════════════════
-const ALL_SECTIONS = ['dashboard','accounts','tasks','analytics','activities','meetings','action-hub','cases','strategic','projects','account-detail','settings','help'];
+const ALL_SECTIONS = ['dashboard','accounts','tasks','analytics','activities','meetings','action-hub','strategic','projects','account-detail','settings','help'];
 
 function navTo(section) {
   ALL_SECTIONS.forEach(s => {
@@ -3920,7 +3759,7 @@ function navTo(section) {
   });
   if (section === 'accounts') {
     if (!ACCOUNTS.length && !_sfLoading) loadAccountsFromSalesforce();
-    else renderAccountsTable();
+    else { renderAccountsTable(); renderAccountAdoptionGrid(); updateAccountSummaryTiles(); }
   }
   if (section === 'dashboard') {
     populateDashboardFilters();
@@ -3930,7 +3769,7 @@ function navTo(section) {
   if (section === 'activities')  renderActivitiesFeed();
   if (section === 'meetings')    renderMeetings();
   if (section === 'action-hub')  renderActionHub();
-  if (section === 'cases')       renderCasesTable();
+  // cases section removed
   if (section === 'strategic')   renderStrategicBoard();
   if (section === 'projects')    renderProjectsSection();
   if (section === 'settings') {
@@ -4394,7 +4233,55 @@ function sortAccounts(key) {
   renderAccountsTable();
 }
 
-function filterAccounts() { window._acctRefFilter = false; renderAccountsTable(); renderAccountAdoptionGrid(); }
+function filterAccounts() { window._acctRefFilter = false; renderAccountsTable(); renderAccountAdoptionGrid(); updateAccountSummaryTiles(); }
+
+function updateAccountSummaryTiles() {
+  const filtered = getFilteredAccounts();
+  const total    = filtered.length;
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('sf-tile-total', total);
+
+  if (!_adoptionLoaded || !Object.keys(ADOPTION_LIVE).length) return;
+
+  const adoptionSrc = ADOPTION_LIVE;
+  const computeJourney = (name) => {
+    let adopted = 0, adopting = 0;
+    (adoptionSrc[name]?.adoption?.sections || []).forEach(sec =>
+      (sec.fields || []).forEach(f => {
+        const l = (f.status||'').toLowerCase().trim();
+        if (l === 'adopted') adopted++;
+        else if (l === 'adopting' || l === 'demo') adopting++;
+      })
+    );
+    if (adopted > 0) return 'adopted';
+    if (adopting > 0) return 'inprogress';
+    return 'notstarted';
+  };
+
+  let nAdopted = 0, nInprog = 0, nNotStart = 0, totalMods = 0, withAny = 0;
+  filtered.forEach(a => {
+    const j = computeJourney(a.name);
+    if (j === 'adopted')    nAdopted++;
+    else if (j === 'inprogress') nInprog++;
+    else nNotStart++;
+
+    let active = 0;
+    (adoptionSrc[a.name]?.adoption?.sections || []).forEach(sec =>
+      (sec.fields || []).forEach(f => {
+        const l = (f.status||'').toLowerCase().trim();
+        if (l === 'adopted' || l === 'adopting' || l === 'demo') active++;
+      })
+    );
+    if (active > 0) { withAny++; totalMods += active; }
+  });
+
+  const avg = withAny > 0 ? (totalMods / withAny).toFixed(1) : '—';
+  set('acct-tile-adopted',    nAdopted);
+  set('acct-tile-inprogress', nInprog);
+  set('acct-tile-notstarted', nNotStart);
+  set('acct-tile-avg',        avg);
+}
+
 function resetAccountFilters() {
   window._acctRefFilter = false;
   const el = id => document.getElementById(id);
@@ -4861,7 +4748,7 @@ function renderAdContent(a, tab) {
         <div style="background:#fff;border-radius:14px;border:1px solid #f0f0f0;padding:20px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <div style="font-size:12px;font-weight:700;color:#1B4D3E;text-transform:uppercase;letter-spacing:.6px;">Open Cases (${acctCases.length})</div>
-            <button onclick="navTo('cases')" style="font-size:11.5px;font-weight:600;color:#1B4D3E;background:none;border:none;cursor:pointer;">View all →</button>
+            <span style="font-size:11.5px;color:#9ca3af;">From Salesforce</span>
           </div>
           ${acctCases.length ? acctCases.slice(0,4).map(c => {
             const pm = CASE_PRIORITY_META[c.priority]||{};
@@ -6567,7 +6454,6 @@ function applyRole(roleKey) {
     'nav-analytics':  p.analytics,
     'nav-activities': p.activities,
     'nav-meetings':   false,
-    'nav-cases':      p.cases,
     'nav-strategic':  p.strategic,
     'nav-projects':   p.projects,
     'nav-settings':   p.settings,
