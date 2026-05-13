@@ -2998,9 +2998,15 @@ function applyFilters() {
   const acctProd = document.getElementById('acct-product');
   if (acctCsm  && globalCsm     !== 'all') acctCsm.value  = globalCsm;
   if (acctProd && globalProduct  !== 'all') acctProd.value = globalProduct;
-  // Re-render accounts table if it's currently visible
-  const acctSection = document.getElementById('section-accounts');
-  if (acctSection && !acctSection.classList.contains('hidden')) renderAccountsTable();
+  // Re-render whichever section is currently visible
+  const acctSection   = document.getElementById('section-accounts');
+  const activSection  = document.getElementById('section-activities');
+  const analytSection = document.getElementById('section-analytics');
+  const actHubSection = document.getElementById('section-action-hub');
+  if (acctSection   && !acctSection.classList.contains('hidden'))   { renderAccountsTable(); renderAdoptionPanels(); }
+  if (activSection  && !activSection.classList.contains('hidden'))  { if (typeof renderActivitiesFeed === 'function') renderActivitiesFeed(); }
+  if (analytSection && !analytSection.classList.contains('hidden')) { if (typeof renderAnalytics === 'function') renderAnalytics(); }
+  if (actHubSection && !actHubSection.classList.contains('hidden')) { if (typeof renderActionHub === 'function') renderActionHub(); }
 }
 
 // Product label normalizer — supports legacy lowercase codes ('erp') AND exact product values ('ERP', 'Routing', etc.)
@@ -3936,14 +3942,19 @@ function navTo(section) {
 }
 
 function navToAccounts(filter) {
-  // Reset all filters first
   const ge = id => document.getElementById(id);
+
+  // Carry global consultant/product filters into the accounts page
+  const globalCsm     = ge('csm-filter')?.value     || 'all';
+  const globalProduct = ge('product-filter')?.value  || 'all';
+
   if (ge('acct-search'))          ge('acct-search').value = '';
-  if (ge('acct-csm'))             ge('acct-csm').value = '';
-  if (ge('acct-product'))         ge('acct-product').value = '';
+  // Propagate global filters; only reset if they're "all"
+  if (ge('acct-csm'))             ge('acct-csm').value     = globalCsm !== 'all' ? globalCsm : '';
+  if (ge('acct-product'))         ge('acct-product').value = globalProduct !== 'all' ? globalProduct : '';
   if (ge('acct-adoption-status')) ge('acct-adoption-status').value = '';
 
-  // Apply the relevant adoption filter
+  // Apply the relevant adoption filter from the tile clicked
   if (filter === 'healthy' || filter === 'adopted') {
     if (ge('acct-adoption-status')) ge('acct-adoption-status').value = 'adopted';
   }
@@ -6551,7 +6562,7 @@ function applyRole(roleKey) {
   // Nav visibility
   const navMap = {
     'nav-dashboard':  p.dashboard,
-    'nav-action-hub': p.tasks,
+    'nav-action-hub': p.accounts || p.tasks,   // always show alongside Accounts
     'nav-accounts':   p.accounts,
     'nav-analytics':  p.analytics,
     'nav-activities': p.activities,
@@ -6571,7 +6582,7 @@ function applyRole(roleKey) {
   const sectionMap = {
     tasks:'tasks', accounts:'accounts', analytics:'analytics',
     activities:'activities', settings:'settings', help:'help', projects:'projects',
-    'action-hub':'tasks'
+    'action-hub':'accounts'
   };
   const activeSection = ALL_SECTIONS.find(s => {
     const el = document.getElementById('section-' + s);
@@ -8736,8 +8747,9 @@ function computeExecAdoptionMetrics(csmFilter, productFilter) {
     'Invoice Automation':'#BE185D','PO Requisition':'#9D174D','Pay':'#047857','Ship':'#1D4ED8','Workspaces':'#374151',
   };
 
-  const moduleCounts = {};
-  MOD_LABELS.forEach(l => moduleCounts[l] = 0);
+  // moduleAccountSets tracks UNIQUE accounts per module to avoid double-counting
+  const moduleAccountSets = {};
+  MOD_LABELS.forEach(l => moduleAccountSets[l] = new Set());
 
   let totalActiveModules = 0, accountsWithAnyActive = 0, count3plus = 0;
   let fullyActive = 0, inProgress = 0, notStarted = 0;
@@ -8746,18 +8758,23 @@ function computeExecAdoptionMetrics(csmFilter, productFilter) {
     const detail = dataSource[name];
     if (!detail?.adoption) { notStarted++; return; }
     let adoptedCount = 0, adoptingCount = 0;
+    const seenModules = new Set(); // track modules already counted for this account
     (detail.adoption.sections || []).forEach(sec =>
       (sec.fields || []).forEach(f => {
         const st = normalise(f.status);
         if (!st) return;
-        if ((st === 'adopted' || st === 'adopting') && f.label && moduleCounts.hasOwnProperty(f.label)) {
-          moduleCounts[f.label]++;
+        if ((st === 'adopted' || st === 'adopting') && f.label && moduleAccountSets.hasOwnProperty(f.label)) {
+          // Only count each module once per account
+          if (!seenModules.has(f.label)) {
+            moduleAccountSets[f.label].add(name);
+            seenModules.add(f.label);
+          }
         }
         if (st === 'adopted') adoptedCount++;
         else if (st === 'adopting') adoptingCount++;
       })
     );
-    const active = adoptedCount + adoptingCount;
+    const active = seenModules.size; // unique active modules for this account
     totalActiveModules += active;
     if (active > 0) accountsWithAnyActive++;
     if (active >= 3) count3plus++;
@@ -8765,6 +8782,10 @@ function computeExecAdoptionMetrics(csmFilter, productFilter) {
     else if (adoptingCount > 0) inProgress++;
     else notStarted++;
   });
+
+  // Convert sets to counts
+  const moduleCounts = {};
+  MOD_LABELS.forEach(l => moduleCounts[l] = moduleAccountSets[l].size);
 
   const avgActive = total > 0 ? (totalActiveModules / total).toFixed(1) : '0.0';
   const pctAnyActive = total > 0 ? Math.round((accountsWithAnyActive / total) * 100) : 0;
