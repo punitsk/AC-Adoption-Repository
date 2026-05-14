@@ -1430,50 +1430,87 @@ button { cursor: pointer; }
         </div>
       </div>
 
-      <!-- Exec: Strategic KPI Focus Areas -->
+      <!-- Exec: Strategic KPI Row -->
       <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px;" id="exec-kpi-focus-row">
-        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;padding:8px 10px 7px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onclick="navToAccounts('all')" title="View all accounts" onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 12px rgba(52,211,153,.12)'" onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
-          <div style="font-size:18px;margin-bottom:6px;">🚀</div>
-          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Customer Onboarding</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">(AppCentral)</div>
-          <div style="font-size:20px;font-weight:900;color:#1B4D3E;margin-top:8px;line-height:1;" id="exec-kpi-onboarding">—</div>
-          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">accounts total</div>
+
+        <!-- 1. Total Accounts -->
+        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+          onclick="navToAccounts('all')" title="View all accounts"
+          onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 12px rgba(52,211,153,.12)'"
+          onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:10.5px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;">Total Accounts</span>
+            <span style="font-size:16px;">🚀</span>
+          </div>
+          <div style="font-size:26px;font-weight:900;color:#1B4D3E;line-height:1;" id="exec-kpi-onboarding">—</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;">managed in AppCentral</div>
         </div>
-        <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:13px;padding:8px 10px 7px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onclick="navToAccounts('adopted')" title="View active accounts" onmouseenter="this.style.borderColor='#F59E0B';this.style.boxShadow='0 2px 12px rgba(245,158,11,.15)'" onmouseleave="this.style.borderColor='#FDE68A';this.style.boxShadow='none'">
-          <div style="font-size:18px;margin-bottom:6px;">📈</div>
-          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Drive Adoption</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">& Retention</div>
-          <div style="font-size:20px;font-weight:900;color:#D97706;margin-top:8px;line-height:1;" id="exec-kpi-adoption">—</div>
-          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">active accounts</div>
+
+        <!-- 2. Active Adopters -->
+        <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+          onclick="navToAccounts('adopted')" title="View active accounts"
+          onmouseenter="this.style.borderColor='#F59E0B';this.style.boxShadow='0 2px 12px rgba(245,158,11,.15)'"
+          onmouseleave="this.style.borderColor='#FDE68A';this.style.boxShadow='none'">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:10.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">Active Adopters</span>
+            <span style="font-size:16px;">📈</span>
+          </div>
+          <div style="font-size:26px;font-weight:900;color:#D97706;line-height:1;" id="exec-kpi-adoption">—</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;" id="exec-kpi-adoption-sub">using ≥1 module actively</div>
         </div>
-        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;padding:8px 10px 7px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onclick="navToAccounts('notstarted')" title="View not-started accounts" onmouseenter="this.style.borderColor='#818CF8';this.style.boxShadow='0 2px 12px rgba(129,140,248,.12)'" onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
-          <div style="font-size:18px;margin-bottom:6px;">🔍</div>
-          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Identify Usage</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">Gaps</div>
-          <div style="font-size:20px;font-weight:900;color:#4F46E5;margin-top:8px;line-height:1;" id="exec-kpi-gaps">—</div>
-          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">not started</div>
+
+        <!-- 3. Not Yet Started -->
+        <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+          onclick="navToAccounts('notstarted')" title="View accounts not yet started"
+          onmouseenter="this.style.borderColor='#818CF8';this.style.boxShadow='0 2px 12px rgba(129,140,248,.12)'"
+          onmouseleave="this.style.borderColor='#DDD6FE';this.style.boxShadow='none'">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:10.5px;font-weight:700;color:#4338CA;text-transform:uppercase;letter-spacing:.5px;">Not Yet Started</span>
+            <span style="font-size:16px;">🔍</span>
+          </div>
+          <div style="font-size:26px;font-weight:900;color:#4F46E5;line-height:1;" id="exec-kpi-gaps">—</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;">zero modules active</div>
         </div>
-        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;padding:8px 10px 7px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onclick="navToAccounts('all')" title="View upsell candidates" onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 12px rgba(52,211,153,.12)'" onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
-          <div style="font-size:18px;margin-bottom:6px;">🤝</div>
-          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Upsell & Cross-sell</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">with AMs</div>
-          <div style="font-size:20px;font-weight:900;color:#059669;margin-top:8px;line-height:1;" id="exec-kpi-upsell">—</div>
-          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">1-product accounts</div>
+
+        <!-- 4. Expansion Candidates -->
+        <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+          onclick="navToAccounts('all')" title="View single-product accounts"
+          onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 12px rgba(52,211,153,.12)'"
+          onmouseleave="this.style.borderColor='#BBF7D0';this.style.boxShadow='none'">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:10.5px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">Expansion Ready</span>
+            <span style="font-size:16px;">🤝</span>
+          </div>
+          <div style="font-size:26px;font-weight:900;color:#059669;line-height:1;" id="exec-kpi-upsell">—</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;">on a single product only</div>
         </div>
-        <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:13px;padding:8px 10px 7px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onclick="navToAccounts('ref')" title="View referenceable accounts" onmouseenter="this.style.borderColor='#F59E0B';this.style.boxShadow='0 2px 12px rgba(245,158,11,.15)'" onmouseleave="this.style.borderColor='#FDE68A';this.style.boxShadow='none'">
-          <div style="font-size:18px;margin-bottom:6px;">🏆</div>
-          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">Customer</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">Advocacy</div>
-          <div style="font-size:20px;font-weight:900;color:#D97706;margin-top:8px;line-height:1;" id="exec-kpi-advocacy">—</div>
-          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">referenceable</div>
+
+        <!-- 5. Referenceable Customers -->
+        <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+          onclick="navToAccounts('ref')" title="View referenceable accounts"
+          onmouseenter="this.style.borderColor='#F59E0B';this.style.boxShadow='0 2px 12px rgba(245,158,11,.15)'"
+          onmouseleave="this.style.borderColor='#FDE68A';this.style.boxShadow='none'">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:10.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">Referenceable</span>
+            <span style="font-size:16px;">🏆</span>
+          </div>
+          <div style="font-size:26px;font-weight:900;color:#D97706;line-height:1;" id="exec-kpi-advocacy">—</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;" id="exec-kpi-advocacy-sub">willing to be references</div>
         </div>
-        <div style="background:#F0F9FF;border:1.5px solid #BAE6FD;border-radius:13px;padding:8px 10px 7px;cursor:pointer;transition:border-color .15s,box-shadow .15s;" onclick="navToAccounts('all')" title="View AI adoption accounts" onmouseenter="this.style.borderColor='#0EA5E9';this.style.boxShadow='0 2px 12px rgba(14,165,233,.12)'" onmouseleave="this.style.borderColor='#BAE6FD';this.style.boxShadow='none'">
-          <div style="font-size:18px;margin-bottom:6px;">🤖</div>
-          <div style="font-size:11.5px;font-weight:700;color:#111827;line-height:1.3;">AI Agent</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:3px;">Adoption</div>
-          <div style="font-size:20px;font-weight:900;color:#0284C7;margin-top:8px;line-height:1;" id="exec-kpi-ai">—</div>
-          <div style="font-size:10px;color:#9ca3af;margin-top:2px;">Gen AI + Agents</div>
+
+        <!-- 6. AI Adoption -->
+        <div style="background:#F0F9FF;border:1.5px solid #BAE6FD;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+          onclick="navToAccounts('all')" title="View AI adoption"
+          onmouseenter="this.style.borderColor='#0EA5E9';this.style.boxShadow='0 2px 12px rgba(14,165,233,.12)'"
+          onmouseleave="this.style.borderColor='#BAE6FD';this.style.boxShadow='none'">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:10.5px;font-weight:700;color:#075985;text-transform:uppercase;letter-spacing:.5px;">AI Adoption</span>
+            <span style="font-size:16px;">🤖</span>
+          </div>
+          <div style="font-size:26px;font-weight:900;color:#0284C7;line-height:1;" id="exec-kpi-ai">—</div>
+          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;">using Gen AI or Agents</div>
         </div>
+
       </div>
 
       <!-- Exec: Product Adoption Hero (redesigned) -->
@@ -8602,7 +8639,7 @@ function renderExecAdoptionMetrics() {
 
   // ── Executive Strategic KPI tiles ──
   const sfEl = id => document.getElementById(id);
-  // Apply same csm/product filter to ACCOUNTS for total count
+  // Apply csm/product filter to ACCOUNTS
   let filteredAccounts = ACCOUNTS || [];
   if (csmVal && csmVal !== 'all')         filteredAccounts = filteredAccounts.filter(a => a.csm === csmVal);
   if (productVal && productVal !== 'all') {
@@ -8610,22 +8647,38 @@ function renderExecAdoptionMetrics() {
     const pf = legMap[productVal] || productVal;
     filteredAccounts = filteredAccounts.filter(a => a.product === pf || a.product === productVal);
   }
-  if (sfEl('exec-kpi-onboarding')) sfEl('exec-kpi-onboarding').textContent = filteredAccounts.length || '—';
-  if (sfEl('exec-kpi-adoption'))   sfEl('exec-kpi-adoption').textContent   = m.accountsWithAnyActive || '—';
-  if (sfEl('exec-kpi-gaps'))       sfEl('exec-kpi-gaps').textContent       = m.journey.notStarted ?? '—';
+  const totalCount = filteredAccounts.length;
+
+  // 1. Total Accounts
+  sfEl('exec-kpi-onboarding') && (sfEl('exec-kpi-onboarding').textContent = totalCount || '—');
+
+  // 2. Active Adopters (accounts with ≥1 active module) + adoption rate %
+  const adoptionPct = totalCount > 0 ? Math.round((m.accountsWithAnyActive / totalCount) * 100) : 0;
+  sfEl('exec-kpi-adoption')     && (sfEl('exec-kpi-adoption').textContent     = m.accountsWithAnyActive || '—');
+  sfEl('exec-kpi-adoption-sub') && (sfEl('exec-kpi-adoption-sub').textContent = adoptionPct + '% adoption rate');
+
+  // 3. Not Yet Started
+  sfEl('exec-kpi-gaps') && (sfEl('exec-kpi-gaps').textContent = m.journey.notStarted ?? '—');
+
+  // 4. Expansion Ready (single-product accounts)
   if (sfEl('exec-kpi-upsell')) {
     const depth = computeProductDepth(csmVal !== 'all' ? csmVal : null);
-    sfEl('exec-kpi-upsell').textContent = (depth.buckets[1]||[]).length || '—';
+    const singleProd = (depth.buckets[1]||[]).length;
+    sfEl('exec-kpi-upsell').textContent = singleProd || '—';
   }
-  // Customer Advocacy = Referenceable account count (filtered)
+
+  // 5. Referenceable + % of portfolio
   const refCount = filteredAccounts.filter(a => a.ref).length;
-  if (sfEl('exec-kpi-advocacy'))   sfEl('exec-kpi-advocacy').textContent   = refCount || '—';
+  const refPct   = totalCount > 0 ? Math.round((refCount/totalCount)*100) : 0;
+  sfEl('exec-kpi-advocacy')     && (sfEl('exec-kpi-advocacy').textContent     = refCount || '—');
+  sfEl('exec-kpi-advocacy-sub') && (sfEl('exec-kpi-advocacy-sub').textContent = refPct + '% of portfolio');
+
+  // 6. AI Adoption (Gen AI + Agents active)
   if (sfEl('exec-kpi-ai')) {
-    // AI = accounts with Gen AI or Agents active (filtered)
     const aiSrc = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) ? ADOPTION_LIVE : ACCOUNT_DETAIL;
-    let aiCount = 0;
     const filteredNames = new Set(filteredAccounts.map(a => a.name));
-    Object.keys(aiSrc).filter(k => k !== 'default' && (filteredAccounts.length === (ACCOUNTS||[]).length || filteredNames.has(k))).forEach(name => {
+    let aiCount = 0;
+    Object.keys(aiSrc).filter(k => k !== 'default' && (totalCount === (ACCOUNTS||[]).length || filteredNames.has(k))).forEach(name => {
       (aiSrc[name]?.adoption?.sections||[]).forEach(sec =>
         (sec.fields||[]).forEach(f => {
           if ((f.label==='Gen AI'||f.label==='Agents') && (f.status||'').toLowerCase().match(/adopted|adopting|demo/))
