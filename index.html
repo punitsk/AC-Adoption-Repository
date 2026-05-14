@@ -3660,15 +3660,24 @@ function navToAccounts(filter) {
   window._acctSingleProdFilter   = false;
   window._acctAIFilter           = false;
   window._acctStaleFilter        = false;
-  window._acctTileLabel          = null;   // label shown in the filter banner
+  window._acctTileLabel          = null;
+  // Tile-origin CSM/product filters — stored as globals so getFilteredAccounts()
+  // can use them directly without depending on <select> option availability.
+  window._acctTileCsmFilter      = null;
+  window._acctTileProdFilter     = null;
 
-  // Carry global consultant/product filters into the accounts page
+  // Capture the dashboard-level CSM and product filters at click time
   const globalCsm     = ge('csm-filter')?.value     || 'all';
   const globalProduct = ge('product-filter')?.value  || 'all';
 
+  // Store as globals (reliable regardless of whether acct-csm has the option)
+  window._acctTileCsmFilter  = (globalCsm  !== 'all') ? globalCsm  : null;
+  window._acctTileProdFilter = (globalProduct !== 'all') ? globalProduct : null;
+
+  // Also try to sync the visible <select> elements so the dropdowns show correctly
   if (ge('acct-search'))          ge('acct-search').value = '';
-  if (ge('acct-csm'))             ge('acct-csm').value    = globalCsm !== 'all' ? globalCsm : '';
-  if (ge('acct-product'))         ge('acct-product').value = globalProduct !== 'all' ? globalProduct : '';
+  if (ge('acct-csm'))             ge('acct-csm').value    = window._acctTileCsmFilter  || '';
+  if (ge('acct-product'))         ge('acct-product').value = window._acctTileProdFilter || '';
   if (ge('acct-adoption-status')) ge('acct-adoption-status').value = '';
 
   acctSortKey = 'name'; acctSortAsc = true;
@@ -4106,8 +4115,11 @@ function fmtContact(days) {
 
 function getFilteredAccounts() {
   const search         = (document.getElementById('acct-search')?.value || '').toLowerCase();
-  const csm            = document.getElementById('acct-csm')?.value     || '';
-  const product        = document.getElementById('acct-product')?.value || '';
+  // Use tile-origin globals first (set by navToAccounts); fall back to <select> values.
+  // This ensures the correct filter is applied even if the <select> option wasn't
+  // populated or the searchable-dropdown enhancement didn't update the native value.
+  const csm            = window._acctTileCsmFilter  || document.getElementById('acct-csm')?.value     || '';
+  const product        = window._acctTileProdFilter || document.getElementById('acct-product')?.value || '';
   const adoptionFilter = document.getElementById('acct-adoption-status')?.value || '';
 
   const adoptionSrc = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) ? ADOPTION_LIVE : null;
@@ -4225,6 +4237,8 @@ function _clearAcctSpecialFilters() {
   window._acctAIFilter         = false;
   window._acctStaleFilter      = false;
   window._acctTileLabel        = null;
+  window._acctTileCsmFilter    = null;
+  window._acctTileProdFilter   = null;
 }
 
 function resetAccountFilters() {
@@ -4275,7 +4289,9 @@ function renderAccountsTable() {
   const labelEl  = document.getElementById('acct-tile-filter-label');
   if (bannerEl && labelEl) {
     if (window._acctTileLabel) {
-      labelEl.textContent = window._acctTileLabel + '  ·  ' + rows.length + ' account' + (rows.length !== 1 ? 's' : '');
+      const csmCtx  = window._acctTileCsmFilter  ? '  ·  ' + window._acctTileCsmFilter  : '';
+      const prodCtx = window._acctTileProdFilter ? '  ·  ' + window._acctTileProdFilter : '';
+      labelEl.textContent = window._acctTileLabel + csmCtx + prodCtx + '  ·  ' + rows.length + ' account' + (rows.length !== 1 ? 's' : '');
       bannerEl.style.display = 'flex';
     } else {
       bannerEl.style.display = 'none';
