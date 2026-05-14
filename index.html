@@ -1714,13 +1714,13 @@ button { cursor: pointer; }
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <div>
               <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">Net Promoter Score</div>
-              <div style="font-size:11px;color:#6b7280;margin-top:1px;" id="nps-period-label">Last 30 days</div>
+              <div style="font-size:11px;color:#6b7280;margin-top:1px;" id="nps-period-label">Year to Date</div>
             </div>
-            <div style="display:flex;gap:3px;background:#f3f4f6;border-radius:8px;padding:3px;">
-              <button id="nps-tab-M" onclick="setNpsPeriod('M',this)" style="border:none;background:#1B4D3E;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;">M</button>
-              <button id="nps-tab-Q" onclick="setNpsPeriod('Q',this)" style="border:none;background:transparent;color:#6b7280;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;">Q</button>
-              <button id="nps-tab-Y" onclick="setNpsPeriod('Y',this)" style="border:none;background:transparent;color:#6b7280;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;">Y</button>
-            </div>
+            <span style="font-size:10px;font-weight:700;color:#fff;background:#1B4D3E;border-radius:20px;padding:3px 10px;">YTD</span>
+            <!-- Hidden period tab buttons — kept for JS compatibility, not shown -->
+            <button id="nps-tab-M" style="display:none;">M</button>
+            <button id="nps-tab-Q" style="display:none;">Q</button>
+            <button id="nps-tab-Y" style="display:none;">Y</button>
           </div>
           <div style="display:flex;align-items:center;gap:20px;">
             <!-- SVG gauge (semicircle, arc length ≈ π×55 ≈ 173) -->
@@ -3205,7 +3205,7 @@ function renderNPSGauge() {
 
   NPS_DATA.M = _buildNpsEntry(monthly,   'Last 30 days');
   NPS_DATA.Q = _buildNpsEntry(quarterly, 'Last 90 days');
-  NPS_DATA.Y = _buildNpsEntry(yearly,    'Last 12 months');
+  NPS_DATA.Y = _buildNpsEntry(yearly,    'Year to Date');
 
   // If no dates available, mark that in the labels so it's transparent to the user
   if (!hasDates) {
@@ -3215,12 +3215,8 @@ function renderNPSGauge() {
     });
   }
 
-  // Re-render whichever tab is currently active
-  const activeTab = ['M','Q','Y'].find(p => {
-    const b = document.getElementById('nps-tab-' + p);
-    return b && b.style.background === 'rgb(27, 77, 62)';
-  }) || 'M';
-  setNpsPeriod(activeTab, null);
+  // Always render YTD view
+  setNpsPeriod('Y', null);
 }
 
 function renderTeamNPSByCSM() {
@@ -6514,11 +6510,11 @@ const ROLE_DEFS = {
     color:'#065f46', bg:'#D1FAE5',
     description:'Manages their own accounts, tasks, and adoption activities.',
     perms: {
-      dashboard:true, csmView:true, executiveView:false,
+      dashboard:true, csmView:true, executiveView:true,
       tasks:true, accounts:true, 'product-usage':true, meetings:true, cases:false, strategic:true, projects:true,
       settings:true, help:true,
       canCreate:true, canEdit:true, canDelete:false,
-      seeAllCsms:false, manageTeam:false, defineRoles:false
+      seeAllCsms:true, manageTeam:false, defineRoles:false
     }
   },
   executive: {
@@ -7805,9 +7801,9 @@ function renderActionHub() {
 
 // ── NPS Period Toggle ──
 const NPS_DATA = {
-  M: { score: +67, promoters: '72%', passives: '14%', detractors:  '5%', label: 'Apr 2026 · 52 responses',        trend: '↑ +4 pts vs last month',    trendColor: '#059669', offset: 52  },
-  Q: { score: +61, promoters: '68%', passives: '17%', detractors:  '8%', label: 'Q1 2026 · 148 responses',        trend: '↑ +9 pts vs last quarter',   trendColor: '#059669', offset: 69  },
-  Y: { score: +54, promoters: '63%', passives: '20%', detractors: '11%', label: 'FY 2025 · 592 responses',        trend: '↑ +11 pts vs prior year',    trendColor: '#059669', offset: 87  },
+  M: { score: +67, promoters: '72%', passives: '14%', detractors:  '5%', label: 'Apr 2026 · 52 responses',          trend: '↑ +4 pts vs last month',    trendColor: '#059669', offset: 52  },
+  Q: { score: +61, promoters: '68%', passives: '17%', detractors:  '8%', label: 'Q1 2026 · 148 responses',          trend: '↑ +9 pts vs last quarter',   trendColor: '#059669', offset: 69  },
+  Y: { score: +54, promoters: '63%', passives: '20%', detractors: '11%', label: 'Year to Date · 592 responses',     trend: '↑ +11 pts vs prior year',    trendColor: '#059669', offset: 87  },
 };
 
 function setNpsPeriod(period, btn) {
@@ -7846,8 +7842,8 @@ function setNpsPeriod(period, btn) {
   if (trend) { trend.textContent = d.trend; trend.style.color = d.trendColor; trend.style.fontWeight = '600'; }
 }
 
-// Initialise NPS to Monthly on load
-setNpsPeriod('M', null);
+// Initialise NPS to YTD on load
+setNpsPeriod('Y', null);
 
 // ══════════════════════════════════════════════════════════
 // CASES DATA & FUNCTIONS
