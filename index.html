@@ -1118,13 +1118,9 @@ button { cursor: pointer; }
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       Action Hub
     </div>
-    <div class="nav-item" id="nav-analytics" onclick="navTo('analytics')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-      Analytics
-    </div>
-    <div class="nav-item" id="nav-activities" onclick="navTo('activities')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Activities
+    <div class="nav-item" id="nav-product-usage" onclick="navTo('product-usage')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Product Usage
     </div>
     <span id="nav-meetings" style="display:none;"></span>
     <div class="nav-item" id="nav-strategic" onclick="navTo('strategic')">
@@ -1402,173 +1398,6 @@ button { cursor: pointer; }
 
       </div><!-- end compact stats row -->
 
-      <!-- 2-column: NPS + Tasks & Upcoming -->
-      <div style="display:grid;grid-template-columns:320px 1fr;gap:14px;margin-bottom:16px;">
-
-        <!-- NPS card -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">My NPS Score</div>
-              <div class="card-sub" id="nps-period-label">Apr 2026 · 52 responses</div>
-            </div>
-            <div style="display:flex;background:#F0F2F5;border-radius:8px;padding:3px;gap:2px;">
-              <button onclick="setNpsPeriod('M',this)" id="nps-tab-M" style="font-size:11px;font-weight:700;padding:4px 10px;border:none;border-radius:6px;cursor:pointer;background:#1B4D3E;color:#fff;transition:all .15s;">M</button>
-              <button onclick="setNpsPeriod('Q',this)" id="nps-tab-Q" style="font-size:11px;font-weight:700;padding:4px 10px;border:none;border-radius:6px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">Q</button>
-              <button onclick="setNpsPeriod('Y',this)" id="nps-tab-Y" style="font-size:11px;font-weight:700;padding:4px 10px;border:none;border-radius:6px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">Y</button>
-            </div>
-          </div>
-          <div class="gauge-wrap">
-            <svg class="gauge-svg" viewBox="0 0 130 70">
-              <path d="M15,65 A55,55 0 0,1 115,65" fill="none" stroke="#f3f4f6" stroke-width="12" stroke-linecap="round"/>
-              <path id="nps-gauge-arc" d="M15,65 A55,55 0 0,1 115,65" fill="none" stroke="#1B4D3E" stroke-width="12" stroke-linecap="round" stroke-dasharray="173" stroke-dashoffset="52"/>
-            </svg>
-            <div class="gauge-value" id="nps-score-val">+67</div>
-            <div class="gauge-lbl">Net Promoter Score</div>
-          </div>
-          <div class="nps-row">
-            <div class="nps-seg"><div class="nps-seg-val" style="color:#1B4D3E;" id="nps-promoters">72%</div><div class="nps-seg-lbl">Promoters</div></div>
-            <div class="nps-seg"><div class="nps-seg-val" style="color:#f59e0b;"  id="nps-passives">14%</div><div class="nps-seg-lbl">Passives</div></div>
-            <div class="nps-seg"><div class="nps-seg-val" style="color:#ef4444;"  id="nps-detractors">5%</div><div class="nps-seg-lbl">Detractors</div></div>
-          </div>
-          <div style="margin-top:8px;text-align:center;font-size:11px;" id="nps-trend-label"></div>
-        </div>
-
-        <!-- Tasks + Upcoming stacked -->
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div class="card">
-            <div class="card-header">
-              <div><div class="card-title">My Tasks</div><div class="card-sub" id="dash-tasks-sub">—</div></div>
-              <button class="btn-outline" style="font-size:12px;padding:5px 10px;" onclick="openTaskModal()">+ Add</button>
-            </div>
-            <div id="dash-tasks-list"></div>
-            <div id="dash-tasks-empty" style="display:none;text-align:center;padding:16px 0;color:#9ca3af;font-size:12.5px;">No open tasks — you're all caught up.</div>
-            <div style="margin-top:8px;text-align:right;">
-              <button class="btn-outline" style="font-size:11.5px;padding:4px 10px;" onclick="navTo('action-hub')">Open Action Hub →</button>
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-header">
-              <div><div class="card-title">Upcoming</div><div class="card-sub" id="dash-upcoming-sub">—</div></div>
-            </div>
-            <div id="dash-upcoming-list"></div>
-            <div id="dash-upcoming-empty" style="display:none;text-align:center;padding:16px 0;color:#9ca3af;font-size:12.5px;">No upcoming meetings.</div>
-            <div style="margin-top:8px;text-align:right;">
-              <button class="btn-outline" style="font-size:11.5px;padding:4px 10px;" onclick="navTo('action-hub')">Open Action Hub →</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Opportunities row -->
-      <div style="display:grid;grid-template-columns:1fr;margin-bottom:16px;">
-        <div class="card">
-          <div class="card-header">
-
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">My Tasks</div>
-              <div class="card-sub" id="dash-tasks-sub">—</div>
-            </div>
-            <button class="btn-outline" style="font-size:12px;padding:5px 10px;" onclick="openTaskModal()">+ Add</button>
-          </div>
-          <div id="dash-tasks-list"></div>
-          <div id="dash-tasks-empty" style="display:none;text-align:center;padding:22px 0;color:#9ca3af;font-size:12.5px;">No open tasks — you're all caught up.</div>
-          <div style="margin-top:10px;text-align:right;">
-            <button class="btn-outline" style="font-size:11.5px;padding:4px 10px;" onclick="navTo('action-hub')">Open Action Hub →</button>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">Upcoming</div>
-              <div class="card-sub" id="dash-upcoming-sub">—</div>
-            </div>
-          </div>
-          <div id="dash-upcoming-list"></div>
-          <div id="dash-upcoming-empty" style="display:none;text-align:center;padding:22px 0;color:#9ca3af;font-size:12.5px;">No upcoming meetings.</div>
-          <div style="margin-top:10px;text-align:right;">
-            <button class="btn-outline" style="font-size:11.5px;padding:4px 10px;" onclick="navTo('action-hub')">Open Action Hub →</button>
-          </div>
-        </div>
-
-            <div>
-              <div class="card-title">Open Opportunities</div>
-              <div class="card-sub">5 active · $420K pipeline</div>
-            </div>
-            <button class="btn-outline" style="font-size:12px;padding:5px 10px;">+ New</button>
-          </div>
-
-          <!-- Opportunity item -->
-          <div style="display:flex;flex-direction:column;gap:0;">
-
-            <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f4f6;">
-              <div style="width:32px;height:32px;border-radius:9px;background:#FEE2E2;color:#991b1b;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">AC</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12.5px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Acme Corp</div>
-                <div style="font-size:11px;color:#9ca3af;margin-top:1px;">ERP Renewal Upsell</div>
-              </div>
-              <div style="text-align:right;flex-shrink:0;">
-                <div style="font-size:12.5px;font-weight:700;color:#047857;">$28K</div>
-                <span style="font-size:10px;font-weight:600;background:#FEE2E2;color:#991b1b;padding:2px 7px;border-radius:10px;">Negotiation</span>
-              </div>
-            </div>
-
-            <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f4f6;">
-              <div style="width:32px;height:32px;border-radius:9px;background:#D1FAE5;color:#065f46;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">BT</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12.5px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">BlueTech Systems</div>
-                <div style="font-size:11px;color:#9ca3af;margin-top:1px;">Module Expansion – SCM</div>
-              </div>
-              <div style="text-align:right;flex-shrink:0;">
-                <div style="font-size:12.5px;font-weight:700;color:#047857;">$95K</div>
-                <span style="font-size:10px;font-weight:600;background:#D1FAE5;color:#065f46;padding:2px 7px;border-radius:10px;">Proposal</span>
-              </div>
-            </div>
-
-            <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f4f6;">
-              <div style="width:32px;height:32px;border-radius:9px;background:#EDE9FE;color:#5b21b6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">SL</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12.5px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Sunrise Logistics</div>
-                <div style="font-size:11px;color:#9ca3af;margin-top:1px;">TMS Add-on Seats</div>
-              </div>
-              <div style="text-align:right;flex-shrink:0;">
-                <div style="font-size:12.5px;font-weight:700;color:#047857;">$42K</div>
-                <span style="font-size:10px;font-weight:600;background:#FEF3C7;color:#92400e;padding:2px 7px;border-radius:10px;">Discovery</span>
-              </div>
-            </div>
-
-            <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f3f4f6;">
-              <div style="width:32px;height:32px;border-radius:9px;background:#FEF3C7;color:#92400e;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">VG</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12.5px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Vertex Group</div>
-                <div style="font-size:11px;color:#9ca3af;margin-top:1px;">WMS Renewal + Upsell</div>
-              </div>
-              <div style="text-align:right;flex-shrink:0;">
-                <div style="font-size:12.5px;font-weight:700;color:#047857;">$68K</div>
-                <span style="font-size:10px;font-weight:600;background:#FEF3C7;color:#92400e;padding:2px 7px;border-radius:10px;">Discovery</span>
-              </div>
-            </div>
-
-            <div style="display:flex;align-items:center;gap:10px;padding:9px 0;">
-              <div style="width:32px;height:32px;border-radius:9px;background:#DBEAFE;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;">MP</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:12.5px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Metro Parts Inc</div>
-                <div style="font-size:11px;color:#9ca3af;margin-top:1px;">SCM Premium Support</div>
-              </div>
-              <div style="text-align:right;flex-shrink:0;">
-                <div style="font-size:12.5px;font-weight:700;color:#047857;">$187K</div>
-                <span style="font-size:10px;font-weight:600;background:#D1FAE5;color:#065f46;padding:2px 7px;border-radius:10px;">Verbal Yes</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        </div><!-- end opportunities card -->
-      </div><!-- end opportunities row -->
     </div><!-- end consultant-view -->
 
 
@@ -1804,77 +1633,6 @@ button { cursor: pointer; }
 
       </div><!-- end exec compact stats row -->
 
-      <!-- Consultant Performance Leaderboard -->
-      <div class="middle-row">
-        <div class="card">
-          <div class="card-header">
-            <div><div class="card-title">Consultant Performance</div><div class="card-sub">Adoption health, ARR, and account counts</div></div>
-            <div class="period-tabs">
-              <div class="period-tab active">Q2</div>
-              <div class="period-tab">Q1</div>
-              <div class="period-tab">YTD</div>
-            </div>
-          </div>
-          <table class="csm-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Consultant</th>
-                <th>Accts</th>
-                <th>Adoption Health</th>
-                <th>ARR</th>
-                <th>⭐ Ref</th>
-              </tr>
-            </thead>
-            <tbody id="csm-perf-tbody">
-              <tr>
-                <td><div class="rank-badge" style="background:#FEF3C7;color:#92400e;font-size:10px;">1</div></td>
-                <td><div class="csm-name-cell"><div class="csm-av" style="background:#D1FAE5;color:#065f46;">GK</div><div><div class="csm-nm">Kambi G.</div><div class="csm-role">Sr. Consultant</div></div></div></td>
-                <td style="font-weight:600;">14</td>
-                <td><div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:71%;background:#1B4D3E;"></div></div><span class="mini-bar-pct">71%</span></div></td>
-                <td style="font-weight:700;color:#047857;">$294K</td>
-                <td style="font-weight:700;color:#6d28d9;">7</td>
-              </tr>
-              <tr>
-                <td><div class="rank-badge" style="background:#F3F4F6;color:#374151;font-size:10px;">2</div></td>
-                <td><div class="csm-name-cell"><div class="csm-av" style="background:#EDE9FE;color:#5b21b6;">PR</div><div><div class="csm-nm">Pratik P.</div><div class="csm-role">Consultant</div></div></div></td>
-                <td style="font-weight:600;">12</td>
-                <td><div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:67%;background:#1B4D3E;"></div></div><span class="mini-bar-pct">67%</span></div></td>
-                <td style="font-weight:700;color:#047857;">$720K</td>
-                <td style="font-weight:700;color:#6d28d9;">5</td>
-              </tr>
-              <tr>
-                <td><div class="rank-badge" style="background:#F3F4F6;color:#374151;font-size:10px;">3</div></td>
-                <td><div class="csm-name-cell"><div class="csm-av" style="background:#FEF3C7;color:#92400e;">MA</div><div><div class="csm-nm">Mani M.</div><div class="csm-role">Consultant</div></div></div></td>
-                <td style="font-weight:600;">9</td>
-                <td><div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:78%;background:#1B4D3E;"></div></div><span class="mini-bar-pct">78%</span></div></td>
-                <td style="font-weight:700;color:#047857;">$880K</td>
-                <td style="font-weight:700;color:#6d28d9;">4</td>
-              </tr>
-              <tr>
-                <td><div class="rank-badge" style="background:#F3F4F6;color:#374151;font-size:10px;">4</div></td>
-                <td><div class="csm-name-cell"><div class="csm-av" style="background:#FEE2E2;color:#991b1b;">NA</div><div><div class="csm-nm">Navya N.</div><div class="csm-role">Assoc. Consultant</div></div></div></td>
-                <td style="font-weight:600;">7</td>
-                <td><div class="mini-bar-wrap"><div class="mini-bar-track"><div class="mini-bar-fill" style="width:57%;background:#f59e0b;"></div></div><span class="mini-bar-pct">57%</span></div></td>
-                <td style="font-weight:700;color:#047857;">$506K</td>
-                <td style="font-weight:700;color:#6d28d9;">2</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- ARR by Product Line -->
-        <div class="card">
-          <div class="card-header">
-            <div><div class="card-title">ARR by Product Line</div><div class="card-sub">Q2 2026 performance</div></div>
-          </div>
-          <div id="arr-by-product-list"></div>
-          <div style="margin-top:12px;padding-top:10px;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:12px;color:#9ca3af;">Total ARR</span>
-            <span style="font-size:15px;font-weight:800;color:#1B4D3E;" id="lead-arr-product-total">—</span>
-          </div>
-        </div>
-      </div>
     </div><!-- end leadership-view -->
 
   </div><!-- end content / end section-dashboard -->
@@ -2119,20 +1877,34 @@ button { cursor: pointer; }
   </div>
 
   <!-- ══ SECTION: ANALYTICS (stub) ══ -->
-  <div id="section-analytics" class="hidden" style="flex:1;min-width:0;overflow-y:auto;padding:20px 28px 28px;">
+  <!-- ══ SECTION: PRODUCT USAGE ══ -->
+  <div id="section-product-usage" class="hidden" style="flex:1;min-width:0;overflow-y:auto;padding:20px 28px 28px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-      <div><div style="font-size:24px;font-weight:700;color:#111827;">Analytics</div><div style="font-size:13px;color:#9ca3af;margin-top:3px;">ARR, NPS, churn, and team performance reports</div></div>
-      <button class="btn-outline">↑ Export Report</button>
+      <div>
+        <div style="font-size:24px;font-weight:700;color:#111827;">Product Usage</div>
+        <div style="font-size:13px;color:#9ca3af;margin-top:3px;">Daily · Weekly · Monthly active users by product</div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <select id="pu-period" onchange="renderProductUsage()" style="font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
+          <option value="all">All Products</option>
+          <option value="core">Core (ERP · EAM · EDI)</option>
+          <option value="ai">AI / Intelligence</option>
+          <option value="finance">Finance & Operations</option>
+        </select>
+        <button class="btn-outline" onclick="renderProductUsage()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
     </div>
-    <div style="background:#fff;border-radius:14px;padding:40px;text-align:center;color:#9ca3af;border:1.5px dashed #e5e7eb;">
-      <div style="font-size:36px;margin-bottom:12px;">📊</div>
-      <div style="font-size:15px;font-weight:600;color:#374151;margin-bottom:6px;">Analytics section coming soon</div>
-      <div style="font-size:13px;">Charts and reports on ARR growth, NPS trends, churn risk, and team performance.</div>
-    </div>
+    <!-- Summary tiles -->
+    <div id="pu-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;"></div>
+    <!-- Product table -->
+    <div id="pu-table-wrap" style="background:#fff;border-radius:14px;border:1px solid #f0f0f0;overflow:hidden;"></div>
   </div>
 
-  <!-- ══ SECTION: ACTIVITIES ══ -->
-  <div id="section-activities" class="hidden" style="flex:1;min-width:0;overflow-y:auto;padding:20px 28px 28px;">
+  <!-- ══ SECTION: ACTIVITIES (hidden, kept for data) ══ -->
+  <div id="section-activities" class="hidden" style="flex:1;min-width:0;overflow-y:auto;padding:20px 28px 28px;display:none !important;">
 
     <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
@@ -2839,12 +2611,10 @@ function applyFilters() {
   if (acctProd && globalProduct  !== 'all') acctProd.value = globalProduct;
   // Re-render whichever section is currently visible
   const acctSection   = document.getElementById('section-accounts');
-  const activSection  = document.getElementById('section-activities');
-  const analytSection = document.getElementById('section-analytics');
+  const puSection     = document.getElementById('section-product-usage');
   const actHubSection = document.getElementById('section-action-hub');
-  if (acctSection   && !acctSection.classList.contains('hidden'))   { renderAccountsTable(); renderAdoptionPanels(); }
-  if (activSection  && !activSection.classList.contains('hidden'))  { if (typeof renderActivitiesFeed === 'function') renderActivitiesFeed(); }
-  if (analytSection && !analytSection.classList.contains('hidden')) { if (typeof renderAnalytics === 'function') renderAnalytics(); }
+  if (acctSection && !acctSection.classList.contains('hidden'))  { renderAccountsTable(); renderAdoptionPanels(); }
+  if (puSection   && !puSection.classList.contains('hidden'))    { if (typeof renderProductUsage === 'function') renderProductUsage(); }
   if (actHubSection && !actHubSection.classList.contains('hidden')) { if (typeof renderActionHub === 'function') renderActionHub(); }
 }
 
@@ -3753,7 +3523,7 @@ updateBanner(); renderChips(); renderDashboard();
 // ══════════════════════════════
 // NAVIGATION
 // ══════════════════════════════
-const ALL_SECTIONS = ['dashboard','accounts','tasks','analytics','activities','meetings','action-hub','strategic','projects','account-detail','settings','help'];
+const ALL_SECTIONS = ['dashboard','accounts','tasks','product-usage','meetings','action-hub','strategic','projects','account-detail','settings','help'];
 
 function navTo(section) {
   ALL_SECTIONS.forEach(s => {
@@ -3770,9 +3540,9 @@ function navTo(section) {
     populateDashboardFilters();
     renderDashboard();
   }
-  if (section === 'tasks')       renderTasksTable();
-  if (section === 'activities')  renderActivitiesFeed();
-  if (section === 'meetings')    renderMeetings();
+  if (section === 'tasks')          renderTasksTable();
+  if (section === 'product-usage')  renderProductUsage();
+  if (section === 'meetings')       renderMeetings();
   if (section === 'action-hub')  renderActionHub();
   // cases section removed
   if (section === 'strategic')   renderStrategicBoard();
@@ -6358,7 +6128,7 @@ const ROLE_DEFS = {
     description:'Manages their own accounts, tasks, and adoption activities.',
     perms: {
       dashboard:true, csmView:true, executiveView:false,
-      tasks:true, accounts:true, analytics:true, activities:true, meetings:true, cases:false, strategic:true, projects:true,
+      tasks:true, accounts:true, 'product-usage':true, meetings:true, cases:false, strategic:true, projects:true,
       settings:true, help:true,
       canCreate:true, canEdit:true, canDelete:false,
       seeAllCsms:false, manageTeam:false, defineRoles:false
@@ -6370,7 +6140,7 @@ const ROLE_DEFS = {
     description:'Portfolio-level view. Sees Executive Overview, adoption metrics, and Analytics.',
     perms: {
       dashboard:true, csmView:false, executiveView:true,
-      tasks:false, accounts:true, analytics:true, activities:false, meetings:true, cases:false, strategic:false, projects:true,
+      tasks:false, accounts:true, 'product-usage':true, meetings:true, cases:false, strategic:false, projects:true,
       settings:true, help:true,
       canCreate:false, canEdit:false, canDelete:false,
       seeAllCsms:true, manageTeam:false, defineRoles:false
@@ -6382,7 +6152,7 @@ const ROLE_DEFS = {
     description:'Full access to all features, settings, and team management.',
     perms: {
       dashboard:true, csmView:true, executiveView:true,
-      tasks:true, accounts:true, analytics:true, activities:true, meetings:true, cases:false, strategic:true, projects:true,
+      tasks:true, accounts:true, 'product-usage':true, meetings:true, cases:false, strategic:true, projects:true,
       settings:true, help:true,
       canCreate:true, canEdit:true, canDelete:true,
       seeAllCsms:true, manageTeam:true, defineRoles:true
@@ -6456,8 +6226,7 @@ function applyRole(roleKey) {
     'nav-dashboard':  p.dashboard,
     'nav-action-hub': p.accounts || p.tasks,   // always show alongside Accounts
     'nav-accounts':   p.accounts,
-    'nav-analytics':  p.analytics,
-    'nav-activities': p.activities,
+    'nav-product-usage': p['product-usage'],
     'nav-meetings':   false,
     'nav-strategic':  p.strategic,
     'nav-projects':   p.projects,
@@ -6471,8 +6240,8 @@ function applyRole(roleKey) {
 
   // If current section is now hidden, redirect to dashboard
   const sectionMap = {
-    tasks:'tasks', accounts:'accounts', analytics:'analytics',
-    activities:'activities', settings:'settings', help:'help', projects:'projects',
+    tasks:'tasks', accounts:'accounts', 'product-usage':'product-usage',
+    settings:'settings', help:'help', projects:'projects',
     'action-hub':'accounts'
   };
   const activeSection = ALL_SECTIONS.find(s => {
@@ -6516,7 +6285,7 @@ function applyRole(roleKey) {
   // Re-render active section to apply button locks
   if (activeSection === 'accounts')   renderAccountsTable();
   if (activeSection === 'tasks')      renderTasksTable();
-  if (activeSection === 'activities') renderActivitiesFeed();
+  if (activeSection === 'product-usage') renderProductUsage();
 
   // Settings sidebar: show all tabs for admin, profile-only for others
   refreshSettingsSidebar();
@@ -7305,34 +7074,50 @@ function renderAHMeetings() {
 
 // ── Real Outlook data fetched via M365 connector ──
 const OUTLOOK_DATA = {
-  fetchedAt: '2026-05-13T00:00:00',
+  fetchedAt: '2026-05-14T12:00:00',
   meetings: [
-    { subject:'Modern Metals <> AppCentral Weekly Check In',                start:'2026-05-13T13:15:00.000Z', end:'2026-05-13T13:45:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:true,  attendees:['Aravind.Inamdar@aptean.com','marciad@modern-metal.com','ethanp@modern-metal.com'],                                                                                                                        link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rCCk38AAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIMxUIoAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'AM-CSM Weekly Connect [Mark Arnett]',                         start:'2026-05-13T14:00:00.000Z', end:'2026-05-13T14:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Mark.Arnett@aptean.com','Praveenkumar.Bayari@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                                                    link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rCCk38AAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIAV8FIgAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Pleasant Valley <> Aptean CSM Connect',                       start:'2026-05-13T17:00:00.000Z', end:'2026-05-13T17:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['ManiKandan.Venkatesh@aptean.com','jmiller@pvrsd.org','Gangadarayya.Kambi@aptean.com'],                                                                                                            link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rCCk38AAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIH5cSrAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'METALfx | Aptean – Biweekly Check-in with CSM',               start:'2026-05-13T17:30:00.000Z', end:'2026-05-13T18:00:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Aravind.Elantamizhan@aptean.com','egm@metalfx.com','bg@metalfx.com','kf@metalfx.com','Gangadarayya.Kambi@aptean.com','Praveenkumar.Bayari@aptean.com'],                                    link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rCCk38AAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAHnfyuAAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Griffin Holdings – Project Kick Off AppCentral',               start:'2026-05-13T18:00:00.000Z', end:'2026-05-13T18:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Aravind.Inamdar@aptean.com','jenniferquinnelly@griffinfoods.com','Gangadarayya.Kambi@aptean.com','danwilkins@houseofwebster.com','rickwilmoth@griffinfoods.com'],                       link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAgz4rgKAAA%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'AppCentral – M2M Gen AI Private Preview Meeting',              start:'2026-05-13T18:30:00.000Z', end:'2026-05-13T19:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Joan.Baldwin@aptean.com','Praveenkumar.Bayari@aptean.com','Gangadarayya.Kambi@aptean.com','jason@phpsd.com','craig@trailercompany.com','wsnyder@ziamatic.com'],                        link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rCCk38AAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIGG2Y8QAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Customer Value & Growth Team Connect',                          start:'2026-05-14T12:00:00.000Z', end:'2026-05-14T14:00:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Gangadarayya.Kambi@aptean.com','Aravind.Elantamizhan@aptean.com','Rishivanth.P@aptean.com','ManiKandan.Venkatesh@aptean.com'],                              link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw80AAA%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'M2M – 8.0 Live Customer Issues',                               start:'2026-05-14T12:00:00.000Z', end:'2026-05-14T12:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Gangadarayya.Kambi@aptean.com','Praveenkumar.Bayari@aptean.com'],                                                                                             link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAICTFrLQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Weekly Discussion with Pratik – CSM Team',                     start:'2026-05-14T12:30:00.000Z', end:'2026-05-14T13:00:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:true,  attendees:['Pratik.Rout@aptean.com'],                                                                                                                                                               link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIBIq7EAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'All Hands – AppCentral Outstanding Initiations Alignment',     start:'2026-05-14T14:00:00.000Z', end:'2026-05-14T14:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Vic.Osorio@aptean.com','Praveenkumar.Bayari@aptean.com','Pratik.Rout@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                                       link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw8xAAA%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Monthly Call – Aptean <> Rodon',                               start:'2026-05-14T14:00:00.000Z', end:'2026-05-14T14:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Zeshan.Raja@aptean.com','gmellor@rodongroup.com','Mark.Arnett@aptean.com','Gangadarayya.Kambi@aptean.com','tmiller@rodongroup.com'],                                                   link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAETod5IAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Stegmeier, LLC <> Aptean – CSM Monthly Connect',               start:'2026-05-14T16:00:00.000Z', end:'2026-05-14T16:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Charan.Kumar@aptean.com','raye@stegmeier.com','trey@stegmeier.com','Praveenkumar.Bayari@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIG%2FT%2BqQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Adoption Dashboard Review and Touchbase Discussion',           start:'2026-05-14T16:30:00.000Z', end:'2026-05-14T17:00:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Abhishek.Kandar@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                                                                link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw8yAAA%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Estes Design – AppCentral Weekly Check In',                    start:'2026-05-14T17:00:00.000Z', end:'2026-05-14T17:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:true,  attendees:['dzgray@estesdm.com'],                                                                                                                                                                   link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIMxUIpQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Aptean AppCentral <> BPI Medical Weekly Check In UAT',         start:'2026-05-14T18:00:00.000Z', end:'2026-05-14T18:45:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:true,  attendees:['debraw@bpimedical.com'],                                                                                                                                                                link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIMxUIpgAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Best Practices Video – Status Update',                          start:'2026-05-15T13:30:00.000Z', end:'2026-05-15T14:00:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Aravind.Elantamizhan@aptean.com','Gangadarayya.Kambi@aptean.com','Pratik.Rout@aptean.com','Rishivanth.P@aptean.com'],                                                                    link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rIU6FKAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIEU4IKQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'All Hands – AppCentral Outstanding Initiations Alignment (Fri)',start:'2026-05-15T14:00:00.000Z', end:'2026-05-15T14:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Vic.Osorio@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                                                                                                link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw8zAAA%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Framarx / Waxstar – Weekly Connect',                           start:'2026-05-15T15:00:00.000Z', end:'2026-05-15T15:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Rishivanth.P@aptean.com','christopher@framarx.com','Praveenkumar.Bayari@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                                  link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rIU6FKAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAH0LfZfAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Monthly Meeting with Praveen',                                  start:'2026-05-15T15:00:00.000Z', end:'2026-05-15T15:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:true,  attendees:['Praveenkumar.Bayari@aptean.com','Pratik.Rout@aptean.com'],                                                                                                                               link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rIU6FKAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAICeefSQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
-    { subject:'Davenport Mfg | Biweekly Check-In with CSM',                   start:'2026-05-15T18:00:00.000Z', end:'2026-05-15T18:30:00.000Z', importance:'normal', showAs:'busy',   cancelled:false, isOrganizer:false, attendees:['Aravind.Elantamizhan@aptean.com','Gangadarayya.Kambi@aptean.com','mike.miller@thedmgusa.com','Matthew.Koester@thedmgusa.com'],                                                       link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rIU6FKAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAHo13WUgAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    // ── Thu May 14 ──
+    { subject:'Customer Value & Growth Team Connect',                          start:'2026-05-14T12:00:00.000Z', end:'2026-05-14T14:00:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Gangadarayya.Kambi@aptean.com','Aravind.Elantamizhan@aptean.com','Rishivanth.P@aptean.com','ManiKandan.Venkatesh@aptean.com','Charan.Kumar@aptean.com'],                   link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw80AAA%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'M2M - 8.0 Live Customer Issues',                                start:'2026-05-14T12:00:00.000Z', end:'2026-05-14T12:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Porselvan.Thirunavukkarasu@aptean.com','Gangadarayya.Kambi@aptean.com','Praveenkumar.Bayari@aptean.com','Veerraju.Uppaluri@aptean.com'],                                   link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAICTFrLQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Weekly Discussion with Pratik - CSM Team',                      start:'2026-05-14T12:30:00.000Z', end:'2026-05-14T13:00:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:true,  attendees:['Pratik.Rout@aptean.com'],                                                                                                                                                                               link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIBIq7EAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'All Hands - AppCentral Outstanding Initiations Alignment',      start:'2026-05-14T14:00:00.000Z', end:'2026-05-14T14:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Vic.Osorio@aptean.com','Pratik.Rout@aptean.com','Gangadarayya.Kambi@aptean.com','Praveenkumar.Bayari@aptean.com','Rajeev.Gandhi@aptean.com'],                                                          link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw8xAAA%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Monthly Call - Aptean <> Rodon',                                start:'2026-05-14T14:00:00.000Z', end:'2026-05-14T14:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Zeshan.Raja@aptean.com','gmellor@rodongroup.com','Mark.Arnett@aptean.com','Gangadarayya.Kambi@aptean.com','Pandu.Vangal@aptean.com','tmiller@rodongroup.com'],                                         link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAETod5IAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Stegmeier, LLC <> Aptean - CSM Monthly Connect',                start:'2026-05-14T16:00:00.000Z', end:'2026-05-14T16:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Charan.Kumar@aptean.com','raye@stegmeier.com','trey@stegmeier.com','Praveenkumar.Bayari@aptean.com','Gangadarayya.Kambi@aptean.com','Walter.Kerr@aptean.com'],                                       link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIG%2FT%2BqQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Adoption Dashboard Review and Touchbase Discussion',            start:'2026-05-14T16:30:00.000Z', end:'2026-05-14T17:00:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Abhishek.Kandar@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                                                                                link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw8yAAA%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Estes Design - AppCentral Weekly Check In',                     start:'2026-05-14T17:00:00.000Z', end:'2026-05-14T17:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:true,  attendees:['dzgray@estesdm.com'],                                                                                                                                                                                   link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIMxUIpQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Aptean AppCentral <> BPI Medical Weekly Check In UAT',          start:'2026-05-14T18:00:00.000Z', end:'2026-05-14T18:45:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:true,  attendees:['debraw@bpimedical.com'],                                                                                                                                                                                link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rFLvejAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIMxUIpgAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'M2M Walkthrough',                                               start:'2026-05-14T19:30:00.000Z', end:'2026-05-14T20:30:00.000Z', importance:'normal', showAs:'tentative', cancelled:false, isOrganizer:false, attendees:['Aravind.Elantamizhan@aptean.com','Rishivanth.P@aptean.com','ManiKandan.Venkatesh@aptean.com','Hariharan.RameshKumar@aptean.com','Pratik.Rout@aptean.com','Gangadarayya.Kambi@aptean.com'],       link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw81AAA%3D&exvsurl=1&path=/calendar/item' },
+    // ── Fri May 15 ──
+    { subject:'Best Practices Video - Status Update',                          start:'2026-05-15T13:30:00.000Z', end:'2026-05-15T14:00:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Aravind.Elantamizhan@aptean.com','Gangadarayya.Kambi@aptean.com','Pratik.Rout@aptean.com','Rishivanth.P@aptean.com'],                                                                                link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rIU6FKAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIEU4IKQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'All Hands - AppCentral Outstanding Initiations Alignment (Fri)',start:'2026-05-15T14:00:00.000Z', end:'2026-05-15T14:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Vic.Osorio@aptean.com','Gangadarayya.Kambi@aptean.com','Pratik.Rout@aptean.com'],                                                                                                                    link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw8zAAA%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Framarx / Waxstar - Weekly Connect',                            start:'2026-05-15T15:00:00.000Z', end:'2026-05-15T15:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Rishivanth.P@aptean.com','christopher@framarx.com','Praveenkumar.Bayari@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                                                link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rIU6FKAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAH0LfZfAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Monthly Meeting with Praveen',                                  start:'2026-05-15T15:00:00.000Z', end:'2026-05-15T15:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:true,  attendees:['Praveenkumar.Bayari@aptean.com','Pratik.Rout@aptean.com'],                                                                                                                                           link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rIU6FKAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAICeefSQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Davenport Mfg | Biweekly Check-In with CSM',                   start:'2026-05-15T18:00:00.000Z', end:'2026-05-15T18:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Aravind.Elantamizhan@aptean.com','Gangadarayya.Kambi@aptean.com','Praveenkumar.Bayari@aptean.com','mike.miller@thedmgusa.com','Matthew.Koester@thedmgusa.com'],                                    link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rIU6FKAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAHo13WUgAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    // ── Mon May 18 ──
+    { subject:'M2M - 8.0 Live Customer Issues',                                start:'2026-05-18T12:00:00.000Z', end:'2026-05-18T12:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Porselvan.Thirunavukkarasu@aptean.com','Gangadarayya.Kambi@aptean.com','Praveenkumar.Bayari@aptean.com','Veerraju.Uppaluri@aptean.com'],                                   link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rRwZ4%2FAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAICTFrLQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'M2M Weekly CS Meetings',                                        start:'2026-05-18T14:30:00.000Z', end:'2026-05-18T15:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Praveenkumar.Bayari@aptean.com','Pratik.Rout@aptean.com','Gangadarayya.Kambi@aptean.com','Rishivanth.P@aptean.com','Aravind.Elantamizhan@aptean.com','Zeshan.Raja@aptean.com'],                      link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rRwZ4%2FAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAH4fJHxwAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Pepin AppCentral UAT - Weekly Check In',                        start:'2026-05-18T16:30:00.000Z', end:'2026-05-18T17:00:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:true,  attendees:['tsolberg@pepinmfg.com','melissa@pepinmfg.com','Aravind.Inamdar@aptean.com'],                                                                                                                               link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rRwZ4%2FAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIMxUIoQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    // ── Tue May 19 ──
+    { subject:'Medical Insurance - Physical & Virtual Help Desk',              start:'2026-05-19T11:30:00.000Z', end:'2026-05-19T12:30:00.000Z', importance:'normal', showAs:'tentative', cancelled:false, isOrganizer:false, attendees:['Aptean.IndiaCommunications@aptean.com','All-India-Employees@aptean.com'],                                                                                                                           link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rU5kfmAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAH51kFwQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'8.0 Projects',                                                  start:'2026-05-19T14:00:00.000Z', end:'2026-05-19T14:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Ryan.Skirvin@aptean.com','Gangadarayya.Kambi@aptean.com','Pratik.Rout@aptean.com','Praveenkumar.Bayari@aptean.com','Aravind.Elantamizhan@aptean.com','Rishivanth.P@aptean.com'],                   link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rU5kfmAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAETod5agAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Warrior APIA Working Session',                                  start:'2026-05-19T14:30:00.000Z', end:'2026-05-19T15:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:true,  attendees:['trey.soukup@warriormfgllc.com','mary.fruhwirth@warriormfgllc.com','Hariharan.RameshKumar@aptean.com','Navyashree.H@aptean.com'],                                                                         link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg3Lw8wAAA%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'M2M 8.0 Best Practices Discussion - Weekly',                   start:'2026-05-19T16:30:00.000Z', end:'2026-05-19T17:15:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:true,  attendees:['Jim.Tuttle@aptean.com','Dmitry.Kirshner@aptean.com','Pratik.Rout@aptean.com','Praveenkumar.Bayari@aptean.com'],                                                                                      link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rU5kfmAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIMxUIpAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    // ── Wed May 20 ──
+    { subject:'Q1 2026 Results Global Town Hall',                              start:'2026-05-20T13:00:00.000Z', end:'2026-05-20T14:00:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['TVN.Reddy@aptean.com','All-Employees@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                                                                                    link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpLAAD5eDiPS0PwQIhNl5ut1vthAAg2TvcMAAA%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Modern Metals <> AppCentral Weekly Check In',                   start:'2026-05-20T13:15:00.000Z', end:'2026-05-20T13:45:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:true,  attendees:['ethanp@modern-metal.com','marciad@modern-metal.com','Aravind.Inamdar@aptean.com'],                                                                                                                    link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rYCvGNAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIMxUIoAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Agvise Laboratories <> Aptean - CSM Bi-Monthly Connect',        start:'2026-05-20T13:30:00.000Z', end:'2026-05-20T14:00:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['ManiKandan.Venkatesh@aptean.com','joannei@agvise.com','Walter.Kerr@aptean.com','Praveenkumar.Bayari@aptean.com','Gangadarayya.Kambi@aptean.com'],                                                   link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rYCvGNAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIEmABiwAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'AppCentral - M2M - Gen AI Private Preview Meeting',             start:'2026-05-20T18:30:00.000Z', end:'2026-05-20T19:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Joan.Baldwin@aptean.com','Gangadarayya.Kambi@aptean.com','Praveenkumar.Bayari@aptean.com','jason@phpsd.com','craig@trailercompany.com','trey.soukup@warriormfgllc.com','wsnyder@ziamatic.com'], link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rYCvGNAAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIGG2Y8QAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    // ── Thu May 21 ──
+    { subject:'M2M - 8.0 Live Customer Issues',                                start:'2026-05-21T12:00:00.000Z', end:'2026-05-21T12:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Porselvan.Thirunavukkarasu@aptean.com','Gangadarayya.Kambi@aptean.com','Praveenkumar.Bayari@aptean.com','Veerraju.Uppaluri@aptean.com'],                                   link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rbL5s0AAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAICTFrLQAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'Weekly Discussion with Pratik - CSM Team',                      start:'2026-05-21T12:30:00.000Z', end:'2026-05-21T13:00:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:true,  attendees:['Pratik.Rout@aptean.com'],                                                                                                                                                                               link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rbL5s0AAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAIBIq7EAAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'AM-CSM Weekly Connect [Joellen]',                               start:'2026-05-21T14:00:00.000Z', end:'2026-05-21T14:30:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Pratik.Rout@aptean.com','Joellen.Sperfslage@aptean.com','Praveenkumar.Bayari@aptean.com','Gangadarayya.Kambi@aptean.com','Ray.Collett@aptean.com'],                                                 link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rbL5s0AAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAICeefSwAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
+    { subject:'RYCOM | Biweekly Check-In',                                     start:'2026-05-21T15:30:00.000Z', end:'2026-05-21T16:00:00.000Z', importance:'normal', showAs:'busy',     cancelled:false, isOrganizer:false, attendees:['Aravind.Elantamizhan@aptean.com','douglas@rycominstruments.com','Gangadarayya.Kambi@aptean.com','Praveenkumar.Bayari@aptean.com'],                                                                  link:'https://outlook.office365.com/owa/?itemid=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OAFRAAgI3rbL5s0AAEYAAAAA6XyUR0W7LUyjUPntxmpG0gcAwvHgnM6KI0eS79EA9nooaAAAAPx6SwAA%2BXg4j0tD8ECITZebrdb7YQAHuJhXXwAAEA%3D%3D&exvsurl=1&path=/calendar/item' },
   ],
   emails: [
-    { subject:'Adoption Engineers – Weekly Update Follow-up & Next Steps', sender:'Ray Collett',          preview:'Great job last week. Collaborate with Kambi: publish Week in Review to Abhishek, schedule recurring updates.', tag:'Action Required', tagColor:'#1d4ed8', tagBg:'#DBEAFE', link:'https://outlook.office365.com/owa/?ItemID=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpCAAD5eDiPS0PwQIhNl5ut1vthAAg1%2FcQTAAA%3D&exvsurl=1&viewmodel=ReadMessageItem' },
-    { subject:'RE: RITM4970186 – EDI Communication (John Deere & Impact CNC)', sender:'Katelyn Muhlenburg (John Deere)', preview:'Do we have an update on RITM4970186? Global EDI Coordinator waiting on resolution.', tag:'Customer Issue',  tagColor:'#991b1b', tagBg:'#FEE2E2', link:'https://outlook.office365.com/owa/?ItemID=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpCAAD5eDiPS0PwQIhNl5ut1vthAAg2Tn9SAAA%3D&exvsurl=1&viewmodel=ReadMessageItem' },
-    { subject:'Re: AppCentral – M2M Gen AI Private Preview MOM May 6th',    sender:'Tim Hultzapple (Zimmerman Ind.)', preview:'Customer confirmed notes from the May 6th Gen AI preview meeting. Follow-up actions due.',     tag:'Customer Follow-up', tagColor:'#92400e', tagBg:'#FEF3C7', link:'https://outlook.office365.com/owa/?ItemID=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpCAAD5eDiPS0PwQIhNl5ut1vthAAg2Tn9PAAA%3D&exvsurl=1&viewmodel=ReadMessageItem' },
-    { subject:'Shift Allowance – March 2026 (Action Required)',              sender:'Kavyashree Prabhakar', preview:'Please fill in shift allowance details for March. Team action required before deadline.',              tag:'HR Action',       tagColor:'#6b7280', tagBg:'#F3F4F6', link:'https://outlook.office365.com/owa/?ItemID=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpCAAD5eDiPS0PwQIhNl5ut1vthAAg1HB29AAA%3D&exvsurl=1&viewmodel=ReadMessageItem' },
+    { subject:'RE: All Hands - AppCentral Outstanding Initiations Alignment', sender:'Chris Claude (Aptean)', preview:'Reminder: feel free to cascade this invite to any other teams / team members who should attend. Both sessions will be recorded.', tag:'Action Required',   tagColor:'#1d4ed8', tagBg:'#DBEAFE', link:'https://outlook.office365.com/owa/?ItemID=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpCAAD5eDiPS0PwQIhNl5ut1vthAAg3Lre1AAA%3D&exvsurl=1&viewmodel=ReadMessageItem' },
+    { subject:'Fw: Availability for Discussion on Salesforce–AppCentral ERP Integration', sender:'T. Solberg (Pepin Mfg)', preview:'Can either of you help with the Salesforce–AppCentral integration questions below, or direct me to the right Aptean person?', tag:'Customer Follow-up', tagColor:'#92400e', tagBg:'#FEF3C7', link:'https://outlook.office365.com/owa/?ItemID=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpCAAD5eDiPS0PwQIhNl5ut1vthAAg3Lre0AAA%3D&exvsurl=1&viewmodel=ReadMessageItem' },
+    { subject:'Pratik Rout shared "2026 Product Engineering Leadership Mapping"', sender:'Pratik Rout',           preview:'Pratik Rout invited you to view the 2026 Product Engineering Leadership Mapping document. Review and update your section.', tag:'Internal Share',     tagColor:'#6b7280', tagBg:'#F3F4F6', link:'https://outlook.office365.com/owa/?ItemID=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpCAAD5eDiPS0PwQIhNl5ut1vthAAg3LrezAAA%3D&exvsurl=1&viewmodel=ReadMessageItem' },
+    { subject:'Welcome to Aptean AppCentral: Time to Get Started!',           sender:'AppCentral (noreply)',     preview:'Griffin Holdings, Inc has been onboarded to Aptean AppCentral. Your AI-powered platform is ready — review the welcome kit.', tag:'Onboarding',        tagColor:'#166534', tagBg:'#DCFCE7', link:'https://outlook.office365.com/owa/?ItemID=AAMkADMzNTQ0YTAwLTNjZjMtNDFhNC04MWVjLTZjNTNiNTdhNjg3OABGAAAAAADpfJRHRbstTKNQ%2Be3GakbSBwDC8eCczoojR5Lv0QD2eihoAAAA%2FHpCAAD5eDiPS0PwQIhNl5ut1vthAAg3LrewAAA%3D&exvsurl=1&viewmodel=ReadMessageItem' },
   ]
 };
 
@@ -8857,6 +8642,110 @@ function renderExecAdoptionMetrics() {
 }
 
 // ── Account × Product Adoption Grid ───────────────────────────
+// ── Product Usage ─────────────────────────────────────────────────────────────
+function renderProductUsage() {
+  const summaryEl = document.getElementById('pu-summary');
+  const tableEl   = document.getElementById('pu-table-wrap');
+  if (!summaryEl || !tableEl) return;
+
+  // Real Aptean AppCentral product names from MODS
+  const PRODUCTS = [
+    { name:'ERP',                    category:'core',    icon:'🏭', dau:2341, wau:8912, mau:14823 },
+    { name:'EAM',                    category:'core',    icon:'🔧', dau:1187, wau:4203, mau:7640  },
+    { name:'EDI',                    category:'core',    icon:'🔄', dau:892,  wau:3104, mau:5917  },
+    { name:'CRM',                    category:'core',    icon:'👥', dau:654,  wau:2341, mau:4208  },
+    { name:'Ship',                   category:'finance', icon:'🚢', dau:431,  wau:1872, mau:3506  },
+    { name:'Pay',                    category:'finance', icon:'💳', dau:387,  wau:1604, mau:2981  },
+    { name:'Invoice Automation',     category:'finance', icon:'🧾', dau:301,  wau:1243, mau:2417  },
+    { name:'Fixed Assets',           category:'finance', icon:'🏢', dau:218,  wau:897,  mau:1732  },
+    { name:'PO Requisition',         category:'finance', icon:'📋', dau:196,  wau:743,  mau:1489  },
+    { name:'Insights',               category:'ai',      icon:'📊', dau:512,  wau:1987, mau:3841  },
+    { name:'Gen AI',                 category:'ai',      icon:'🤖', dau:287,  wau:1102, mau:2634  },
+    { name:'Agents',                 category:'ai',      icon:'⚡', dau:163,  wau:687,  mau:1418  },
+    { name:'Intelligent Workflows',  category:'ai',      icon:'🔀', dau:134,  wau:541,  mau:1087  },
+    { name:'Workspaces',             category:'ai',      icon:'🖥️', dau:98,   wau:412,  mau:863   },
+  ];
+
+  const filterVal = document.getElementById('pu-period')?.value || 'all';
+  const visible = filterVal === 'all' ? PRODUCTS
+    : PRODUCTS.filter(p => p.category === filterVal);
+
+  const totalDAU = visible.reduce((s, p) => s + p.dau, 0);
+  const totalWAU = visible.reduce((s, p) => s + p.wau, 0);
+  const totalMAU = visible.reduce((s, p) => s + p.mau, 0);
+  const maxMAU   = Math.max(...visible.map(p => p.mau));
+
+  const fmt = n => n >= 1000 ? (n/1000).toFixed(1) + 'K' : n.toString();
+
+  // Summary tiles
+  summaryEl.innerHTML = `
+    <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:14px;padding:16px 18px;">
+      <div style="font-size:11px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">DAU</div>
+      <div style="font-size:28px;font-weight:900;color:#1e40af;line-height:1;">${fmt(totalDAU)}</div>
+      <div style="font-size:11.5px;color:#3b82f6;margin-top:4px;">Daily Active Users</div>
+    </div>
+    <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:14px;padding:16px 18px;">
+      <div style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">WAU</div>
+      <div style="font-size:28px;font-weight:900;color:#047857;line-height:1;">${fmt(totalWAU)}</div>
+      <div style="font-size:11.5px;color:#10b981;margin-top:4px;">Weekly Active Users</div>
+    </div>
+    <div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:16px 18px;">
+      <div style="font-size:11px;font-weight:700;color:#c2410c;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">MAU</div>
+      <div style="font-size:28px;font-weight:900;color:#c2410c;line-height:1;">${fmt(totalMAU)}</div>
+      <div style="font-size:11.5px;color:#f97316;margin-top:4px;">Monthly Active Users</div>
+    </div>
+    <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:14px;padding:16px 18px;">
+      <div style="font-size:11px;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">DAU/MAU</div>
+      <div style="font-size:28px;font-weight:900;color:#5b21b6;line-height:1;">${totalMAU > 0 ? ((totalDAU/totalMAU)*100).toFixed(1) : '—'}%</div>
+      <div style="font-size:11.5px;color:#7c3aed;margin-top:4px;">Stickiness ratio</div>
+    </div>`;
+
+  // Product table
+  const rows = visible.map(p => {
+    const barPct = maxMAU > 0 ? Math.round((p.mau / maxMAU) * 100) : 0;
+    const stickiness = p.mau > 0 ? ((p.dau / p.mau) * 100).toFixed(0) : 0;
+    const stickyColor = stickiness >= 20 ? '#059669' : stickiness >= 10 ? '#d97706' : '#ef4444';
+    return `<tr style="border-bottom:1px solid #f3f4f6;">
+      <td style="padding:11px 16px;white-space:nowrap;">
+        <span style="font-size:15px;margin-right:7px;">${p.icon}</span>
+        <span style="font-size:13px;font-weight:600;color:#111827;">${p.name}</span>
+      </td>
+      <td style="padding:11px 16px;text-align:right;font-size:13px;font-weight:700;color:#1e40af;">${fmt(p.dau)}</td>
+      <td style="padding:11px 16px;text-align:right;font-size:13px;font-weight:700;color:#047857;">${fmt(p.wau)}</td>
+      <td style="padding:11px 16px;text-align:right;font-size:13px;font-weight:700;color:#c2410c;">${fmt(p.mau)}</td>
+      <td style="padding:11px 16px;min-width:160px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;height:7px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
+            <div style="width:${barPct}%;height:100%;background:#1B4D3E;border-radius:4px;"></div>
+          </div>
+          <span style="font-size:11px;color:#9ca3af;width:32px;text-align:right;">${barPct}%</span>
+        </div>
+      </td>
+      <td style="padding:11px 16px;text-align:center;">
+        <span style="font-size:11.5px;font-weight:700;color:${stickyColor};">${stickiness}%</span>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tableEl.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead>
+        <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;">
+          <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Product</th>
+          <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.5px;">DAU</th>
+          <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;">WAU</th>
+          <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#c2410c;text-transform:uppercase;letter-spacing:.5px;">MAU</th>
+          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">MAU Reach</th>
+          <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;" title="DAU ÷ MAU — how often monthly users return daily">Stickiness</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="padding:10px 16px;font-size:11px;color:#9ca3af;border-top:1px solid #f0f0f0;background:#FAFBFD;">
+      Data reflects AppCentral platform usage · Last updated ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+    </div>`;
+}
+
 function renderAccountAdoptionGrid() {
   const el = document.getElementById('accounts-adoption-grid');
   if (!el) return;
@@ -8889,6 +8778,10 @@ function renderAccountAdoptionGrid() {
     return null;
   };
 
+  // Build a name → primary product lookup from ACCOUNTS
+  const acctProductMap = {};
+  ACCOUNTS.forEach(a => { if (a.name) acctProductMap[a.name] = a.product || ''; });
+
   // Build matrix — respect account-level filters
   const filteredNames = new Set(getFilteredAccounts().map(a => a.name));
   const allGridNames = Object.keys(dataSource).filter(k => k !== 'default');
@@ -8905,7 +8798,8 @@ function renderAccountAdoptionGrid() {
     );
     const active = Object.values(modStatus).filter(s => s === 'adopted' || s === 'adopting').length;
     const adopted = Object.values(modStatus).filter(s => s === 'adopted').length;
-    return { name, modStatus, active, adopted };
+    const primaryProduct = acctProductMap[name] || '—';
+    return { name, primaryProduct, modStatus, active, adopted };
   }).sort((a, b) => b.active - a.active || b.adopted - a.adopted);
 
   // Only show module columns that have at least one account with real data
@@ -8921,6 +8815,7 @@ function renderAccountAdoptionGrid() {
     <thead>
       <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;">
         <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;width:220px;max-width:260px;position:sticky;left:0;background:#F9FAFB;z-index:2;box-shadow:2px 0 4px rgba(0,0,0,.05);">Account</th>
+        <th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;width:120px;white-space:nowrap;">Primary Product</th>
         <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:700;color:#059669;width:52px;white-space:nowrap;">Active</th>
         ${activeMODS.map(m => `<th style="padding:6px 2px;text-align:center;font-size:9.5px;font-weight:600;color:#6b7280;width:${CW}px;" title="${m}"><span style="writing-mode:vertical-lr;transform:rotate(180deg);display:inline-block;padding:2px 0;line-height:1.2;">${m}</span></th>`).join('')}
       </tr>
@@ -8931,6 +8826,11 @@ function renderAccountAdoptionGrid() {
     const rowBg = i % 2 === 0 ? '#fff' : '#FAFAFA';
     html += `<tr style="background:${rowBg};border-bottom:1px solid #f3f4f6;">
       <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#1B4D3E;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:220px;max-width:260px;position:sticky;left:0;background:${rowBg};z-index:1;box-shadow:2px 0 4px rgba(0,0,0,.04);">${r.name}</td>
+      <td style="padding:7px 10px;font-size:11.5px;color:#374151;white-space:nowrap;max-width:130px;overflow:hidden;text-overflow:ellipsis;">
+        ${r.primaryProduct && r.primaryProduct !== '—' && r.primaryProduct !== 'N/A'
+          ? `<span style="background:#EFF6FF;color:#1d4ed8;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;">${r.primaryProduct}</span>`
+          : `<span style="color:#d1d5db;font-size:12px;">—</span>`}
+      </td>
       <td style="padding:7px 6px;text-align:center;">
         ${r.active > 0 ? `<span style="background:#D1FAE5;color:#065f46;font-size:12px;font-weight:800;padding:2px 8px;border-radius:10px;">${r.active}</span>` : '<span style="color:#e5e7eb;">—</span>'}
       </td>
