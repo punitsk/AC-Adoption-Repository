@@ -1194,11 +1194,11 @@ button { cursor: pointer; }
   <!-- Filter Bar -->
   <div class="filter-bar">
     <div class="view-toggle">
-      <button class="view-btn active" id="btn-consultant" onclick="switchView('consultant')">
+      <button class="view-btn" id="btn-consultant" onclick="switchView('consultant')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         Consultant View
       </button>
-      <button class="view-btn" id="btn-leadership" onclick="switchView('leadership')">
+      <button class="view-btn active" id="btn-leadership" onclick="switchView('leadership')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
         Executive Overview
       </button>
@@ -1226,7 +1226,7 @@ button { cursor: pointer; }
     <!-- ════════════════════════════════
          CSM VIEW
     ════════════════════════════════ -->
-    <div id="consultant-view" class="fade-in">
+    <div id="consultant-view" class="hidden fade-in">
 
       <div class="page-header">
         <div class="page-header-lead">
@@ -1398,13 +1398,49 @@ button { cursor: pointer; }
 
       </div><!-- end compact stats row -->
 
+      <!-- Consultant: Personal NPS Card -->
+      <div style="background:#fff;border-radius:12px;padding:14px 18px;border:1px solid #e8eaf0;margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">My NPS Score</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:1px;">Net Promoter Score across my accounts</div>
+          </div>
+          <span style="font-size:11px;color:#9ca3af;font-weight:600;" id="csm-nps-label">Loading…</span>
+        </div>
+        <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center;">
+          <!-- Big score badge -->
+          <div style="text-align:center;min-width:88px;background:linear-gradient(135deg,#F0FDF4,#DCFCE7);border:2px solid #BBF7D0;border-radius:14px;padding:14px 12px;">
+            <div style="font-size:38px;font-weight:900;color:#1B4D3E;line-height:1;" id="csm-nps-score">—</div>
+            <div style="font-size:9.5px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.4px;margin-top:5px;">NPS Score</div>
+          </div>
+          <!-- Breakdown bars -->
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+              <span style="font-size:11px;font-weight:700;color:#059669;min-width:72px;">Promoters</span>
+              <div style="flex:1;height:7px;background:#e5e7eb;border-radius:4px;overflow:hidden;"><div id="csm-nps-pbar" style="height:100%;background:#059669;border-radius:4px;width:0%;transition:width .5s;"></div></div>
+              <span style="font-size:12px;font-weight:700;color:#059669;min-width:38px;text-align:right;" id="csm-nps-promoters">—</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">
+              <span style="font-size:11px;font-weight:700;color:#9ca3af;min-width:72px;">Passives</span>
+              <div style="flex:1;height:7px;background:#e5e7eb;border-radius:4px;overflow:hidden;"><div id="csm-nps-pabar" style="height:100%;background:#9ca3af;border-radius:4px;width:0%;transition:width .5s;"></div></div>
+              <span style="font-size:12px;font-weight:700;color:#9ca3af;min-width:38px;text-align:right;" id="csm-nps-passives">—</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:11px;font-weight:700;color:#ef4444;min-width:72px;">Detractors</span>
+              <div style="flex:1;height:7px;background:#e5e7eb;border-radius:4px;overflow:hidden;"><div id="csm-nps-dbar" style="height:100%;background:#ef4444;border-radius:4px;width:0%;transition:width .5s;"></div></div>
+              <span style="font-size:12px;font-weight:700;color:#ef4444;min-width:38px;text-align:right;" id="csm-nps-detractors">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- end consultant-view -->
 
 
     <!-- ════════════════════════════════
          LEADERSHIP VIEW
     ════════════════════════════════ -->
-    <div id="leadership-view" class="hidden fade-in" style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 24px;">
+    <div id="leadership-view" class="fade-in" style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 24px;">
 
       <div class="page-header">
         <div class="page-header-lead">
@@ -1669,6 +1705,72 @@ button { cursor: pointer; }
 
 
       </div><!-- end exec compact stats row -->
+
+      <!-- Exec: NPS Overview Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+
+        <!-- NPS Gauge Card -->
+        <div style="background:#fff;border-radius:12px;padding:14px 18px;border:1px solid #e8eaf0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">Net Promoter Score</div>
+              <div style="font-size:11px;color:#6b7280;margin-top:1px;" id="nps-period-label">Last 30 days</div>
+            </div>
+            <div style="display:flex;gap:3px;background:#f3f4f6;border-radius:8px;padding:3px;">
+              <button id="nps-tab-M" onclick="setNpsPeriod('M',this)" style="border:none;background:#1B4D3E;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;">M</button>
+              <button id="nps-tab-Q" onclick="setNpsPeriod('Q',this)" style="border:none;background:transparent;color:#6b7280;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;">Q</button>
+              <button id="nps-tab-Y" onclick="setNpsPeriod('Y',this)" style="border:none;background:transparent;color:#6b7280;font-size:11px;font-weight:700;padding:4px 10px;border-radius:6px;cursor:pointer;transition:background .15s,color .15s;">Y</button>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;">
+            <!-- SVG gauge (semicircle, arc length ≈ π×55 ≈ 173) -->
+            <div style="flex-shrink:0;text-align:center;">
+              <svg width="132" height="80" viewBox="0 0 120 75">
+                <!-- Track -->
+                <path d="M10 65 A 55 55 0 0 1 110 65" fill="none" stroke="#e5e7eb" stroke-width="12" stroke-linecap="round"/>
+                <!-- Score arc -->
+                <path id="nps-gauge-arc" d="M10 65 A 55 55 0 0 1 110 65" fill="none" stroke="#1B4D3E" stroke-width="12" stroke-linecap="round" stroke-dasharray="173" stroke-dashoffset="52" style="transition:stroke-dashoffset .6s ease,stroke .4s ease;"/>
+                <!-- Score text -->
+                <text id="nps-score-val" x="60" y="57" text-anchor="middle" font-size="20" font-weight="900" fill="#1B4D3E" font-family="system-ui,-apple-system,sans-serif">+67</text>
+                <text x="60" y="70" text-anchor="middle" font-size="8" fill="#9ca3af" font-family="system-ui,-apple-system,sans-serif">NPS SCORE</text>
+              </svg>
+              <div style="font-size:10.5px;font-weight:700;color:#059669;margin-top:2px;" id="nps-trend-label">↑ +4 pts vs last month</div>
+            </div>
+            <!-- Breakdown -->
+            <div style="flex:1;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <span style="font-size:11px;color:#059669;font-weight:700;">● Promoters</span>
+                <span style="font-size:14px;font-weight:800;color:#059669;" id="nps-promoters">72%</span>
+              </div>
+              <div style="height:1px;background:#f3f4f6;margin-bottom:8px;"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+                <span style="font-size:11px;color:#9ca3af;font-weight:700;">● Passives</span>
+                <span style="font-size:14px;font-weight:800;color:#9ca3af;" id="nps-passives">14%</span>
+              </div>
+              <div style="height:1px;background:#f3f4f6;margin-bottom:8px;"></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:11px;color:#ef4444;font-weight:700;">● Detractors</span>
+                <span style="font-size:14px;font-weight:800;color:#ef4444;" id="nps-detractors">5%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NPS by Consultant Card -->
+        <div style="background:#fff;border-radius:12px;padding:14px 18px;border:1px solid #e8eaf0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <div>
+              <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">NPS by Consultant</div>
+              <div style="font-size:11px;color:#6b7280;margin-top:1px;">Average NPS score per CSM</div>
+            </div>
+            <span style="font-size:10px;font-weight:700;color:#fff;background:#1B4D3E;border-radius:20px;padding:3px 10px;">Live</span>
+          </div>
+          <div id="team-nps-by-csm" style="display:flex;flex-direction:column;gap:9px;">
+            <div style="color:#9ca3af;font-size:12px;text-align:center;padding:12px 0;">Loading NPS data…</div>
+          </div>
+        </div>
+
+      </div><!-- end NPS overview row -->
 
     </div><!-- end leadership-view -->
 
@@ -2608,7 +2710,7 @@ button { cursor: pointer; }
 </div><!-- end main -->
 
 <script>
-let currentView = 'consultant';
+let currentView = 'leadership';
 
 // ── Last-refreshed tracking ──
 const _refreshTimes = { csm: Date.now(), leadership: Date.now() };
@@ -2684,6 +2786,10 @@ function switchView(view) {
   }
   updateBanner();
   if (view === 'leadership') {
+    if (ACCOUNTS && ACCOUNTS.length) renderDashboard();
+    renderAdoptionPanels();
+  }
+  if (view === 'consultant') {
     if (ACCOUNTS && ACCOUNTS.length) renderDashboard();
     renderAdoptionPanels();
   }
@@ -2798,6 +2904,7 @@ async function loadNPSFromSalesforce() {
     // Refresh all NPS-dependent views
     renderNPSGauge();
     renderTeamNPSByCSM();
+    renderConsultantNPS();
     renderAccountsTable();
     renderDashboard();
     console.log('NPS synced:', NPS_RAW.length, 'responses across', Object.keys(npsMap).length, 'accounts');
@@ -3149,6 +3256,79 @@ function renderTeamNPSByCSM() {
   }).join('');
 }
 
+// ── Consultant personal NPS card ──
+function renderConsultantNPS() {
+  const scoreEl = document.getElementById('csm-nps-score');
+  if (!scoreEl) return;
+
+  const labelEl = document.getElementById('csm-nps-label');
+
+  // Use the same CSM filter as renderDashboard
+  const csmSel = document.getElementById('csm-filter')?.value || 'all';
+
+  // Filter to accounts with NPS data for this CSM (or all if "all")
+  const accts = ACCOUNTS.filter(a => {
+    if (csmSel !== 'all' && a.csm !== csmSel) return false;
+    return a.npsResponses > 0 && a.id;
+  });
+
+  if (!accts.length || !NPS_RAW.length) {
+    scoreEl.textContent = '—';
+    scoreEl.style.color = '#9ca3af';
+    if (labelEl) labelEl.textContent = NPS_RAW.length ? 'No responses for this CSM' : 'Awaiting NPS data…';
+    ['csm-nps-promoters','csm-nps-passives','csm-nps-detractors'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.textContent = '—';
+    });
+    ['csm-nps-pbar','csm-nps-pabar','csm-nps-dbar'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.width = '0%';
+    });
+    return;
+  }
+
+  // Pull raw NPS responses belonging to this CSM's accounts
+  const acctIds = new Set(accts.map(a => a.id));
+  const myRecords = NPS_RAW.filter(r => {
+    const id = r.QS_Account__c;
+    return id && (acctIds.has(id) || acctIds.has(_sfIdKey(id)));
+  });
+
+  const entry = myRecords.length
+    ? _buildNpsEntry(myRecords, '')
+    : { score: Math.round(accts.reduce((s,a)=>s+a.nps,0)/accts.length),
+        promoters: '—', passives: '—', detractors: '—', _total: accts.length };
+
+  const score = entry.score;
+  const color = score >= 60 ? '#1B4D3E' : score >= 30 ? '#34d399' : score >= 0 ? '#f59e0b' : '#ef4444';
+
+  scoreEl.textContent = (score >= 0 ? '+' : '') + score;
+  scoreEl.style.color = color;
+
+  const total = entry._total || myRecords.length || accts.length;
+  if (labelEl) {
+    const acctCount = accts.length;
+    labelEl.textContent = `${total} response${total === 1 ? '' : 's'} · ${acctCount} account${acctCount === 1 ? '' : 's'}`;
+  }
+
+  // Update breakdown bars
+  const pPct  = parseFloat(entry.promoters)  || 0;
+  const paPct = parseFloat(entry.passives)   || 0;
+  const dPct  = parseFloat(entry.detractors) || 0;
+
+  const sp = document.getElementById('csm-nps-promoters');
+  const sp2= document.getElementById('csm-nps-passives');
+  const sd = document.getElementById('csm-nps-detractors');
+  const bp = document.getElementById('csm-nps-pbar');
+  const bp2= document.getElementById('csm-nps-pabar');
+  const bd = document.getElementById('csm-nps-dbar');
+
+  if (sp)  sp.textContent  = entry.promoters  !== '—' ? entry.promoters  : '—';
+  if (sp2) sp2.textContent = entry.passives   !== '—' ? entry.passives   : '—';
+  if (sd)  sd.textContent  = entry.detractors !== '—' ? entry.detractors : '—';
+  if (bp)  bp.style.width  = pPct  + '%';
+  if (bp2) bp2.style.width = paPct + '%';
+  if (bd)  bd.style.width  = dPct  + '%';
+}
+
 function populateDashboardCsmFilter() {
   const sel = document.getElementById('csm-filter');
   if (!sel || !ACCOUNTS.length) return;
@@ -3472,6 +3652,9 @@ function renderDashboard() {
   // Keep the My Tasks / Upcoming widgets in sync with Action Hub sources
   renderDashboardTasks();
   renderDashboardUpcoming();
+
+  // Refresh consultant NPS card when CSM filter changes
+  if (typeof renderConsultantNPS === 'function') renderConsultantNPS();
 }
 
 // ── Dashboard widgets that mirror Action Hub data ──
@@ -6456,15 +6639,15 @@ function applyRole(roleKey) {
     navTo('dashboard');
   }
 
-  // Dashboard view enforcement
-  if (!p.csmView && p.executiveView) switchView('leadership');
+  // Dashboard view enforcement — default to Executive Overview on load
   if (!p.executiveView) {
     const execBtn = document.getElementById('btn-leadership');
-    if (execBtn) { execBtn.style.display = 'none'; }
+    if (execBtn) execBtn.style.display = 'none';
     switchView('consultant');
   } else {
     const execBtn = document.getElementById('btn-leadership');
     if (execBtn) execBtn.style.display = '';
+    switchView('leadership');   // always open on Executive Overview
   }
 
   // CSM filter: non-admin CSMs locked to themselves
