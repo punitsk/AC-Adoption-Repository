@@ -2885,16 +2885,21 @@ async function loadNPSFromSalesforce() {
     const data = await res.json();
     NPS_RAW = data?.NPSDetails?.records || [];
 
-    // Build accountId → scores[] map
+    // Build accountId → YTD scores[] map (filter by survey received date — QS_Submitted_Date__c)
+    // _isYTD is defined after loadNPSFromSalesforce in source order, but works at runtime
+    // because _isYTD is declared before the first call (at data-load time, not parse time).
+    const hasDates = NPS_RAW.some(r => !!_npsDate(r));
+    const ytdRaw   = hasDates ? NPS_RAW.filter(_isYTD) : NPS_RAW;
+
     const npsMap = {};
-    NPS_RAW.forEach(r => {
+    ytdRaw.forEach(r => {
       const id = r.QS_Account__c;
       if (!id) return;
       if (!npsMap[id]) npsMap[id] = [];
       if (r.QS_NPS__c !== null && r.QS_NPS__c !== undefined) npsMap[id].push(r.QS_NPS__c);
     });
 
-    // Stamp each account with its NPS score
+    // Stamp each account with its YTD NPS score
     ACCOUNTS.forEach(a => {
       const scores = npsMap[a.id] || [];
       a.nps = scores.length ? calcNPS(scores) : 0;
@@ -2907,7 +2912,8 @@ async function loadNPSFromSalesforce() {
     renderConsultantNPS();
     renderAccountsTable();
     renderDashboard();
-    console.log('NPS synced:', NPS_RAW.length, 'responses across', Object.keys(npsMap).length, 'accounts');
+    const ytdPct = NPS_RAW.length ? Math.round(ytdRaw.length / NPS_RAW.length * 100) : 0;
+    console.log(`NPS synced: ${NPS_RAW.length} total responses, ${ytdRaw.length} YTD (${ytdPct}%) across ${Object.keys(npsMap).length} accounts`);
   } catch(err) {
     console.error('NPS sync error:', err);
     const hint = err.message === 'Failed to fetch'
@@ -3174,45 +3180,46 @@ function _buildNpsEntry(records, label) {
   };
 }
 
-// Read the most likely date field from an NPS record
+// Read the survey received/submitted date from an NPS record.
+// Priority: QS_Submitted_Date__c (survey received date) → QS_Survey_Completion_Date__c → CreatedDate → others
 function _npsDate(r) {
-  const raw = r?.QS_Submitted_Date__c || r?.QS_Survey_Completion_Date__c || r?.CreatedDate
-           || r?.LastModifiedDate  || r?.SystemModstamp || null;
+  const raw = r?.QS_Submitted_Date__c
+           || r?.QS_Survey_Completion_Date__c
+           || r?.CreatedDate
+           || r?.LastModifiedDate
+           || r?.SystemModstamp
+           || null;
   if (!raw) return null;
   const d = new Date(raw);
   return isNaN(d) ? null : d;
 }
 
+// Returns true if a record falls within the current calendar year (YTD)
+function _isYTD(r) {
+  const d = _npsDate(r);
+  if (!d) return false;
+  const now = new Date();
+  const janFirst = new Date(now.getFullYear(), 0, 1);
+  return d >= janFirst && d <= now;
+}
+
 function renderNPSGauge() {
   if (!NPS_RAW.length) return;
 
-  // Determine anchor "now" — prefer the newest record date if available, else today
-  const dates = NPS_RAW.map(_npsDate).filter(Boolean);
-  const anchor = dates.length ? new Date(Math.max.apply(null, dates)) : new Date();
+  // Filter to YTD records using the survey received date (QS_Submitted_Date__c)
+  const ytdRecords = NPS_RAW.filter(_isYTD);
 
-  const within = (days) => NPS_RAW.filter(r => {
-    const d = _npsDate(r);
-    if (!d) return false;
-    const diffDays = (anchor - d) / 86400000;
-    return diffDays >= 0 && diffDays <= days;
-  });
+  // If no records have a recognised date field, fall back gracefully to all records
+  const hasDates   = NPS_RAW.some(r => !!_npsDate(r));
+  const forGauge   = (hasDates && ytdRecords.length) ? ytdRecords : NPS_RAW;
 
-  // If records lack date fields, all periods will be empty — fall back to "all-time" for each
-  const hasDates = dates.length > 0;
-  const monthly   = hasDates ? within(30)  : NPS_RAW;
-  const quarterly = hasDates ? within(90)  : NPS_RAW;
-  const yearly    = hasDates ? within(365) : NPS_RAW;
+  const now      = new Date();
+  const yearLabel = `Jan 1 – ${now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}`;
+  NPS_DATA.Y = _buildNpsEntry(forGauge, `YTD · ${yearLabel}`);
 
-  NPS_DATA.M = _buildNpsEntry(monthly,   'Last 30 days');
-  NPS_DATA.Q = _buildNpsEntry(quarterly, 'Last 90 days');
-  NPS_DATA.Y = _buildNpsEntry(yearly,    'Year to Date');
-
-  // If no dates available, mark that in the labels so it's transparent to the user
+  // Overwrite fallback label when no date field is available
   if (!hasDates) {
-    const totalAll = NPS_RAW.length;
-    ['M','Q','Y'].forEach(k => {
-      NPS_DATA[k].label = `All-time · ${totalAll} responses (no date field)`;
-    });
+    NPS_DATA.Y.label = `All responses · ${NPS_RAW.length} total (no date field on records)`;
   }
 
   // Always render YTD view
@@ -3281,9 +3288,11 @@ function renderConsultantNPS() {
     return;
   }
 
-  // Pull raw NPS responses belonging to this CSM's accounts
-  const acctIds = new Set(accts.map(a => a.id));
-  const myRecords = NPS_RAW.filter(r => {
+  // Pull YTD raw NPS responses belonging to this CSM's accounts
+  const acctIds  = new Set(accts.map(a => a.id));
+  const hasDates = NPS_RAW.some(r => !!_npsDate(r));
+  const ytdRaw   = hasDates ? NPS_RAW.filter(_isYTD) : NPS_RAW;
+  const myRecords = ytdRaw.filter(r => {
     const id = r.QS_Account__c;
     return id && (acctIds.has(id) || acctIds.has(_sfIdKey(id)));
   });
@@ -3302,7 +3311,7 @@ function renderConsultantNPS() {
   const total = entry._total || myRecords.length || accts.length;
   if (labelEl) {
     const acctCount = accts.length;
-    labelEl.textContent = `${total} response${total === 1 ? '' : 's'} · ${acctCount} account${acctCount === 1 ? '' : 's'}`;
+    labelEl.textContent = `YTD · ${total} response${total === 1 ? '' : 's'} · ${acctCount} account${acctCount === 1 ? '' : 's'}`;
   }
 
   // Update breakdown bars
