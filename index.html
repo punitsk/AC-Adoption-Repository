@@ -1757,60 +1757,6 @@ button { cursor: pointer; }
 
       </div><!-- end NPS overview row -->
 
-      <!-- Exec: NPS Raw Data (collapsible) -->
-      <div style="background:#fff;border-radius:12px;border:1px solid #e8eaf0;margin-bottom:10px;overflow:hidden;">
-        <!-- Toggle header -->
-        <div onclick="toggleNPSRaw()" style="display:flex;align-items:center;justify-content:space-between;padding:11px 16px;cursor:pointer;user-select:none;"
-          onmouseenter="this.style.background='#f9fafb'" onmouseleave="this.style.background='#fff'">
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">NPS Raw Data</span>
-            <span style="font-size:10px;font-weight:700;color:#6b7280;background:#f3f4f6;border-radius:20px;padding:2px 9px;" id="nps-raw-count">0 records</span>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;">
-            <span style="font-size:11px;color:#9ca3af;" id="nps-raw-ytd-badge"></span>
-            <svg id="nps-raw-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5" style="transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
-          </div>
-        </div>
-        <!-- Expandable body -->
-        <div id="nps-raw-body" style="display:none;border-top:1px solid #f0f0f0;">
-          <!-- Toolbar -->
-          <div style="display:flex;align-items:center;gap:10px;padding:8px 16px;background:#f9fafb;flex-wrap:wrap;">
-            <input id="nps-raw-search" type="text" placeholder="Search account, score, date…" oninput="renderNPSRawTable()"
-              style="flex:1;min-width:180px;padding:5px 11px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:12px;color:#374151;outline:none;"
-              onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='#e5e7eb'"/>
-            <select id="nps-raw-filter" onchange="renderNPSRawTable()"
-              style="padding:5px 11px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:12px;color:#374151;background:#fff;cursor:pointer;outline:none;">
-              <option value="all">All records</option>
-              <option value="ytd">YTD only</option>
-              <option value="prior">Prior years</option>
-              <option value="promoter">Promoters (9–10)</option>
-              <option value="passive">Passives (7–8)</option>
-              <option value="detractor">Detractors (0–6)</option>
-            </select>
-            <button onclick="showNPSSampleJSON()" style="padding:5px 13px;border:1.5px solid #c4b5fd;border-radius:8px;font-size:12px;font-weight:600;color:#7c3aed;background:#F5F3FF;cursor:pointer;">{ } Sample JSON</button>
-            <button onclick="exportNPSRaw()" style="padding:5px 13px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:12px;font-weight:600;color:#374151;background:#fff;cursor:pointer;">↓ Export CSV</button>
-          </div>
-          <!-- Sample JSON inspector -->
-          <div id="nps-json-panel" style="display:none;border-top:1px solid #f0f0f0;background:#1e1e2e;padding:12px 16px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-              <span style="font-size:11px;font-weight:700;color:#a78bfa;">Sample record (record [0]) — all fields from API</span>
-              <button onclick="document.getElementById('nps-json-panel').style.display='none'" style="background:none;border:none;color:#6b7280;cursor:pointer;font-size:16px;line-height:1;">×</button>
-            </div>
-            <pre id="nps-json-content" style="font-size:11.5px;color:#a5f3fc;font-family:monospace;white-space:pre-wrap;margin:0;max-height:280px;overflow-y:auto;line-height:1.6;"></pre>
-          </div>
-          <!-- Field map hint (auto-detected) -->
-          <div id="nps-field-hints" style="display:none;padding:8px 16px;background:#FFFBEB;border-top:1px solid #FDE68A;font-size:11.5px;color:#92400e;"></div>
-          <!-- Table — columns auto-detected from records -->
-          <div style="overflow-x:auto;max-height:440px;overflow-y:auto;">
-            <table style="width:100%;border-collapse:collapse;font-size:12px;" id="nps-raw-table">
-              <thead id="nps-raw-thead"></thead>
-              <tbody id="nps-raw-tbody">
-                <tr><td style="padding:24px;text-align:center;color:#9ca3af;">Load NPS data to see raw records</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div><!-- end NPS raw data -->
 
     </div><!-- end leadership-view -->
 
