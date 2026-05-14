@@ -1474,7 +1474,7 @@ button { cursor: pointer; }
 
         <!-- 4. Expansion Candidates -->
         <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
-          onclick="navToAccounts('all')" title="View single-product accounts"
+          onclick="navToAccounts('expansion')" title="View single-product accounts"
           onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 12px rgba(52,211,153,.12)'"
           onmouseleave="this.style.borderColor='#BBF7D0';this.style.boxShadow='none'">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -1500,7 +1500,7 @@ button { cursor: pointer; }
 
         <!-- 6. AI Adoption -->
         <div style="background:#F0F9FF;border:1.5px solid #BAE6FD;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
-          onclick="navToAccounts('all')" title="View AI adoption"
+          onclick="navToAccounts('ai')" title="View AI adoption accounts"
           onmouseenter="this.style.borderColor='#0EA5E9';this.style.boxShadow='0 2px 12px rgba(14,165,233,.12)'"
           onmouseleave="this.style.borderColor='#BAE6FD';this.style.boxShadow='none'">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -1696,6 +1696,13 @@ button { cursor: pointer; }
           Add Account
         </button>
       </div>
+    </div>
+
+    <!-- Active tile filter banner — shown when navigating from a KPI tile -->
+    <div id="acct-tile-filter-banner" style="display:none;background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:10px;padding:9px 14px;margin-bottom:12px;display:none;align-items:center;gap:10px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      <span id="acct-tile-filter-label" style="font-size:12.5px;font-weight:700;color:#1d4ed8;flex:1;"></span>
+      <button onclick="resetAccountFilters()" style="font-size:11.5px;color:#1d4ed8;background:none;border:1px solid #93c5fd;border-radius:7px;padding:3px 10px;cursor:pointer;font-weight:600;" onmouseenter="this.style.background='#DBEAFE'" onmouseout="this.style.background='none'">✕ Clear filter</button>
     </div>
 
     <!-- Filters — pinned at top so they're the first thing you interact with -->
@@ -3647,35 +3654,74 @@ function navTo(section) {
 function navToAccounts(filter) {
   const ge = id => document.getElementById(id);
 
+  // ── Clear all special flags first ──
+  window._acctRefFilter          = false;
+  window._acctHealthFilter       = null;   // 'Green' | 'Red' | null
+  window._acctSingleProdFilter   = false;
+  window._acctAIFilter           = false;
+  window._acctStaleFilter        = false;
+  window._acctTileLabel          = null;   // label shown in the filter banner
+
   // Carry global consultant/product filters into the accounts page
   const globalCsm     = ge('csm-filter')?.value     || 'all';
   const globalProduct = ge('product-filter')?.value  || 'all';
 
   if (ge('acct-search'))          ge('acct-search').value = '';
-  // Propagate global filters; only reset if they're "all"
-  if (ge('acct-csm'))             ge('acct-csm').value     = globalCsm !== 'all' ? globalCsm : '';
+  if (ge('acct-csm'))             ge('acct-csm').value    = globalCsm !== 'all' ? globalCsm : '';
   if (ge('acct-product'))         ge('acct-product').value = globalProduct !== 'all' ? globalProduct : '';
   if (ge('acct-adoption-status')) ge('acct-adoption-status').value = '';
 
-  // Apply the relevant adoption filter from the tile clicked
-  if (filter === 'healthy' || filter === 'adopted') {
-    if (ge('acct-adoption-status')) ge('acct-adoption-status').value = 'adopted';
-  }
-  if (filter === 'inprogress') {
-    if (ge('acct-adoption-status')) ge('acct-adoption-status').value = 'inprogress';
-  }
-  if (filter === 'notstarted') {
-    if (ge('acct-adoption-status')) ge('acct-adoption-status').value = 'notstarted';
-  }
-  if (filter === 'arr') { acctSortKey = 'arr'; acctSortAsc = false; }
-  else                  { acctSortKey = 'name'; acctSortAsc = true; }
+  acctSortKey = 'name'; acctSortAsc = true;
 
-  // For referenceable, we filter in JS after render
-  window._acctRefFilter = (filter === 'ref');
+  // ── Map tile filter → accounts filter ──
+  switch (filter) {
+    case 'adopted':
+      ge('acct-adoption-status') && (ge('acct-adoption-status').value = 'adopted');
+      window._acctTileLabel = '📈 Active Adopters — accounts with ≥1 active module';
+      break;
+    case 'inprogress':
+      ge('acct-adoption-status') && (ge('acct-adoption-status').value = 'inprogress');
+      window._acctTileLabel = '🔄 In Progress — adoption underway';
+      break;
+    case 'notstarted':
+      ge('acct-adoption-status') && (ge('acct-adoption-status').value = 'notstarted');
+      window._acctTileLabel = '🔍 Not Yet Started — zero modules active';
+      break;
+    case 'ref':
+      window._acctRefFilter = true;
+      window._acctTileLabel = '🏆 Referenceable — accounts willing to be references';
+      break;
+    case 'healthy':
+      window._acctHealthFilter = 'Green';
+      window._acctTileLabel = '🟢 Healthy — Green health accounts';
+      break;
+    case 'red':
+      window._acctHealthFilter = 'Red';
+      window._acctTileLabel = '🔴 At Risk — Red & Orange health accounts';
+      break;
+    case 'expansion':
+      window._acctSingleProdFilter = true;
+      window._acctTileLabel = '🤝 Expansion Ready — accounts on a single product';
+      break;
+    case 'ai':
+      window._acctAIFilter = true;
+      window._acctTileLabel = '🤖 AI Adoption — accounts using Gen AI or Agents';
+      break;
+    case 'stale':
+      window._acctStaleFilter = true;
+      acctSortKey = 'lastContact'; acctSortAsc = false;
+      window._acctTileLabel = '⏰ No Touch >30d — accounts needing CSM engagement';
+      break;
+    case 'arr':
+      acctSortKey = 'arr'; acctSortAsc = false;
+      window._acctTileLabel = null;
+      break;
+    default:
+      window._acctTileLabel = null;
+  }
 
   navTo('accounts');
 
-  // Scroll the accounts section heading into view smoothly
   setTimeout(() => {
     const el = document.getElementById('section-accounts');
     if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
@@ -4081,12 +4127,38 @@ function getFilteredAccounts() {
     return 'notstarted';
   };
 
+  // Build AI-active account set for AI filter
+  const aiActiveNames = new Set();
+  if (window._acctAIFilter) {
+    const aiSrc = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) ? ADOPTION_LIVE : ACCOUNT_DETAIL;
+    Object.keys(aiSrc).forEach(name => {
+      (aiSrc[name]?.adoption?.sections||[]).forEach(sec =>
+        (sec.fields||[]).forEach(f => {
+          if ((f.label==='Gen AI'||f.label==='Agents') && (f.status||'').toLowerCase().match(/adopted|adopting|demo/))
+            aiActiveNames.add(name);
+        })
+      );
+    });
+  }
+
+  // Build single-product account set for expansion filter
+  const singleProdNames = new Set();
+  if (window._acctSingleProdFilter) {
+    const depth = computeProductDepth(null);
+    (depth.buckets[1]||[]).forEach(a => singleProdNames.add(a.name));
+  }
+
   return (ACCOUNTS || []).filter(a => {
     if (search  && !a.name.toLowerCase().includes(search)) return false;
     if (csm     && a.csm !== csm)       return false;
     if (product && !_accountHasProduct(a, product)) return false;
     if (adoptionFilter && getJourney(a.name) !== adoptionFilter) return false;
-    if (window._acctRefFilter && !a.ref) return false;
+    if (window._acctRefFilter   && !a.ref) return false;
+    if (window._acctHealthFilter === 'Green' && a.health !== 'Green') return false;
+    if (window._acctHealthFilter === 'Red'   && !['Red','Orange','Black'].includes(a.health)) return false;
+    if (window._acctStaleFilter  && (a.lastDays||0) <= 30) return false;
+    if (window._acctAIFilter     && !aiActiveNames.has(a.name)) return false;
+    if (window._acctSingleProdFilter && !singleProdNames.has(a.name)) return false;
     return true;
   });
 }
@@ -4097,7 +4169,7 @@ function sortAccounts(key) {
   renderAccountsTable();
 }
 
-function filterAccounts() { window._acctRefFilter = false; renderAccountsTable(); renderAccountAdoptionGrid(); updateAccountSummaryTiles(); }
+function filterAccounts() { _clearAcctSpecialFilters(); renderAccountsTable(); renderAccountAdoptionGrid(); updateAccountSummaryTiles(); }
 
 function updateAccountSummaryTiles() {
   const filtered = getFilteredAccounts();
@@ -4146,8 +4218,17 @@ function updateAccountSummaryTiles() {
   set('acct-tile-avg',        avg);
 }
 
+function _clearAcctSpecialFilters() {
+  window._acctRefFilter        = false;
+  window._acctHealthFilter     = null;
+  window._acctSingleProdFilter = false;
+  window._acctAIFilter         = false;
+  window._acctStaleFilter      = false;
+  window._acctTileLabel        = null;
+}
+
 function resetAccountFilters() {
-  window._acctRefFilter = false;
+  _clearAcctSpecialFilters();
   const el = id => document.getElementById(id);
   if (el('acct-search'))          el('acct-search').value = '';
   if (el('acct-csm'))             el('acct-csm').value = '';
@@ -4188,6 +4269,18 @@ function renderAccountsTable() {
   });
 
   document.getElementById('acct-count').textContent = rows.length + ' of ' + ACCOUNTS.length + ' accounts';
+
+  // Show/hide the tile filter banner
+  const bannerEl = document.getElementById('acct-tile-filter-banner');
+  const labelEl  = document.getElementById('acct-tile-filter-label');
+  if (bannerEl && labelEl) {
+    if (window._acctTileLabel) {
+      labelEl.textContent = window._acctTileLabel + '  ·  ' + rows.length + ' account' + (rows.length !== 1 ? 's' : '');
+      bannerEl.style.display = 'flex';
+    } else {
+      bannerEl.style.display = 'none';
+    }
+  }
 
   tbody.innerHTML = rows.map((a, i) => {
     const rowBg = i % 2 === 0 ? '#fff' : '#FAFAFA';
