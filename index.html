@@ -9070,24 +9070,100 @@ function togglePUDrilldown(productId) {
 function _puRenderKPIs(visible) {
   const kpiEl = document.getElementById('pu-kpi-row');
   if (!kpiEl) return;
-  const totalMAU  = visible.reduce((s,p)=>s+p.mau,0);
-  const totalDAU  = visible.reduce((s,p)=>s+p.dau,0);
-  const totalSeats= visible.reduce((s,p)=>s+p.seats,0);
-  const totalUsed = visible.reduce((s,p)=>s+p.used,0);
-  const utilPct   = totalSeats > 0 ? Math.round((totalUsed/totalSeats)*100) : 0;
-  const stickiness= totalMAU > 0   ? ((totalDAU/totalMAU)*100).toFixed(1) : '—';
-  const lowCount  = PU_LOW_USAGE_ACCOUNTS.filter(a => visible.some(p=>p.id===a.product)).length;
-  const tiles = [
-    { label:'MAU',              value:_puFmt(totalMAU),  sub:'Monthly Active Users', bg:'#EFF6FF', border:'#BFDBFE', vClr:'#1e40af', sClr:'#3b82f6' },
-    { label:'License Utilized', value:utilPct+'%',       sub:`${_puFmt(totalUsed)} of ${_puFmt(totalSeats)} seats`, bg:'#F0FDF4', border:'#BBF7D0', vClr:'#047857', sClr:'#10b981' },
-    { label:'Stickiness',       value:stickiness+'%',    sub:'DAU ÷ MAU ratio', bg:'#F5F3FF', border:'#DDD6FE', vClr:'#5b21b6', sClr:'#7c3aed' },
-    { label:'Low Usage Alerts', value:String(lowCount),  sub:'Accounts needing attention', bg:'#FFF7ED', border:'#FED7AA', vClr:'#c2410c', sClr:'#f97316' },
-  ];
+
+  const totalMAU   = visible.reduce((s,p)=>s+p.mau,0);
+  const totalDAU   = visible.reduce((s,p)=>s+p.dau,0);
+  const totalSeats = visible.reduce((s,p)=>s+p.seats,0);
+  const totalUsed  = visible.reduce((s,p)=>s+p.used,0);
+
+  let tiles = [];
+
+  if (_puActiveTab === 'ranking') {
+    // ── Most Used tab KPIs ─────────────────────────────────────
+    const topProd    = [...visible].sort((a,b)=>b.mau-a.mau)[0];
+    const avgStick   = totalMAU > 0 ? ((totalDAU/totalMAU)*100).toFixed(1) : '—';
+    const totalWAU   = visible.reduce((s,p)=>s+p.wau,0);
+    tiles = [
+      { label:'Monthly Active Users', value:_puFmt(totalMAU),
+        sub:'across selected products', bg:'#EFF6FF', border:'#BFDBFE', vClr:'#1e40af', sClr:'#3b82f6' },
+      { label:'Daily Active Users',   value:_puFmt(totalDAU),
+        sub:'avg daily engagement', bg:'#F0FDF4', border:'#BBF7D0', vClr:'#047857', sClr:'#10b981' },
+      { label:'Top Product',          value:topProd ? topProd.icon+' '+topProd.name.split(' ')[0] : '—',
+        sub:topProd ? _puFmt(topProd.mau)+' MAU · highest usage' : 'no data',
+        bg:'#FFFBEB', border:'#FDE68A', vClr:'#92400e', sClr:'#d97706', small:true },
+      { label:'Avg Stickiness',       value: avgStick === '—' ? '—' : avgStick+'%',
+        sub:'DAU ÷ MAU · how often users return', bg:'#F5F3FF', border:'#DDD6FE', vClr:'#5b21b6', sClr:'#7c3aed' },
+    ];
+
+  } else if (_puActiveTab === 'license') {
+    // ── License Utilization tab KPIs ──────────────────────────
+    const utilPct    = totalSeats > 0 ? Math.round((totalUsed/totalSeats)*100) : 0;
+    const available  = totalSeats - totalUsed;
+    const lowUtil    = visible.filter(p=>Math.round((p.used/p.seats)*100)<60).length;
+    tiles = [
+      { label:'Total Licensed Seats', value:_puFmt(totalSeats),
+        sub:'contracted across all products', bg:'#F9FAFB', border:'#e5e7eb', vClr:'#111827', sClr:'#6b7280' },
+      { label:'Seats In Use',         value:_puFmt(totalUsed),
+        sub:'active MAU against licensed seats', bg:'#F0FDF4', border:'#BBF7D0', vClr:'#047857', sClr:'#10b981' },
+      { label:'Available Seats',      value:_puFmt(available),
+        sub:'unused capacity · potential for expansion', bg:'#EFF6FF', border:'#BFDBFE', vClr:'#1d4ed8', sClr:'#3b82f6' },
+      { label:'Overall Utilization',  value:utilPct+'%',
+        sub: lowUtil ? lowUtil+' product'+(lowUtil>1?'s':'')+' below 60% — needs review' : 'All products above 60% ✓',
+        bg: utilPct>=80?'#F0FDF4':utilPct>=60?'#FFFBEB':'#FEF2F2',
+        border: utilPct>=80?'#BBF7D0':utilPct>=60?'#FDE68A':'#FECACA',
+        vClr: utilPct>=80?'#047857':utilPct>=60?'#d97706':'#dc2626',
+        sClr: utilPct>=80?'#10b981':utilPct>=60?'#f59e0b':'#ef4444' },
+    ];
+
+  } else if (_puActiveTab === 'lowusage') {
+    // ── Low Usage Accounts tab KPIs ───────────────────────────
+    const visIds    = new Set(visible.map(p=>p.id));
+    const acctFilt  = document.getElementById('pu-account-filter')?.value || 'all';
+    const relevant  = PU_LOW_USAGE_ACCOUNTS.filter(a=>visIds.has(a.product)&&(acctFilt==='all'||a.name===acctFilt));
+    const critical  = relevant.filter(a=>a.score<=10).length;
+    const atRisk    = relevant.filter(a=>a.score>10&&a.score<=20).length;
+    const watch     = relevant.filter(a=>a.score>20).length;
+    tiles = [
+      { label:'Total Flagged',  value:String(relevant.length),
+        sub:'accounts below engagement threshold', bg:'#FFF7ED', border:'#FED7AA', vClr:'#c2410c', sClr:'#f97316' },
+      { label:'Critical',       value:String(critical),
+        sub:'score ≤ 10 · immediate CSM action', bg:'#FEF2F2', border:'#FECACA', vClr:'#dc2626', sClr:'#ef4444' },
+      { label:'At Risk',        value:String(atRisk),
+        sub:'score 11–20 · monitor closely', bg:'#FFFBEB', border:'#FDE68A', vClr:'#d97706', sClr:'#f59e0b' },
+      { label:'Watch',          value:String(watch),
+        sub:'score 21–30 · early warning', bg:'#F9FAFB', border:'#e5e7eb', vClr:'#374151', sClr:'#9ca3af' },
+    ];
+
+  } else if (_puActiveTab === 'features') {
+    // ── Feature-Level Usage tab KPIs ─────────────────────────
+    const allModules  = visible.flatMap(p=>p.modules);
+    const avgPct      = allModules.length > 0
+      ? Math.round(allModules.reduce((s,m)=>s+m.pct,0)/allModules.length) : 0;
+    const topMod      = [...allModules].sort((a,b)=>b.pct-a.pct)[0];
+    const lowMod      = [...allModules].sort((a,b)=>a.pct-b.pct)[0];
+    const lowModCount = allModules.filter(m=>m.pct<40).length;
+    tiles = [
+      { label:'Products Analysed',    value:String(visible.length),
+        sub:allModules.length+' modules tracked in total', bg:'#F9FAFB', border:'#e5e7eb', vClr:'#111827', sClr:'#6b7280' },
+      { label:'Avg Feature Adoption', value:avgPct+'%',
+        sub:'across all modules & products',
+        bg: avgPct>=70?'#F0FDF4':avgPct>=40?'#FFFBEB':'#FEF2F2',
+        border: avgPct>=70?'#BBF7D0':avgPct>=40?'#FDE68A':'#FECACA',
+        vClr: avgPct>=70?'#047857':avgPct>=40?'#d97706':'#dc2626',
+        sClr: avgPct>=70?'#10b981':avgPct>=40?'#f59e0b':'#ef4444' },
+      { label:'Best Adopted',         value:topMod ? topMod.pct+'%' : '—',
+        sub:topMod ? topMod.name : 'no data',
+        bg:'#F0FDF4', border:'#BBF7D0', vClr:'#047857', sClr:'#10b981', small:true },
+      { label:'Needs Attention',      value:String(lowModCount),
+        sub:'modules below 40% adoption', bg:'#FEF2F2', border:'#FECACA', vClr:'#dc2626', sClr:'#ef4444' },
+    ];
+  }
+
   kpiEl.innerHTML = tiles.map(t=>`
-    <div style="background:${t.bg};border:1.5px solid ${t.border};border-radius:14px;padding:16px 18px;">
-      <div style="font-size:11px;font-weight:700;color:${t.sClr};text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">${t.label}</div>
-      <div style="font-size:28px;font-weight:900;color:${t.vClr};line-height:1;">${t.value}</div>
-      <div style="font-size:11.5px;color:${t.sClr};margin-top:4px;">${t.sub}</div>
+    <div style="background:${t.bg};border:1.5px solid ${t.border};border-radius:14px;padding:16px 18px;transition:box-shadow .15s;" onmouseenter="this.style.boxShadow='0 2px 12px rgba(0,0,0,.07)'" onmouseleave="this.style.boxShadow='none'">
+      <div style="font-size:10.5px;font-weight:700;color:${t.sClr};text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;">${t.label}</div>
+      <div style="font-size:${t.small?'18px':'26px'};font-weight:900;color:${t.vClr};line-height:1.1;">${t.value}</div>
+      <div style="font-size:11.5px;color:${t.sClr};margin-top:5px;opacity:.85;">${t.sub}</div>
     </div>`).join('');
 }
 
