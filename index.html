@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AppCentral Adoption Dashboard</title>
+<title>AppCentral Adoption Workspace</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -104,17 +104,17 @@ button { cursor: pointer; }
 /* ── Sidebar (Dark) ── */
 .sidebar {
   width: 236px; min-width: 236px; flex-shrink: 0;
-  background-color: #0A1F19;
+  background-color: #111111;
   background:
-    radial-gradient(800px 400px at 0% 0%, rgba(52,211,153,.08), transparent 60%),
-    linear-gradient(180deg, #0E2A22 0%, #0A1F19 100%);
+    radial-gradient(600px 300px at 0% 0%, rgba(250,204,21,.06), transparent 55%),
+    linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
   display: flex; flex-direction: column;
-  border-right: 1px solid rgba(255,255,255,.06);
+  border-right: 1px solid rgba(250,204,21,.12);
   padding: 22px 0 18px;
   height: 100vh; overflow-y: auto;
   position: relative; z-index: 1;
-  color: #E5EAE8;
-  box-shadow: inset -1px 0 0 rgba(255,255,255,.03);
+  color: #f0f0f0;
+  box-shadow: inset -1px 0 0 rgba(250,204,21,.05);
 }
 .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); background-clip: padding-box; }
 .sidebar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.22); background-clip: padding-box; }
@@ -123,26 +123,26 @@ button { cursor: pointer; }
 .logo { display: flex; align-items: center; gap: 12px; padding: 0 20px 26px; }
 .logo-icon {
   width: 40px; height: 40px;
-  background: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-400) 100%);
+  background: linear-gradient(135deg, #FACC15 0%, #EAB308 100%);
   border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
-  color: #0A1F19; font-weight: 800; font-size: 16px;
-  box-shadow: 0 6px 18px rgba(52,211,153,.25), inset 0 0 0 1px rgba(255,255,255,.2);
+  color: #111111; font-weight: 800; font-size: 16px;
+  box-shadow: 0 6px 18px rgba(250,204,21,.35), inset 0 0 0 1px rgba(255,255,255,.15);
   letter-spacing: -.02em;
 }
 .logo-text {
-  font-size: 17px; font-weight: 800;
-  line-height: 1.25;
+  font-size: 14px; font-weight: 800;
+  line-height: 1.2;
   letter-spacing: -.02em;
-  background: linear-gradient(135deg, #ffffff 0%, #BBE8D6 100%);
+  background: linear-gradient(135deg, #FACC15 0%, #FDE68A 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent;
-  color: #fff;
+  color: #FACC15;
 }
 .nav-section { padding: 0 12px; margin-bottom: 10px; }
 .nav-label {
   font-size: 10px; font-weight: 700;
-  color: rgba(255,255,255,.38);
+  color: rgba(250,204,21,.45);
   letter-spacing: 1.2px; text-transform: uppercase;
   padding: 6px 10px 10px;
 }
@@ -161,26 +161,26 @@ button { cursor: pointer; }
 }
 .nav-item:active { transform: scale(.985); }
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(52,211,153,.18) 0%, rgba(52,211,153,.06) 100%);
-  color: #fff;
-  font-weight: 600;
-  box-shadow: inset 0 0 0 1px rgba(52,211,153,.22);
+  background: linear-gradient(135deg, rgba(250,204,21,.18) 0%, rgba(250,204,21,.07) 100%);
+  color: #FACC15;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(250,204,21,.25);
 }
 .nav-item.active::before {
   content: ''; position: absolute; left: -12px; top: 18%; bottom: 18%; width: 3px;
-  background: linear-gradient(180deg, var(--brand-400), var(--brand-300));
+  background: linear-gradient(180deg, #FACC15, #EAB308);
   border-radius: 0 3px 3px 0;
-  box-shadow: 0 0 12px rgba(52,211,153,.6);
+  box-shadow: 0 0 12px rgba(250,204,21,.7);
 }
 .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
 .nav-badge {
   margin-left: auto;
-  background: linear-gradient(135deg, var(--brand-500), var(--brand-400));
-  color: #0A1F19;
+  background: linear-gradient(135deg, #FACC15, #EAB308);
+  color: #111111;
   font-size: 10px; font-weight: 800;
   padding: 2px 8px; border-radius: var(--r-pill);
   letter-spacing: .2px;
-  box-shadow: 0 1px 4px rgba(52,211,153,.35);
+  box-shadow: 0 1px 4px rgba(250,204,21,.4);
 }
 .nav-badge.red {
   background: linear-gradient(135deg, #f87171, var(--red-500));
@@ -189,7 +189,7 @@ button { cursor: pointer; }
 }
 .sidebar-footer {
   margin-top: auto; padding: 14px 12px 0;
-  border-top: 1px solid rgba(255,255,255,.06);
+  border-top: 1px solid rgba(250,204,21,.12);
 }
 
 /* ── Main ── */
@@ -1100,8 +1100,8 @@ button { cursor: pointer; }
   <div class="logo" style="justify-content:flex-start;padding-left:20px;">
     <div class="logo-icon">AC</div>
     <div>
-      <span class="logo-text">AppCentral</span>
-      <div style="font-size:10.5px;color:rgba(255,255,255,.38);margin-top:1px;letter-spacing:.3px;">Adoption Dashboard</div>
+      <span class="logo-text">AppCentral Adoption</span>
+      <div style="font-size:10px;color:rgba(250,204,21,.45);margin-top:2px;letter-spacing:.4px;font-weight:600;text-transform:uppercase;">Workspace</div>
     </div>
   </div>
   <div class="nav-section">
@@ -1707,9 +1707,9 @@ button { cursor: pointer; }
       </div><!-- end exec compact stats row -->
 
       <!-- Exec: NPS Overview Row -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+      <div style="margin-bottom:10px;">
 
-        <!-- NPS Gauge Card -->
+        <!-- NPS Gauge Card (full width) -->
         <div style="background:#fff;border-radius:12px;padding:14px 18px;border:1px solid #e8eaf0;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
             <div>
@@ -1722,22 +1722,19 @@ button { cursor: pointer; }
             <button id="nps-tab-Q" style="display:none;">Q</button>
             <button id="nps-tab-Y" style="display:none;">Y</button>
           </div>
-          <div style="display:flex;align-items:center;gap:20px;">
-            <!-- SVG gauge (semicircle, arc length ≈ π×55 ≈ 173) -->
+          <div style="display:flex;align-items:center;gap:32px;">
+            <!-- SVG gauge -->
             <div style="flex-shrink:0;text-align:center;">
               <svg width="132" height="80" viewBox="0 0 120 75">
-                <!-- Track -->
                 <path d="M10 65 A 55 55 0 0 1 110 65" fill="none" stroke="#e5e7eb" stroke-width="12" stroke-linecap="round"/>
-                <!-- Score arc -->
                 <path id="nps-gauge-arc" d="M10 65 A 55 55 0 0 1 110 65" fill="none" stroke="#1B4D3E" stroke-width="12" stroke-linecap="round" stroke-dasharray="173" stroke-dashoffset="52" style="transition:stroke-dashoffset .6s ease,stroke .4s ease;"/>
-                <!-- Score text -->
                 <text id="nps-score-val" x="60" y="57" text-anchor="middle" font-size="20" font-weight="900" fill="#1B4D3E" font-family="system-ui,-apple-system,sans-serif">+67</text>
                 <text x="60" y="70" text-anchor="middle" font-size="8" fill="#9ca3af" font-family="system-ui,-apple-system,sans-serif">NPS SCORE</text>
               </svg>
               <div style="font-size:10.5px;font-weight:700;color:#059669;margin-top:2px;" id="nps-trend-label">↑ +4 pts vs last month</div>
             </div>
             <!-- Breakdown -->
-            <div style="flex:1;">
+            <div style="flex:1;max-width:260px;">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
                 <span style="font-size:11px;color:#059669;font-weight:700;">● Promoters</span>
                 <span style="font-size:14px;font-weight:800;color:#059669;" id="nps-promoters">72%</span>
@@ -1755,20 +1752,8 @@ button { cursor: pointer; }
             </div>
           </div>
         </div>
-
-        <!-- NPS by Consultant Card -->
-        <div style="background:#fff;border-radius:12px;padding:14px 18px;border:1px solid #e8eaf0;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <div>
-              <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">NPS by Consultant</div>
-              <div style="font-size:11px;color:#6b7280;margin-top:1px;">Average NPS score per CSM</div>
-            </div>
-            <span style="font-size:10px;font-weight:700;color:#fff;background:#1B4D3E;border-radius:20px;padding:3px 10px;">Live</span>
-          </div>
-          <div id="team-nps-by-csm" style="display:flex;flex-direction:column;gap:9px;">
-            <div style="color:#9ca3af;font-size:12px;text-align:center;padding:12px 0;">Loading NPS data…</div>
-          </div>
-        </div>
+        <!-- Hidden div keeps team-nps-by-csm ID alive for JS that may reference it -->
+        <div id="team-nps-by-csm" style="display:none;"></div>
 
       </div><!-- end NPS overview row -->
 
@@ -2939,7 +2924,6 @@ async function loadNPSFromSalesforce() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     NPS_RAW = data?.NPSDetails?.records || [];
-    _npsFieldCache = null; // force field re-detection on fresh data
 
     // Build accountId → YTD scores[] map (filter by survey received date — QS_Submitted_Date__c)
     // _isYTD is defined after loadNPSFromSalesforce in source order, but works at runtime
@@ -3247,13 +3231,9 @@ function _buildNpsEntry(records, label) {
 }
 
 // Read the survey received/submitted date from an NPS record.
-// Uses auto-detected date field if available (populated after _getNpsFields() runs),
-// then falls back through known candidate field names.
+// Checks known Salesforce field names in priority order.
 function _npsDate(r) {
-  // Use auto-detected field first (set by _detectNpsDateField after data loads)
-  const detectedField = _npsFieldCache?.date;
-  const raw = (detectedField && r?.[detectedField])
-           || r?.QS_Submitted_Date__c
+  const raw = r?.QS_Submitted_Date__c
            || r?.QS_Survey_Completion_Date__c
            || r?.CreatedDate
            || r?.LastModifiedDate
@@ -3429,90 +3409,14 @@ function _npsAccountMap() {
   return map;
 }
 
-// Auto-detect which field is the NPS score (0-10 numeric)
-function _detectNpsScoreField(records) {
-  const candidates = ['QS_NPS__c','NPS__c','NPS_Score__c','Score__c','nps','score'];
-  for (const f of candidates) {
-    if (records.some(r => r[f] !== null && r[f] !== undefined && !isNaN(Number(r[f])))) return f;
-  }
-  // Fallback: find any field whose values are all numbers 0-10
-  const allKeys = [...new Set(records.flatMap(r => Object.keys(r)))];
-  for (const k of allKeys) {
-    const vals = records.map(r => r[k]).filter(v => v !== null && v !== undefined);
-    if (vals.length && vals.every(v => !isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 10)) return k;
-  }
-  return null;
-}
-
-// Auto-detect which field is the account ID (Salesforce 15/18-char Id or lookup)
-function _detectNpsAcctField(records) {
-  const candidates = ['QS_Account__c','Account__c','AccountId','Account_ID__c','accountId'];
-  for (const f of candidates) {
-    if (records.some(r => r[f])) return f;
-  }
-  const allKeys = [...new Set(records.flatMap(r => Object.keys(r)))];
-  for (const k of allKeys) {
-    if (/(account|acct)/i.test(k)) return k;
-  }
-  return null;
-}
-
-// Auto-detect the best date field: prefer "submitted" / "received", then any Date field
-function _detectNpsDateField(records) {
-  const allKeys = [...new Set(records.flatMap(r => Object.keys(r)))];
-  const priority = [
-    /submit/i, /received/i, /respond/i, /complet/i, /survey.*date/i,
-    /date.*survey/i, /created/i, /modified/i, /stamp/i
-  ];
-  for (const re of priority) {
-    const key = allKeys.find(k => re.test(k) && records.some(r => {
-      const d = new Date(r[k]);
-      return !isNaN(d);
-    }));
-    if (key) return key;
-  }
-  // Fallback: any field parseable as a date
-  for (const k of allKeys) {
-    if (records.some(r => r[k] && !isNaN(new Date(r[k])))) return k;
-  }
-  return null;
-}
-
-// Cache detected field names after first detection
-let _npsFieldCache = null;
-function _getNpsFields() {
-  if (_npsFieldCache && NPS_RAW.length) return _npsFieldCache;
-  if (!NPS_RAW.length) return { score: 'QS_NPS__c', acct: 'QS_Account__c', date: 'QS_Submitted_Date__c' };
-  _npsFieldCache = {
-    score: _detectNpsScoreField(NPS_RAW),
-    acct:  _detectNpsAcctField(NPS_RAW),
-    date:  _detectNpsDateField(NPS_RAW),
-    allKeys: [...new Set(NPS_RAW.flatMap(r => Object.keys(r)))].filter(k => k !== 'attributes')
-  };
-  return _npsFieldCache;
-}
-
+// ── NPS Raw table helpers (simple, no auto-detection) ──
 function showNPSSampleJSON() {
   if (!NPS_RAW.length) { alert('No NPS data loaded yet'); return; }
   const panel   = document.getElementById('nps-json-panel');
   const content = document.getElementById('nps-json-content');
   if (!panel || !content) return;
-  // Show first record + field map hints
   content.textContent = JSON.stringify(NPS_RAW[0], null, 2);
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-  // Update field hint bar
-  const fields = _getNpsFields();
-  const hintEl = document.getElementById('nps-field-hints');
-  if (hintEl) {
-    hintEl.style.display = 'block';
-    hintEl.innerHTML = `
-      <strong>Auto-detected mappings:</strong>&nbsp;
-      Score field: <code style="background:#FEF3C7;padding:1px 5px;border-radius:4px;">${fields.score || '⚠ not found'}</code>&nbsp;·&nbsp;
-      Account field: <code style="background:#FEF3C7;padding:1px 5px;border-radius:4px;">${fields.acct || '⚠ not found'}</code>&nbsp;·&nbsp;
-      Date field: <code style="background:#FEF3C7;padding:1px 5px;border-radius:4px;">${fields.date || '⚠ not found'}</code>&nbsp;·&nbsp;
-      Total fields: <strong>${fields.allKeys?.length || '?'}</strong>
-      ${fields.date ? '' : '&nbsp;<span style="color:#dc2626;font-weight:700;">⚠ No date field detected — YTD filter cannot work</span>'}`;
-  }
+  panel.style.display = (panel.style.display === 'none' || !panel.style.display) ? 'block' : 'none';
 }
 
 function renderNPSRawTable() {
@@ -3524,156 +3428,151 @@ function renderNPSRawTable() {
 
   if (!NPS_RAW.length) {
     if (thead) thead.innerHTML = '';
-    tbody.innerHTML = '<tr><td style="padding:24px;text-align:center;color:#9ca3af;">No NPS data loaded yet — refreshing on startup…</td></tr>';
+    tbody.innerHTML = '<tr><td style="padding:24px;text-align:center;color:#9ca3af;font-size:13px;">No NPS data loaded — it loads automatically on page startup.</td></tr>';
     return;
   }
 
-  // Invalidate field cache so re-detection picks up new data
-  _npsFieldCache = null;
-  const fields   = _getNpsFields();
-  const scoreKey = fields.score;
-  const acctKey  = fields.acct;
-  const dateKey  = fields.date;
-  const acctMap  = _npsAccountMap();
+  // Derive all field names from the actual records (exclude SF metadata wrapper)
+  const allKeys = [];
+  const seen = new Set();
+  NPS_RAW.forEach(r => Object.keys(r).forEach(k => { if (k !== 'attributes' && !seen.has(k)) { seen.add(k); allKeys.push(k); } }));
 
-  // Update _npsDate to use the detected date field
-  // (We read it inline here rather than modifying the global function)
-  const getDate = (r) => {
-    const raw = (dateKey && r[dateKey]) || r.QS_Submitted_Date__c || r.QS_Survey_Completion_Date__c
-              || r.CreatedDate || r.LastModifiedDate || null;
-    if (!raw) return null;
-    const d = new Date(raw);
-    return isNaN(d) ? null : d;
-  };
-  const isYTDLocal = (r) => {
-    const d = getDate(r);
-    if (!d) return false;
-    const now = new Date();
-    return d >= new Date(now.getFullYear(), 0, 1) && d <= now;
-  };
+  // Score, account ID, date — use known SF field names with fallbacks
+  const scoreKey = allKeys.find(k => ['QS_NPS__c','NPS__c','NPS_Score__c','Score__c'].includes(k)) || null;
+  const acctKey  = allKeys.find(k => ['QS_Account__c','Account__c','AccountId'].includes(k)) || null;
+  const dateKey  = allKeys.find(k => /submit|receiv|complet|survey.*date|date.*survey/i.test(k)) || allKeys.find(k => /creat|modif/i.test(k)) || null;
 
+  // Update hint bar
+  const hintEl = document.getElementById('nps-field-hints');
+  if (hintEl) {
+    hintEl.style.display = 'block';
+    hintEl.innerHTML = `<strong>Detected:</strong>&nbsp;
+      Score → <code style="background:#FEF3C7;padding:1px 5px;border-radius:4px;">${scoreKey||'⚠ not found'}</code>&nbsp;·&nbsp;
+      Account → <code style="background:#FEF3C7;padding:1px 5px;border-radius:4px;">${acctKey||'⚠ not found'}</code>&nbsp;·&nbsp;
+      Date → <code style="background:#FEF3C7;padding:1px 5px;border-radius:4px;">${dateKey||'⚠ not found'}</code>&nbsp;·&nbsp;
+      <strong>${allKeys.length} fields, ${NPS_RAW.length} records</strong>`;
+  }
+
+  // YTD helper using the detected date field
+  const now      = new Date();
+  const janFirst = new Date(now.getFullYear(), 0, 1);
+  const getDate  = (r) => { const v = dateKey ? r[dateKey] : null; if (!v) return null; const d = new Date(v); return isNaN(d) ? null : d; };
+  const isYTDr   = (r) => { const d = getDate(r); return d ? (d >= janFirst && d <= now) : false; };
   const hasDates = NPS_RAW.some(r => !!getDate(r));
-  const ytdCount = hasDates ? NPS_RAW.filter(isYTDLocal).length : NPS_RAW.length;
-  if (countEl) countEl.textContent = `${NPS_RAW.length} records`;
-  if (ytdEl)   ytdEl.textContent   = hasDates ? `${ytdCount} YTD` : '⚠ no date field';
+  const ytdCount = hasDates ? NPS_RAW.filter(isYTDr).length : NPS_RAW.length;
 
-  const search    = (document.getElementById('nps-raw-search')?.value || '').toLowerCase().trim();
-  const filterVal = document.getElementById('nps-raw-filter')?.value || 'all';
-
-  // Build display rows
-  let rows = NPS_RAW.map((r, i) => {
-    const sfId     = (acctKey && r[acctKey]) || '';
-    const acctName = acctMap[sfId] || acctMap[_sfIdKey(sfId)] || sfId || '—';
-    const rawScore = scoreKey ? r[scoreKey] : undefined;
-    const score    = (rawScore !== null && rawScore !== undefined) ? Number(rawScore) : null;
-    const cat      = score === null ? 'Unknown'
-                   : score >= 9    ? 'Promoter'
-                   : score >= 7    ? 'Passive' : 'Detractor';
-    const dateObj  = getDate(r);
-    const dateStr  = dateObj
-      ? dateObj.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' })
-      : '—';
-    const ytd = hasDates ? isYTDLocal(r) : true;
-    // Build a search string from ALL fields
-    const allText = Object.values(r).join(' ').toLowerCase();
-    return { i: i+1, sfId, acctName, score, cat, dateStr, ytd, allText, _r: r };
-  });
+  if (countEl) countEl.textContent = NPS_RAW.length + ' records';
+  if (ytdEl)   ytdEl.textContent   = hasDates ? ytdCount + ' YTD' : '⚠ no date';
 
   // Filters
-  if (filterVal === 'ytd')            rows = rows.filter(r => r.ytd);
-  else if (filterVal === 'prior')     rows = rows.filter(r => !r.ytd);
-  else if (filterVal === 'promoter')  rows = rows.filter(r => r.cat === 'Promoter');
-  else if (filterVal === 'passive')   rows = rows.filter(r => r.cat === 'Passive');
-  else if (filterVal === 'detractor') rows = rows.filter(r => r.cat === 'Detractor');
-  if (search) rows = rows.filter(r => r.allText.includes(search) || r.acctName.toLowerCase().includes(search));
+  const search    = (document.getElementById('nps-raw-search')?.value || '').toLowerCase().trim();
+  const filterVal = document.getElementById('nps-raw-filter')?.value || 'all';
+  const acctMap   = _npsAccountMap();
 
-  // Build thead dynamically from ALL fields
-  // Always put the key columns first, then the rest
-  const keyFields = [acctKey, scoreKey, dateKey].filter(Boolean);
-  const otherFields = (fields.allKeys || []).filter(k => !keyFields.includes(k));
-  const displayCols = [...keyFields, ...otherFields];
+  let rows = NPS_RAW.map((r, i) => {
+    const sfId     = acctKey ? (r[acctKey] || '') : '';
+    const acctName = acctMap[sfId] || acctMap[_sfIdKey(sfId)] || sfId || '—';
+    const rawScore = scoreKey !== null ? r[scoreKey] : undefined;
+    const score    = (rawScore !== null && rawScore !== undefined && rawScore !== '') ? Number(rawScore) : null;
+    const cat      = score === null ? 'Unknown' : score >= 9 ? 'Promoter' : score >= 7 ? 'Passive' : 'Detractor';
+    const dateObj  = getDate(r);
+    const dateStr  = dateObj ? dateObj.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+    const ytd      = hasDates ? isYTDr(r) : true;
+    return { idx: i + 1, sfId, acctName, score, cat, dateStr, ytd, r };
+  });
 
+  if (filterVal === 'ytd')            rows = rows.filter(x => x.ytd);
+  else if (filterVal === 'prior')     rows = rows.filter(x => !x.ytd);
+  else if (filterVal === 'promoter')  rows = rows.filter(x => x.cat === 'Promoter');
+  else if (filterVal === 'passive')   rows = rows.filter(x => x.cat === 'Passive');
+  else if (filterVal === 'detractor') rows = rows.filter(x => x.cat === 'Detractor');
+
+  if (search) {
+    rows = rows.filter(x => {
+      const flat = Object.values(x.r).join(' ').toLowerCase();
+      return flat.includes(search) || x.acctName.toLowerCase().includes(search);
+    });
+  }
+
+  // Build dynamic thead
+  const thS = 'padding:7px 12px;text-align:left;font-weight:700;color:#374151;border-bottom:1.5px solid #e5e7eb;white-space:nowrap;font-size:11px;';
+  const thH = 'padding:7px 12px;text-align:left;font-weight:700;color:#b45309;border-bottom:1.5px solid #e5e7eb;white-space:nowrap;font-size:11px;background:#FFFBEB;';
   if (thead) {
-    const thStyle = 'padding:7px 12px;text-align:left;font-weight:700;color:#374151;border-bottom:1px solid #e5e7eb;white-space:nowrap;font-size:11px;';
-    const highlight = (k) => keyFields.includes(k)
-      ? 'background:#FFFBEB;' : 'background:#f9fafb;';
-    thead.innerHTML = `<tr style="position:sticky;top:0;z-index:1;">
-      <th style="${thStyle}background:#f9fafb;">#</th>
-      <th style="${thStyle}background:#f9fafb;">Account Name</th>
-      <th style="${thStyle}background:#FFF7ED;color:#d97706;">Score</th>
-      <th style="${thStyle}background:#FFF7ED;color:#d97706;">Category</th>
-      <th style="${thStyle}background:#FFF7ED;color:#d97706;">YTD</th>
-      ${displayCols.map(k => `<th style="${thStyle}${highlight(k)}" title="${k}">${k}</th>`).join('')}
+    thead.innerHTML = `<tr style="position:sticky;top:0;z-index:2;background:#f9fafb;">
+      <th style="${thS}">#</th>
+      <th style="${thS}">Account Name</th>
+      <th style="${thH}">Score</th>
+      <th style="${thH}">Category</th>
+      <th style="${thH}">YTD</th>
+      ${allKeys.map(k => `<th style="${[scoreKey,acctKey,dateKey].includes(k) ? thH : thS}" title="${k}">${k}</th>`).join('')}
     </tr>`;
   }
 
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="${displayCols.length + 5}" style="padding:24px;text-align:center;color:#9ca3af;">No records match</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="${allKeys.length + 5}" style="padding:20px;text-align:center;color:#9ca3af;">No records match</td></tr>`;
     return;
   }
 
-  const catColor = { Promoter:'#059669', Passive:'#6b7280', Detractor:'#ef4444', Unknown:'#9ca3af' };
-  const catBg    = { Promoter:'#F0FDF4', Passive:'#f9fafb',  Detractor:'#FEF2F2', Unknown:'#f9fafb' };
-  const sCol     = (s) => s === null ? '#9ca3af' : s >= 9 ? '#059669' : s >= 7 ? '#6b7280' : '#ef4444';
-  const sBg      = (s) => s === null ? '#f9fafb' : s >= 9 ? '#F0FDF4' : s >= 7 ? '#f9fafb' : '#FEF2F2';
+  const cc = { Promoter:'#059669', Passive:'#6b7280', Detractor:'#ef4444', Unknown:'#9ca3af' };
+  const cb = { Promoter:'#F0FDF4', Passive:'#f3f4f6', Detractor:'#FEF2F2', Unknown:'#f3f4f6' };
+  const sc = (s) => s === null ? '#9ca3af' : s >= 9 ? '#059669' : s >= 7 ? '#6b7280' : '#ef4444';
+  const sb = (s) => s === null ? '#f3f4f6' : s >= 9 ? '#F0FDF4' : s >= 7 ? '#f3f4f6' : '#FEF2F2';
 
-  tbody.innerHTML = rows.map(r => {
-    const scoreDisplay = r.score !== null ? r.score : '—';
-    const cells = displayCols.map(k => {
-      const val = r._r[k];
-      const display = (val === null || val === undefined) ? '' : String(val);
-      return `<td style="padding:6px 12px;color:#374151;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;font-size:11.5px;" title="${display}">${display}</td>`;
+  tbody.innerHTML = rows.map(x => {
+    const rawCells = allKeys.map(k => {
+      const v = x.r[k];
+      const s = (v === null || v === undefined) ? '' : String(v);
+      return `<td style="padding:6px 12px;color:#374151;white-space:nowrap;font-size:11.5px;max-width:200px;overflow:hidden;text-overflow:ellipsis;" title="${s.replace(/"/g,'&quot;')}">${s}</td>`;
     }).join('');
     return `<tr style="border-bottom:1px solid #f3f4f6;" onmouseenter="this.style.background='#fafafa'" onmouseleave="this.style.background=''">
-      <td style="padding:6px 12px;color:#9ca3af;font-size:11px;">${r.i}</td>
-      <td style="padding:6px 12px;font-weight:600;color:#111827;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;font-size:11.5px;" title="${r.acctName}">${r.acctName}</td>
-      <td style="padding:6px 12px;text-align:center;"><span style="font-size:13px;font-weight:900;color:${sCol(r.score)};background:${sBg(r.score)};border-radius:8px;padding:2px 9px;">${scoreDisplay}</span></td>
-      <td style="padding:6px 12px;text-align:center;"><span style="font-size:11px;font-weight:700;color:${catColor[r.cat]};background:${catBg[r.cat]};border-radius:20px;padding:2px 8px;">${r.cat}</span></td>
-      <td style="padding:6px 12px;text-align:center;">${r.ytd ? '<span style="font-size:11px;font-weight:700;color:#059669;background:#F0FDF4;border-radius:20px;padding:2px 8px;">✓ YTD</span>' : '<span style="font-size:11px;color:#9ca3af;background:#f3f4f6;border-radius:20px;padding:2px 8px;">Prior</span>'}</td>
-      ${cells}
+      <td style="padding:6px 12px;color:#9ca3af;font-size:11px;">${x.idx}</td>
+      <td style="padding:6px 12px;font-weight:600;color:#111827;white-space:nowrap;max-width:180px;overflow:hidden;text-overflow:ellipsis;font-size:11.5px;" title="${x.acctName}">${x.acctName}</td>
+      <td style="padding:6px 12px;text-align:center;"><span style="font-size:13px;font-weight:900;color:${sc(x.score)};background:${sb(x.score)};border-radius:8px;padding:2px 9px;">${x.score !== null ? x.score : '—'}</span></td>
+      <td style="padding:6px 12px;text-align:center;"><span style="font-size:11px;font-weight:700;color:${cc[x.cat]};background:${cb[x.cat]};border-radius:20px;padding:2px 8px;">${x.cat}</span></td>
+      <td style="padding:6px 12px;text-align:center;">${x.ytd ? '<span style="font-size:11px;font-weight:700;color:#059669;background:#F0FDF4;border-radius:20px;padding:2px 8px;">✓ YTD</span>' : '<span style="font-size:11px;color:#9ca3af;background:#f3f4f6;border-radius:20px;padding:2px 8px;">Prior</span>'}</td>
+      ${rawCells}
     </tr>`;
   }).join('');
 }
 
 function exportNPSRaw() {
   if (!NPS_RAW.length) { alert('No NPS data to export'); return; }
-  const fields   = _getNpsFields();
+  const allKeys  = [];
+  const seen     = new Set();
+  NPS_RAW.forEach(r => Object.keys(r).forEach(k => { if (k !== 'attributes' && !seen.has(k)) { seen.add(k); allKeys.push(k); } }));
+
+  const scoreKey = allKeys.find(k => ['QS_NPS__c','NPS__c','NPS_Score__c'].includes(k)) || null;
+  const acctKey  = allKeys.find(k => ['QS_Account__c','Account__c','AccountId'].includes(k)) || null;
+  const dateKey  = allKeys.find(k => /submit|receiv|complet/i.test(k)) || allKeys.find(k => /creat/i.test(k)) || null;
   const acctMap  = _npsAccountMap();
-  const acctKey  = fields.acct;
-  const scoreKey = fields.score;
-  const allKeys  = fields.allKeys || Object.keys(NPS_RAW[0] || {}).filter(k => k !== 'attributes');
-
-  // Header: derived columns first, then all raw fields
-  const header = ['#','_Account_Name','_Category','_YTD', ...allKeys];
-  const esc    = (v) => `"${String(v ?? '').replace(/"/g,'""')}"`;
-
-  const csvRows = [header.join(',')];
-  const now     = new Date();
+  const esc      = (v) => `"${String(v ?? '').replace(/"/g,'""')}"`;
+  const now      = new Date();
   const janFirst = new Date(now.getFullYear(), 0, 1);
 
+  const header = ['#', '_Account_Name', '_Score', '_Category', '_YTD', ...allKeys];
+  const csvRows = [header.join(',')];
   NPS_RAW.forEach((r, i) => {
-    const sfId     = (acctKey && r[acctKey]) || '';
+    const sfId     = acctKey ? (r[acctKey] || '') : '';
     const acctName = acctMap[sfId] || acctMap[_sfIdKey(sfId)] || sfId;
     const rawScore = scoreKey ? r[scoreKey] : null;
     const score    = (rawScore !== null && rawScore !== undefined) ? Number(rawScore) : null;
     const cat      = score === null ? 'Unknown' : score >= 9 ? 'Promoter' : score >= 7 ? 'Passive' : 'Detractor';
-    const dateVal  = fields.date ? r[fields.date] : null;
+    const dateVal  = dateKey ? r[dateKey] : null;
     const dateObj  = dateVal ? new Date(dateVal) : null;
     const ytd      = (dateObj && !isNaN(dateObj)) ? (dateObj >= janFirst && dateObj <= now ? 'Yes' : 'No') : 'N/A';
-    const rawCells = allKeys.map(k => esc(r[k]));
-    csvRows.push([i+1, esc(acctName), cat, ytd, ...rawCells].join(','));
+    csvRows.push([i+1, esc(acctName), score ?? '', cat, ytd, ...allKeys.map(k => esc(r[k]))].join(','));
   });
 
   const blob = new Blob([csvRows.join('\n')], { type:'text/csv' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a');
-  a.href = url;
-  a.download = `nps_raw_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  const a    = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(blob),
+    download: `nps_raw_${new Date().toISOString().slice(0,10)}.csv`
+  });
+  a.click(); URL.revokeObjectURL(a.href);
 }
 
 // ── End NPS Raw Data ──
+
 
 function populateDashboardCsmFilter() {
   const sel = document.getElementById('csm-filter');
