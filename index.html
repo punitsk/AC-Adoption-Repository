@@ -1880,28 +1880,41 @@ button { cursor: pointer; }
   <!-- ══ SECTION: ANALYTICS (stub) ══ -->
   <!-- ══ SECTION: PRODUCT USAGE ══ -->
   <div id="section-product-usage" class="hidden" style="flex:1;min-width:0;overflow-y:auto;padding:20px 28px 28px;">
+    <!-- Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
       <div>
         <div style="font-size:24px;font-weight:700;color:#111827;">Product Usage</div>
-        <div style="font-size:13px;color:#9ca3af;margin-top:3px;">Daily · Weekly · Monthly active users by product</div>
+        <div style="font-size:13px;color:#9ca3af;margin-top:3px;">Engagement · Licensing · Feature adoption across all AppCentral products</div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;">
-        <select id="pu-period" onchange="renderProductUsage()" style="font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
+        <select id="pu-product-filter" onchange="renderProductUsage()" style="font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
           <option value="all">All Products</option>
-          <option value="core">Core (ERP · EAM · EDI)</option>
-          <option value="ai">AI / Intelligence</option>
-          <option value="finance">Finance & Operations</option>
+          <option value="M2M ERP">Made2Manage ERP</option>
+          <option value="EAM">EAM</option>
+          <option value="EDI">EDI</option>
+          <option value="CRM">CRM</option>
+          <option value="Insights">Insights</option>
+          <option value="Gen AI">Gen AI</option>
+          <option value="Ship">Ship</option>
+          <option value="Pay">Pay</option>
         </select>
-        <button class="btn-outline" onclick="renderProductUsage()">
+        <button class="btn-outline" onclick="renderProductUsage()" style="display:flex;align-items:center;gap:6px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
           Refresh
         </button>
       </div>
     </div>
-    <!-- Summary tiles -->
-    <div id="pu-summary" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;"></div>
-    <!-- Product table -->
-    <div id="pu-table-wrap" style="background:#fff;border-radius:14px;border:1px solid #f0f0f0;overflow:hidden;"></div>
+    <!-- Tab nav -->
+    <div style="display:flex;gap:4px;background:#F5F6FA;border-radius:10px;padding:4px;margin-bottom:20px;width:fit-content;" id="pu-tab-bar">
+      <button onclick="setPUTab('ranking')"    id="pu-tab-ranking"    style="font-size:12px;font-weight:600;padding:6px 16px;border:none;border-radius:7px;cursor:pointer;background:#1B4D3E;color:#fff;transition:all .15s;">📊 Most Used</button>
+      <button onclick="setPUTab('license')"    id="pu-tab-license"    style="font-size:12px;font-weight:600;padding:6px 16px;border:none;border-radius:7px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">🔑 License Utilization</button>
+      <button onclick="setPUTab('lowusage')"   id="pu-tab-lowusage"   style="font-size:12px;font-weight:600;padding:6px 16px;border:none;border-radius:7px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">⚠️ Low Usage Accounts</button>
+      <button onclick="setPUTab('features')"   id="pu-tab-features"   style="font-size:12px;font-weight:600;padding:6px 16px;border:none;border-radius:7px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">🔬 Feature-Level Usage</button>
+    </div>
+    <!-- Summary KPI row -->
+    <div id="pu-kpi-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;"></div>
+    <!-- Tab content -->
+    <div id="pu-content"></div>
   </div>
 
   <!-- ══ SECTION: ACTIVITIES (hidden, kept for data) ══ -->
@@ -2592,6 +2605,7 @@ function switchView(view) {
     if (contentDiv) contentDiv.style.display = 'none';      // collapse so leadership-view fills space
   }
   updateBanner();
+  if (view === 'leadership' && ACCOUNTS && ACCOUNTS.length) renderDashboard();
   setTimeout(() => {
     csmView.classList.remove('fade-in');
     leaderView.classList.remove('fade-in');
@@ -8644,107 +8658,384 @@ function renderExecAdoptionMetrics() {
 
 // ── Account × Product Adoption Grid ───────────────────────────
 // ── Product Usage ─────────────────────────────────────────────────────────────
-function renderProductUsage() {
-  const summaryEl = document.getElementById('pu-summary');
-  const tableEl   = document.getElementById('pu-table-wrap');
-  if (!summaryEl || !tableEl) return;
+// ══ PRODUCT USAGE — shared data & helpers ══════════════════════════════
+const PU_PRODUCTS = [
+  { id:'M2M ERP',  name:'Made2Manage ERP',      icon:'🏭', dau:2341, wau:8912,  mau:14823, seats:18500, used:14823,
+    modules:[
+      { name:'Manufacturing / MO',        pct:91 },
+      { name:'Sales Order Entry',         pct:87 },
+      { name:'Purchasing',                pct:83 },
+      { name:'Inventory Management',      pct:79 },
+      { name:'Finance / GL / AP / AR',    pct:75 },
+      { name:'Shipping & Receiving',      pct:68 },
+      { name:'Quality Control',           pct:54 },
+      { name:'Engineering Change Orders', pct:41 },
+      { name:'CRM (M2M native)',          pct:33 },
+    ]},
+  { id:'EAM',      name:'EAM',                   icon:'🔧', dau:1187, wau:4203,  mau:7640,  seats:9200,  used:7640,
+    modules:[
+      { name:'Work Orders',               pct:88 },
+      { name:'Asset Registry',            pct:82 },
+      { name:'PM Schedules',              pct:71 },
+      { name:'Parts Inventory',           pct:63 },
+      { name:'Inspection & Checklists',   pct:49 },
+      { name:'Labor Tracking',            pct:44 },
+    ]},
+  { id:'EDI',      name:'EDI',                   icon:'🔄', dau:892,  wau:3104,  mau:5917,  seats:7000,  used:5917,
+    modules:[
+      { name:'Trading Partners',          pct:94 },
+      { name:'Transaction Sets (850/856)',pct:89 },
+      { name:'997 Acknowledgments',       pct:82 },
+      { name:'EDI Monitor & Alerts',      pct:66 },
+      { name:'Data Mapper',               pct:47 },
+    ]},
+  { id:'CRM',      name:'CRM',                   icon:'👥', dau:654,  wau:2341,  mau:4208,  seats:5500,  used:4208,
+    modules:[
+      { name:'Contacts & Accounts',       pct:85 },
+      { name:'Opportunities',             pct:78 },
+      { name:'Activities & Tasks',        pct:70 },
+      { name:'Email Integration',         pct:58 },
+      { name:'Reports & Dashboards',      pct:45 },
+    ]},
+  { id:'Insights', name:'Insights',               icon:'📊', dau:512,  wau:1987,  mau:3841,  seats:5000,  used:3841,
+    modules:[
+      { name:'Pre-built Dashboards',      pct:79 },
+      { name:'Custom Reports',            pct:61 },
+      { name:'Data Explorer',             pct:48 },
+      { name:'Scheduled Reports',         pct:39 },
+      { name:'Embedded Analytics',        pct:28 },
+    ]},
+  { id:'Gen AI',   name:'Gen AI',                 icon:'🤖', dau:287,  wau:1102,  mau:2634,  seats:4000,  used:2634,
+    modules:[
+      { name:'AI Assistant (Chat)',       pct:72 },
+      { name:'Document Extraction',       pct:58 },
+      { name:'Smart Search',              pct:51 },
+      { name:'Email Drafting',            pct:38 },
+      { name:'Summarization',             pct:29 },
+    ]},
+  { id:'Ship',     name:'Ship',                   icon:'🚢', dau:431,  wau:1872,  mau:3506,  seats:4500,  used:3506,
+    modules:[
+      { name:'Rate Shopping',             pct:84 },
+      { name:'Carrier Management',        pct:77 },
+      { name:'Label Printing',            pct:73 },
+      { name:'Shipment Tracking',         pct:62 },
+      { name:'Returns Management',        pct:31 },
+    ]},
+  { id:'Pay',      name:'Pay',                    icon:'💳', dau:387,  wau:1604,  mau:2981,  seats:3800,  used:2981,
+    modules:[
+      { name:'AP Payments',               pct:88 },
+      { name:'EFT / ACH',                 pct:80 },
+      { name:'AR Collections',            pct:67 },
+      { name:'Payment Reconciliation',    pct:55 },
+      { name:'Multi-currency',            pct:38 },
+    ]},
+  { id:'Invoice Automation', name:'Invoice Automation', icon:'🧾', dau:301, wau:1243, mau:2417, seats:3200, used:2417,
+    modules:[
+      { name:'OCR Capture',               pct:82 },
+      { name:'3-Way Match',               pct:74 },
+      { name:'Approval Workflows',        pct:68 },
+      { name:'Vendor Portal',             pct:43 },
+    ]},
+  { id:'Fixed Assets', name:'Fixed Assets',       icon:'🏢', dau:218, wau:897,  mau:1732,  seats:2400,  used:1732,
+    modules:[
+      { name:'Asset Register',            pct:91 },
+      { name:'Depreciation Schedules',    pct:85 },
+      { name:'Disposal & Retirement',     pct:58 },
+      { name:'Audit Trail',               pct:49 },
+    ]},
+];
 
-  // Real Aptean AppCentral product names from MODS
-  const PRODUCTS = [
-    { name:'ERP',                    category:'core',    icon:'🏭', dau:2341, wau:8912, mau:14823 },
-    { name:'EAM',                    category:'core',    icon:'🔧', dau:1187, wau:4203, mau:7640  },
-    { name:'EDI',                    category:'core',    icon:'🔄', dau:892,  wau:3104, mau:5917  },
-    { name:'CRM',                    category:'core',    icon:'👥', dau:654,  wau:2341, mau:4208  },
-    { name:'Ship',                   category:'finance', icon:'🚢', dau:431,  wau:1872, mau:3506  },
-    { name:'Pay',                    category:'finance', icon:'💳', dau:387,  wau:1604, mau:2981  },
-    { name:'Invoice Automation',     category:'finance', icon:'🧾', dau:301,  wau:1243, mau:2417  },
-    { name:'Fixed Assets',           category:'finance', icon:'🏢', dau:218,  wau:897,  mau:1732  },
-    { name:'PO Requisition',         category:'finance', icon:'📋', dau:196,  wau:743,  mau:1489  },
-    { name:'Insights',               category:'ai',      icon:'📊', dau:512,  wau:1987, mau:3841  },
-    { name:'Gen AI',                 category:'ai',      icon:'🤖', dau:287,  wau:1102, mau:2634  },
-    { name:'Agents',                 category:'ai',      icon:'⚡', dau:163,  wau:687,  mau:1418  },
-    { name:'Intelligent Workflows',  category:'ai',      icon:'🔀', dau:134,  wau:541,  mau:1087  },
-    { name:'Workspaces',             category:'ai',      icon:'🖥️', dau:98,   wau:412,  mau:863   },
+const PU_LOW_USAGE_ACCOUNTS = [
+  { name:'Stegmeier Consolidated',   product:'EAM',     dau:3,  score:12, lastActive:'May 9, 2026',  seats:80 },
+  { name:'BPI Medical',              product:'M2M ERP', dau:7,  score:18, lastActive:'May 11, 2026', seats:120 },
+  { name:'Estes Design',             product:'EDI',     dau:4,  score:14, lastActive:'May 8, 2026',  seats:45 },
+  { name:'Pepin Manufacturing',      product:'CRM',     dau:5,  score:16, lastActive:'May 10, 2026', seats:60 },
+  { name:'Rodon Group',              product:'Insights',dau:2,  score:9,  lastActive:'May 6, 2026',  seats:35 },
+  { name:'Haydale Composites',       product:'Pay',     dau:6,  score:15, lastActive:'May 12, 2026', seats:50 },
+  { name:'Phoenix Industries',       product:'Ship',    dau:4,  score:13, lastActive:'May 7, 2026',  seats:40 },
+  { name:'Cascade Engineering',      product:'Gen AI',  dau:3,  score:10, lastActive:'May 5, 2026',  seats:55 },
+];
+
+let _puActiveTab = 'ranking';
+
+function _puFmt(n) { return n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n); }
+function _puBar(pct, color) {
+  return `<div style="display:flex;align-items:center;gap:8px;">
+    <div style="flex:1;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
+      <div style="width:${pct}%;height:100%;background:${color};border-radius:4px;transition:width .4s;"></div>
+    </div>
+    <span style="font-size:11px;color:#6b7280;width:34px;text-align:right;font-weight:600;">${pct}%</span>
+  </div>`;
+}
+
+function setPUTab(tab) {
+  _puActiveTab = tab;
+  ['ranking','license','lowusage','features'].forEach(t => {
+    const btn = document.getElementById('pu-tab-'+t);
+    if (!btn) return;
+    if (t === tab) {
+      btn.style.background = '#fff';
+      btn.style.color = '#1B4D3E';
+      btn.style.fontWeight = '700';
+      btn.style.boxShadow = '0 1px 4px rgba(0,0,0,.10)';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.color = '#6b7280';
+      btn.style.fontWeight = '500';
+      btn.style.boxShadow = 'none';
+    }
+  });
+  _puRenderTab();
+}
+
+function _puGetVisible() {
+  const f = document.getElementById('pu-product-filter')?.value || 'all';
+  return f === 'all' ? PU_PRODUCTS : PU_PRODUCTS.filter(p => p.id === f);
+}
+
+function _puRenderKPIs(visible) {
+  const kpiEl = document.getElementById('pu-kpi-row');
+  if (!kpiEl) return;
+  const totalMAU  = visible.reduce((s,p)=>s+p.mau,0);
+  const totalDAU  = visible.reduce((s,p)=>s+p.dau,0);
+  const totalSeats= visible.reduce((s,p)=>s+p.seats,0);
+  const totalUsed = visible.reduce((s,p)=>s+p.used,0);
+  const utilPct   = totalSeats > 0 ? Math.round((totalUsed/totalSeats)*100) : 0;
+  const stickiness= totalMAU > 0   ? ((totalDAU/totalMAU)*100).toFixed(1) : '—';
+  const lowCount  = PU_LOW_USAGE_ACCOUNTS.filter(a => visible.some(p=>p.id===a.product)).length;
+  const tiles = [
+    { label:'MAU',              value:_puFmt(totalMAU),  sub:'Monthly Active Users', bg:'#EFF6FF', border:'#BFDBFE', vClr:'#1e40af', sClr:'#3b82f6' },
+    { label:'License Utilized', value:utilPct+'%',       sub:`${_puFmt(totalUsed)} of ${_puFmt(totalSeats)} seats`, bg:'#F0FDF4', border:'#BBF7D0', vClr:'#047857', sClr:'#10b981' },
+    { label:'Stickiness',       value:stickiness+'%',    sub:'DAU ÷ MAU ratio', bg:'#F5F3FF', border:'#DDD6FE', vClr:'#5b21b6', sClr:'#7c3aed' },
+    { label:'Low Usage Alerts', value:String(lowCount),  sub:'Accounts needing attention', bg:'#FFF7ED', border:'#FED7AA', vClr:'#c2410c', sClr:'#f97316' },
   ];
+  kpiEl.innerHTML = tiles.map(t=>`
+    <div style="background:${t.bg};border:1.5px solid ${t.border};border-radius:14px;padding:16px 18px;">
+      <div style="font-size:11px;font-weight:700;color:${t.sClr};text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">${t.label}</div>
+      <div style="font-size:28px;font-weight:900;color:${t.vClr};line-height:1;">${t.value}</div>
+      <div style="font-size:11.5px;color:${t.sClr};margin-top:4px;">${t.sub}</div>
+    </div>`).join('');
+}
 
-  const filterVal = document.getElementById('pu-period')?.value || 'all';
-  const visible = filterVal === 'all' ? PRODUCTS
-    : PRODUCTS.filter(p => p.category === filterVal);
+function _puRenderTab() {
+  const visible = _puGetVisible();
+  _puRenderKPIs(visible);
+  const el = document.getElementById('pu-content');
+  if (!el) return;
+  if (_puActiveTab === 'ranking')  el.innerHTML = _puRankingHTML(visible);
+  if (_puActiveTab === 'license')  el.innerHTML = _puLicenseHTML(visible);
+  if (_puActiveTab === 'lowusage') el.innerHTML = _puLowUsageHTML(visible);
+  if (_puActiveTab === 'features') el.innerHTML = _puFeaturesHTML(visible);
+}
 
-  const totalDAU = visible.reduce((s, p) => s + p.dau, 0);
-  const totalWAU = visible.reduce((s, p) => s + p.wau, 0);
-  const totalMAU = visible.reduce((s, p) => s + p.mau, 0);
-  const maxMAU   = Math.max(...visible.map(p => p.mau));
-
-  const fmt = n => n >= 1000 ? (n/1000).toFixed(1) + 'K' : n.toString();
-
-  // Summary tiles
-  summaryEl.innerHTML = `
-    <div style="background:#EFF6FF;border:1.5px solid #BFDBFE;border-radius:14px;padding:16px 18px;">
-      <div style="font-size:11px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">DAU</div>
-      <div style="font-size:28px;font-weight:900;color:#1e40af;line-height:1;">${fmt(totalDAU)}</div>
-      <div style="font-size:11.5px;color:#3b82f6;margin-top:4px;">Daily Active Users</div>
-    </div>
-    <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:14px;padding:16px 18px;">
-      <div style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">WAU</div>
-      <div style="font-size:28px;font-weight:900;color:#047857;line-height:1;">${fmt(totalWAU)}</div>
-      <div style="font-size:11.5px;color:#10b981;margin-top:4px;">Weekly Active Users</div>
-    </div>
-    <div style="background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:16px 18px;">
-      <div style="font-size:11px;font-weight:700;color:#c2410c;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">MAU</div>
-      <div style="font-size:28px;font-weight:900;color:#c2410c;line-height:1;">${fmt(totalMAU)}</div>
-      <div style="font-size:11.5px;color:#f97316;margin-top:4px;">Monthly Active Users</div>
-    </div>
-    <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:14px;padding:16px 18px;">
-      <div style="font-size:11px;font-weight:700;color:#6d28d9;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;">DAU/MAU</div>
-      <div style="font-size:28px;font-weight:900;color:#5b21b6;line-height:1;">${totalMAU > 0 ? ((totalDAU/totalMAU)*100).toFixed(1) : '—'}%</div>
-      <div style="font-size:11.5px;color:#7c3aed;margin-top:4px;">Stickiness ratio</div>
-    </div>`;
-
-  // Product table
-  const rows = visible.map(p => {
-    const barPct = maxMAU > 0 ? Math.round((p.mau / maxMAU) * 100) : 0;
-    const stickiness = p.mau > 0 ? ((p.dau / p.mau) * 100).toFixed(0) : 0;
-    const stickyColor = stickiness >= 20 ? '#059669' : stickiness >= 10 ? '#d97706' : '#ef4444';
-    return `<tr style="border-bottom:1px solid #f3f4f6;">
-      <td style="padding:11px 16px;white-space:nowrap;">
-        <span style="font-size:15px;margin-right:7px;">${p.icon}</span>
-        <span style="font-size:13px;font-weight:600;color:#111827;">${p.name}</span>
+function _puRankingHTML(visible) {
+  const sorted = [...visible].sort((a,b)=>b.mau-a.mau);
+  const maxMAU = sorted[0]?.mau || 1;
+  const rankColors = ['#F59E0B','#94A3B8','#CD7F32'];
+  const rows = sorted.map((p,i) => {
+    const rank = i+1;
+    const barPct = Math.round((p.mau/maxMAU)*100);
+    const stick  = p.mau > 0 ? ((p.dau/p.mau)*100).toFixed(0) : 0;
+    const sColor = stick>=20?'#059669':stick>=10?'#d97706':'#ef4444';
+    const rankBadge = rank <= 3
+      ? `<span style="width:26px;height:26px;border-radius:50%;background:${rankColors[i]||'#e5e7eb'};color:#fff;font-size:12px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;">${rank}</span>`
+      : `<span style="width:26px;height:26px;border-radius:50%;background:#f3f4f6;color:#6b7280;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">${rank}</span>`;
+    return `<tr style="border-bottom:1px solid #f3f4f6;transition:background .15s;" onmouseover="this.style.background='#FAFBFD'" onmouseout="this.style.background=''">
+      <td style="padding:12px 14px;width:44px;">${rankBadge}</td>
+      <td style="padding:12px 10px;white-space:nowrap;">
+        <span style="font-size:17px;margin-right:8px;">${p.icon}</span>
+        <span style="font-size:13px;font-weight:700;color:#111827;">${p.name}</span>
       </td>
-      <td style="padding:11px 16px;text-align:right;font-size:13px;font-weight:700;color:#1e40af;">${fmt(p.dau)}</td>
-      <td style="padding:11px 16px;text-align:right;font-size:13px;font-weight:700;color:#047857;">${fmt(p.wau)}</td>
-      <td style="padding:11px 16px;text-align:right;font-size:13px;font-weight:700;color:#c2410c;">${fmt(p.mau)}</td>
-      <td style="padding:11px 16px;min-width:160px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="flex:1;height:7px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
-            <div style="width:${barPct}%;height:100%;background:#1B4D3E;border-radius:4px;"></div>
-          </div>
-          <span style="font-size:11px;color:#9ca3af;width:32px;text-align:right;">${barPct}%</span>
-        </div>
-      </td>
-      <td style="padding:11px 16px;text-align:center;">
-        <span style="font-size:11.5px;font-weight:700;color:${stickyColor};">${stickiness}%</span>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#1e40af;">${_puFmt(p.dau)}</td>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#047857;">${_puFmt(p.wau)}</td>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#c2410c;">${_puFmt(p.mau)}</td>
+      <td style="padding:12px 14px;min-width:140px;">${_puBar(barPct,'#1B4D3E')}</td>
+      <td style="padding:12px 14px;text-align:center;">
+        <span style="font-size:12px;font-weight:700;color:${sColor};">${stick}%</span>
       </td>
     </tr>`;
   }).join('');
-
-  tableEl.innerHTML = `
-    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+  return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;">
       <thead>
         <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;">
-          <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Product</th>
-          <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.5px;">DAU</th>
-          <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;">WAU</th>
-          <th style="padding:10px 16px;text-align:right;font-size:11px;font-weight:700;color:#c2410c;text-transform:uppercase;letter-spacing:.5px;">MAU</th>
-          <th style="padding:10px 16px;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">MAU Reach</th>
-          <th style="padding:10px 16px;text-align:center;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;" title="DAU ÷ MAU — how often monthly users return daily">Stickiness</th>
+          <th style="padding:10px 14px;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">#</th>
+          <th style="padding:10px 10px;text-align:left;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Product</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:.5px;">DAU</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;">WAU</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#c2410c;text-transform:uppercase;letter-spacing:.5px;">MAU</th>
+          <th style="padding:10px 14px;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">MAU Reach</th>
+          <th style="padding:10px 14px;text-align:center;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;" title="DAU÷MAU">Stickiness</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
     </table>
-    <div style="padding:10px 16px;font-size:11px;color:#9ca3af;border-top:1px solid #f0f0f0;background:#FAFBFD;">
-      Data reflects AppCentral platform usage · Last updated ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+    <div style="padding:9px 14px;font-size:11px;color:#9ca3af;border-top:1px solid #f3f4f6;">
+      Ranked by Monthly Active Users · AppCentral platform data · ${new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'})}
+    </div>
+  </div>`;
+}
+
+function _puLicenseHTML(visible) {
+  const sorted = [...visible].sort((a,b)=>(b.used/b.seats)-(a.used/a.seats));
+  const rows = sorted.map(p => {
+    const utilPct = Math.round((p.used/p.seats)*100);
+    const barColor = utilPct>=80?'#1B4D3E':utilPct>=60?'#d97706':'#ef4444';
+    const badge = utilPct>=80
+      ? `<span style="background:#D1FAE5;color:#065f46;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">Healthy</span>`
+      : utilPct>=60
+      ? `<span style="background:#FEF3C7;color:#92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">Monitor</span>`
+      : `<span style="background:#FEE2E2;color:#991b1b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">Low</span>`;
+    return `<tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#FAFBFD'" onmouseout="this.style.background=''">
+      <td style="padding:12px 14px;white-space:nowrap;">
+        <span style="font-size:16px;margin-right:8px;">${p.icon}</span>
+        <span style="font-size:13px;font-weight:700;color:#111827;">${p.name}</span>
+      </td>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;color:#374151;">${_puFmt(p.seats)}</td>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#111827;">${_puFmt(p.used)}</td>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;color:#6b7280;">${_puFmt(p.seats-p.used)}</td>
+      <td style="padding:12px 14px;min-width:160px;">${_puBar(utilPct, barColor)}</td>
+      <td style="padding:12px 14px;text-align:center;">${badge}</td>
+    </tr>`;
+  }).join('');
+  const totSeats = visible.reduce((s,p)=>s+p.seats,0);
+  const totUsed  = visible.reduce((s,p)=>s+p.used,0);
+  const totOpen  = totSeats - totUsed;
+  const totPct   = Math.round((totUsed/totSeats)*100);
+  return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;">
+          <th style="padding:10px 14px;text-align:left;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Product</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Licensed</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;">In Use</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;">Available</th>
+          <th style="padding:10px 14px;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Utilization</th>
+          <th style="padding:10px 14px;text-align:center;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Status</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+      <tfoot>
+        <tr style="background:#F0FDF4;border-top:2px solid #BBF7D0;">
+          <td style="padding:11px 14px;font-size:12.5px;font-weight:800;color:#065f46;">TOTAL</td>
+          <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:800;color:#111827;">${_puFmt(totSeats)}</td>
+          <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:800;color:#047857;">${_puFmt(totUsed)}</td>
+          <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:700;color:#6b7280;">${_puFmt(totOpen)}</td>
+          <td style="padding:11px 14px;">${_puBar(totPct,'#1B4D3E')}</td>
+          <td style="padding:11px 14px;text-align:center;font-size:12px;font-weight:800;color:#1B4D3E;">${totPct}%</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div style="padding:9px 14px;font-size:11px;color:#9ca3af;border-top:1px solid #f3f4f6;">
+      License data reflects contracted seats vs. active MAU · Review with CSM for renewal planning
+    </div>
+  </div>`;
+}
+
+function _puLowUsageHTML(visible) {
+  const visIds = new Set(visible.map(p=>p.id));
+  const rows = PU_LOW_USAGE_ACCOUNTS.filter(a=>visIds.has(a.product));
+  if (!rows.length) return `<div style="text-align:center;padding:48px;color:#9ca3af;font-size:13px;">No low-usage accounts for this filter.</div>`;
+  const scoreBar = s => {
+    const pct = Math.round((s/30)*100);
+    const c = s<=10?'#ef4444':s<=20?'#f59e0b':'#10b981';
+    return `<div style="display:flex;align-items:center;gap:8px;">
+      <div style="flex:1;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:${c};border-radius:4px;"></div>
+      </div>
+      <span style="font-size:11px;font-weight:700;color:${c};width:22px;">${s}</span>
     </div>`;
+  };
+  const trs = rows.map(a => {
+    const urgency = a.score<=10
+      ? `<span style="background:#FEE2E2;color:#991b1b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">Critical</span>`
+      : a.score<=20
+      ? `<span style="background:#FEF3C7;color:#92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">At Risk</span>`
+      : `<span style="background:#FFF7ED;color:#c2410c;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">Watch</span>`;
+    return `<tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#FAFBFD'" onmouseout="this.style.background=''">
+      <td style="padding:12px 14px;font-size:13px;font-weight:600;color:#111827;">${a.name}</td>
+      <td style="padding:12px 14px;">
+        <span style="background:#EFF6FF;color:#1d4ed8;font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:10px;">${a.product}</span>
+      </td>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#ef4444;">${a.dau}</td>
+      <td style="padding:12px 14px;text-align:right;font-size:12px;color:#374151;">${a.seats}</td>
+      <td style="padding:12px 14px;min-width:130px;">${scoreBar(a.score)}</td>
+      <td style="padding:12px 14px;font-size:12px;color:#6b7280;">${a.lastActive}</td>
+      <td style="padding:12px 14px;text-align:center;">${urgency}</td>
+      <td style="padding:12px 14px;">
+        <button onclick="alert('CSM outreach initiated for ${a.name}')" style="font-size:11px;color:#1B4D3E;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:4px 12px;cursor:pointer;font-weight:600;">Reach Out</button>
+      </td>
+    </tr>`;
+  }).join('');
+  return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
+    <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:15px;">⚠️</span>
+      <span style="font-size:13px;font-weight:700;color:#111827;">Low Engagement Accounts</span>
+      <span style="font-size:11.5px;color:#9ca3af;margin-left:4px;">— accounts with DAU below threshold needing CSM attention</span>
+    </div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="background:#FFF7ED;border-bottom:2px solid #FED7AA;">
+          <th style="padding:10px 14px;text-align:left;font-size:10.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">Account</th>
+          <th style="padding:10px 14px;text-align:left;font-size:10.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">Product</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">DAU</th>
+          <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;">Seats</th>
+          <th style="padding:10px 14px;font-size:10.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">Engagement Score</th>
+          <th style="padding:10px 14px;font-size:10.5px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;">Last Active</th>
+          <th style="padding:10px 14px;text-align:center;font-size:10.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">Risk</th>
+          <th style="padding:10px 14px;font-size:10.5px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;">Action</th>
+        </tr>
+      </thead>
+      <tbody>${trs}</tbody>
+    </table>
+    <div style="padding:9px 14px;font-size:11px;color:#9ca3af;border-top:1px solid #f3f4f6;">
+      Engagement score out of 30 · Accounts with score ≤ 20 flagged for CSM outreach
+    </div>
+  </div>`;
+}
+
+function _puFeaturesHTML(visible) {
+  if (!visible.length) return `<div style="text-align:center;padding:48px;color:#9ca3af;font-size:13px;">Select a product to view feature-level usage.</div>`;
+  const cards = visible.map(p => {
+    const maxPct = Math.max(...p.modules.map(m=>m.pct));
+    const mods = p.modules.map(m => {
+      const barColor = m.pct>=70?'#1B4D3E':m.pct>=40?'#d97706':'#ef4444';
+      const badge = m.pct>=70
+        ? `<span style="background:#D1FAE5;color:#065f46;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:8px;">Active</span>`
+        : m.pct>=40
+        ? `<span style="background:#FEF3C7;color:#92400e;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:8px;">Moderate</span>`
+        : `<span style="background:#FEE2E2;color:#991b1b;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:8px;">Low</span>`;
+      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f9fafb;">
+        <div style="flex:0 0 160px;font-size:12px;color:#374151;font-weight:500;">${m.name}</div>
+        <div style="flex:1;">${_puBar(m.pct, barColor)}</div>
+        <div style="flex:0 0 72px;text-align:right;">${badge}</div>
+      </div>`;
+    }).join('');
+    const avgPct = Math.round(p.modules.reduce((s,m)=>s+m.pct,0)/p.modules.length);
+    return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px;">
+      <div style="padding:14px 18px;background:linear-gradient(135deg,#1B4D3E08 0%,#1B4D3E03 100%);border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:12px;">
+        <span style="font-size:22px;">${p.icon}</span>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:800;color:#111827;">${p.name}</div>
+          <div style="font-size:11.5px;color:#9ca3af;margin-top:1px;">${p.modules.length} modules · Avg adoption ${avgPct}%</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:22px;font-weight:900;color:#1B4D3E;">${avgPct}%</div>
+          <div style="font-size:10.5px;color:#9ca3af;">avg adoption</div>
+        </div>
+      </div>
+      <div style="padding:4px 18px 10px;">${mods}</div>
+    </div>`;
+  }).join('');
+  return `<div>${cards}</div>`;
+}
+
+function renderProductUsage() {
+  const kpiEl = document.getElementById('pu-kpi-row');
+  const cntEl = document.getElementById('pu-content');
+  if (!kpiEl || !cntEl) return;
+  // Ensure a tab is active
+  setPUTab(_puActiveTab || 'ranking');
 }
 
 function renderAccountAdoptionGrid() {
