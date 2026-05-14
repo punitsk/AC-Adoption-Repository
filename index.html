@@ -1881,35 +1881,72 @@ button { cursor: pointer; }
   <!-- ══ SECTION: PRODUCT USAGE ══ -->
   <div id="section-product-usage" class="hidden" style="flex:1;min-width:0;overflow-y:auto;padding:20px 28px 28px;">
     <!-- Header -->
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:16px;flex-wrap:wrap;">
       <div>
         <div style="font-size:24px;font-weight:700;color:#111827;">Product Usage</div>
         <div style="font-size:13px;color:#9ca3af;margin-top:3px;">Engagement · Licensing · Feature adoption across all AppCentral products</div>
       </div>
-      <div style="display:flex;gap:10px;align-items:center;">
-        <select id="pu-product-filter" onchange="renderProductUsage()" style="font-size:12px;font-weight:600;padding:6px 12px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
-          <option value="all">All Products</option>
-          <option value="M2M ERP">Made2Manage ERP</option>
-          <option value="EAM">EAM</option>
-          <option value="EDI">EDI</option>
-          <option value="CRM">CRM</option>
-          <option value="Insights">Insights</option>
-          <option value="Gen AI">Gen AI</option>
-          <option value="Ship">Ship</option>
-          <option value="Pay">Pay</option>
-        </select>
-        <button class="btn-outline" onclick="renderProductUsage()" style="display:flex;align-items:center;gap:6px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
-          Refresh
-        </button>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <!-- Product filter -->
+        <div style="position:relative;">
+          <label style="font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;">Product</label>
+          <select id="pu-product-filter" onchange="renderProductUsage()" style="font-size:12px;font-weight:600;padding:6px 28px 6px 10px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;appearance:none;min-width:160px;">
+            <option value="all">All Products</option>
+            <option value="M2M ERP">Made2Manage ERP</option>
+            <option value="EAM">EAM</option>
+            <option value="EDI">EDI</option>
+            <option value="CRM">CRM</option>
+            <option value="Insights">Insights</option>
+            <option value="Gen AI">Gen AI</option>
+            <option value="Ship">Ship</option>
+            <option value="Pay">Pay</option>
+            <option value="Invoice Automation">Invoice Automation</option>
+            <option value="Fixed Assets">Fixed Assets</option>
+          </select>
+          <svg style="position:absolute;right:8px;bottom:8px;pointer-events:none;" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <!-- Account filter -->
+        <div style="position:relative;">
+          <label style="font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;">Account</label>
+          <select id="pu-account-filter" onchange="renderProductUsage()" style="font-size:12px;font-weight:600;padding:6px 28px 6px 10px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;appearance:none;min-width:160px;">
+            <option value="all">All Accounts</option>
+            <option value="Stegmeier Consolidated">Stegmeier Consolidated</option>
+            <option value="BPI Medical">BPI Medical</option>
+            <option value="Estes Design">Estes Design</option>
+            <option value="Pepin Manufacturing">Pepin Manufacturing</option>
+            <option value="Rodon Group">Rodon Group</option>
+            <option value="Haydale Composites">Haydale Composites</option>
+            <option value="Phoenix Industries">Phoenix Industries</option>
+            <option value="Cascade Engineering">Cascade Engineering</option>
+          </select>
+          <svg style="position:absolute;right:8px;bottom:8px;pointer-events:none;" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div style="padding-top:18px;">
+          <button class="btn-outline" onclick="renderProductUsage()" style="display:flex;align-items:center;gap:6px;font-size:12px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
       </div>
     </div>
-    <!-- Tab nav -->
-    <div style="display:flex;gap:4px;background:#F5F6FA;border-radius:10px;padding:4px;margin-bottom:20px;width:fit-content;" id="pu-tab-bar">
-      <button onclick="setPUTab('ranking')"    id="pu-tab-ranking"    style="font-size:12px;font-weight:600;padding:6px 16px;border:none;border-radius:7px;cursor:pointer;background:#1B4D3E;color:#fff;transition:all .15s;">📊 Most Used</button>
-      <button onclick="setPUTab('license')"    id="pu-tab-license"    style="font-size:12px;font-weight:600;padding:6px 16px;border:none;border-radius:7px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">🔑 License Utilization</button>
-      <button onclick="setPUTab('lowusage')"   id="pu-tab-lowusage"   style="font-size:12px;font-weight:600;padding:6px 16px;border:none;border-radius:7px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">⚠️ Low Usage Accounts</button>
-      <button onclick="setPUTab('features')"   id="pu-tab-features"   style="font-size:12px;font-weight:600;padding:6px 16px;border:none;border-radius:7px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">🔬 Feature-Level Usage</button>
+    <!-- Tab nav — segmented control style -->
+    <div style="display:flex;gap:0;background:#F0F2F5;border-radius:10px;padding:3px;margin-bottom:20px;width:fit-content;box-shadow:inset 0 1px 3px rgba(0,0,0,.07);" id="pu-tab-bar">
+      <button onclick="setPUTab('ranking')"  id="pu-tab-ranking"
+        style="font-size:12.5px;font-weight:700;padding:8px 20px;border:1.5px solid #1B4D3E;border-radius:8px;cursor:pointer;background:#1B4D3E;color:#fff;transition:all .18s;letter-spacing:.01em;box-shadow:0 2px 6px rgba(27,77,62,.25);">
+        📊 Most Used
+      </button>
+      <button onclick="setPUTab('license')"  id="pu-tab-license"
+        style="font-size:12.5px;font-weight:500;padding:8px 20px;border:1.5px solid transparent;border-radius:8px;cursor:pointer;background:transparent;color:#6b7280;transition:all .18s;letter-spacing:.01em;">
+        🔑 License Utilization
+      </button>
+      <button onclick="setPUTab('lowusage')" id="pu-tab-lowusage"
+        style="font-size:12.5px;font-weight:500;padding:8px 20px;border:1.5px solid transparent;border-radius:8px;cursor:pointer;background:transparent;color:#6b7280;transition:all .18s;letter-spacing:.01em;">
+        ⚠️ Low Usage Accounts
+      </button>
+      <button onclick="setPUTab('features')" id="pu-tab-features"
+        style="font-size:12.5px;font-weight:500;padding:8px 20px;border:1.5px solid transparent;border-radius:8px;cursor:pointer;background:transparent;color:#6b7280;transition:all .18s;letter-spacing:.01em;">
+        🔬 Feature-Level Usage
+      </button>
     </div>
     <!-- Summary KPI row -->
     <div id="pu-kpi-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;"></div>
@@ -2585,9 +2622,8 @@ function switchView(view) {
   const leaderView = document.getElementById('leadership-view');
   const btnCsm     = document.getElementById('btn-consultant');
   const btnLeader  = document.getElementById('btn-leadership');
-  // .content wraps consultant-view and has flex:1 — hide it when exec view is
-  // active so it doesn't occupy the remaining space and push leadership-view down.
-  const contentDiv = document.querySelector('#section-dashboard .content');
+  // NOTE: Both views live inside .content — never set display:none on .content
+  // itself or it would hide leadership-view too. Just toggle hidden class.
 
   if (view === 'consultant') {
     csmView.classList.remove('hidden');
@@ -2595,17 +2631,18 @@ function switchView(view) {
     csmView.classList.add('fade-in');
     btnCsm.classList.add('active');
     btnLeader.classList.remove('active');
-    if (contentDiv) contentDiv.style.display = '';          // restore flex:1
   } else {
     leaderView.classList.remove('hidden');
     csmView.classList.add('hidden');
     leaderView.classList.add('fade-in');
     btnLeader.classList.add('active');
     btnCsm.classList.remove('active');
-    if (contentDiv) contentDiv.style.display = 'none';      // collapse so leadership-view fills space
   }
   updateBanner();
-  if (view === 'leadership' && ACCOUNTS && ACCOUNTS.length) renderDashboard();
+  if (view === 'leadership') {
+    if (ACCOUNTS && ACCOUNTS.length) renderDashboard();
+    renderAdoptionPanels();
+  }
   setTimeout(() => {
     csmView.classList.remove('fade-in');
     leaderView.classList.remove('fade-in');
@@ -8774,23 +8811,92 @@ function setPUTab(tab) {
     const btn = document.getElementById('pu-tab-'+t);
     if (!btn) return;
     if (t === tab) {
-      btn.style.background = '#fff';
-      btn.style.color = '#1B4D3E';
+      btn.style.background = '#1B4D3E';
+      btn.style.color = '#fff';
       btn.style.fontWeight = '700';
-      btn.style.boxShadow = '0 1px 4px rgba(0,0,0,.10)';
+      btn.style.border = '1.5px solid #1B4D3E';
+      btn.style.boxShadow = '0 2px 6px rgba(27,77,62,.25)';
     } else {
       btn.style.background = 'transparent';
       btn.style.color = '#6b7280';
       btn.style.fontWeight = '500';
+      btn.style.border = '1.5px solid transparent';
       btn.style.boxShadow = 'none';
     }
+    // Hover effect via onmouseenter/leave
+    btn.onmouseenter = () => { if (_puActiveTab !== t) { btn.style.background='#e8ede8'; btn.style.color='#1B4D3E'; btn.style.border='1.5px solid #c5d8c5'; } };
+    btn.onmouseleave = () => { if (_puActiveTab !== t) { btn.style.background='transparent'; btn.style.color='#6b7280'; btn.style.border='1.5px solid transparent'; } };
   });
   _puRenderTab();
 }
 
 function _puGetVisible() {
-  const f = document.getElementById('pu-product-filter')?.value || 'all';
-  return f === 'all' ? PU_PRODUCTS : PU_PRODUCTS.filter(p => p.id === f);
+  const f  = document.getElementById('pu-product-filter')?.value  || 'all';
+  const af = document.getElementById('pu-account-filter')?.value  || 'all';
+  let list = f === 'all' ? PU_PRODUCTS : PU_PRODUCTS.filter(p => p.id === f);
+  // When an account filter is active, only show products used by that account
+  if (af !== 'all') {
+    const acctRow = PU_LOW_USAGE_ACCOUNTS.find(a => a.name === af);
+    if (acctRow) list = list.filter(p => p.id === acctRow.product);
+  }
+  return list;
+}
+
+// Per-product mock account breakdown for license drill-down
+const PU_LICENSE_ACCOUNTS = {
+  'M2M ERP':  [
+    { name:'BPI Medical',             used:87,  seats:120, lastLogin:'May 14, 2026' },
+    { name:'Estes Design',            used:42,  seats:60,  lastLogin:'May 13, 2026' },
+    { name:'Phoenix Industries',      used:74,  seats:90,  lastLogin:'May 12, 2026' },
+    { name:'Stegmeier Consolidated',  used:31,  seats:80,  lastLogin:'May 9, 2026'  },
+    { name:'Cascade Engineering',     used:58,  seats:70,  lastLogin:'May 11, 2026' },
+  ],
+  'EAM': [
+    { name:'Stegmeier Consolidated',  used:19,  seats:80,  lastLogin:'May 9, 2026'  },
+    { name:'Haydale Composites',      used:38,  seats:50,  lastLogin:'May 12, 2026' },
+    { name:'Rodon Group',             used:28,  seats:35,  lastLogin:'May 6, 2026'  },
+  ],
+  'EDI': [
+    { name:'Estes Design',            used:30,  seats:45,  lastLogin:'May 8, 2026'  },
+    { name:'Pepin Manufacturing',     used:41,  seats:55,  lastLogin:'May 10, 2026' },
+    { name:'BPI Medical',             used:52,  seats:60,  lastLogin:'May 13, 2026' },
+  ],
+  'CRM': [
+    { name:'Pepin Manufacturing',     used:22,  seats:60,  lastLogin:'May 10, 2026' },
+    { name:'Cascade Engineering',     used:35,  seats:55,  lastLogin:'May 11, 2026' },
+    { name:'Phoenix Industries',      used:18,  seats:40,  lastLogin:'May 7, 2026'  },
+  ],
+  'Insights': [
+    { name:'Rodon Group',             used:12,  seats:35,  lastLogin:'May 6, 2026'  },
+    { name:'BPI Medical',             used:28,  seats:40,  lastLogin:'May 14, 2026' },
+    { name:'Stegmeier Consolidated',  used:22,  seats:30,  lastLogin:'May 9, 2026'  },
+  ],
+  'Gen AI': [
+    { name:'Cascade Engineering',     used:14,  seats:55,  lastLogin:'May 5, 2026'  },
+    { name:'Haydale Composites',      used:20,  seats:35,  lastLogin:'May 12, 2026' },
+  ],
+  'Ship': [
+    { name:'Phoenix Industries',      used:18,  seats:40,  lastLogin:'May 7, 2026'  },
+    { name:'Estes Design',            used:22,  seats:30,  lastLogin:'May 8, 2026'  },
+  ],
+  'Pay': [
+    { name:'Haydale Composites',      used:24,  seats:50,  lastLogin:'May 12, 2026' },
+    { name:'Rodon Group',             used:15,  seats:30,  lastLogin:'May 6, 2026'  },
+  ],
+  'Invoice Automation': [
+    { name:'BPI Medical',             used:34,  seats:45,  lastLogin:'May 14, 2026' },
+    { name:'Pepin Manufacturing',     used:21,  seats:35,  lastLogin:'May 10, 2026' },
+  ],
+  'Fixed Assets': [
+    { name:'Cascade Engineering',     used:19,  seats:25,  lastLogin:'May 11, 2026' },
+    { name:'Estes Design',            used:14,  seats:20,  lastLogin:'May 8, 2026'  },
+  ],
+};
+
+let _puExpandedProduct = null;
+function togglePUDrilldown(productId) {
+  _puExpandedProduct = _puExpandedProduct === productId ? null : productId;
+  _puRenderTab();
 }
 
 function _puRenderKPIs(visible) {
@@ -8886,23 +8992,67 @@ function _puLicenseHTML(visible) {
       : utilPct>=60
       ? `<span style="background:#FEF3C7;color:#92400e;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">Monitor</span>`
       : `<span style="background:#FEE2E2;color:#991b1b;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;">Low</span>`;
-    return `<tr style="border-bottom:1px solid #f3f4f6;" onmouseover="this.style.background='#FAFBFD'" onmouseout="this.style.background=''">
+    const isExpanded = _puExpandedProduct === p.id;
+    const accountRows = PU_LICENSE_ACCOUNTS[p.id] || [];
+    const drillDownRow = isExpanded ? `<tr id="pu-drill-${p.id.replace(/\s/g,'_')}" style="background:#F8FBF9;">
+      <td colspan="7" style="padding:0;">
+        <div style="padding:10px 16px 14px 48px;border-top:1px dashed #d1fae5;border-bottom:1px solid #e5e7eb;">
+          <div style="font-size:11px;font-weight:700;color:#1B4D3E;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">
+            Account Breakdown — ${p.name}
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr style="background:#F0FDF4;">
+                <th style="padding:6px 10px;text-align:left;font-size:10.5px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.4px;">Account</th>
+                <th style="padding:6px 10px;text-align:right;font-size:10.5px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.4px;">Licensed</th>
+                <th style="padding:6px 10px;text-align:right;font-size:10.5px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.4px;">In Use</th>
+                <th style="padding:6px 10px;font-size:10.5px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.4px;min-width:120px;">Utilization</th>
+                <th style="padding:6px 10px;font-size:10.5px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.4px;">Last Login</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${accountRows.map(a => {
+                const aPct = Math.round((a.used/a.seats)*100);
+                const aColor = aPct>=80?'#1B4D3E':aPct>=50?'#d97706':'#ef4444';
+                return `<tr style="border-top:1px solid #e9f7f0;">
+                  <td style="padding:7px 10px;font-size:12px;font-weight:600;color:#111827;">${a.name}</td>
+                  <td style="padding:7px 10px;text-align:right;font-size:12px;color:#6b7280;">${a.seats}</td>
+                  <td style="padding:7px 10px;text-align:right;font-size:12px;font-weight:700;color:#111827;">${a.used}</td>
+                  <td style="padding:7px 10px;">${_puBar(aPct, aColor)}</td>
+                  <td style="padding:7px 10px;font-size:11.5px;color:#6b7280;">${a.lastLogin}</td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>` : '';
+    return `<tr style="border-bottom:1px solid #f3f4f6;cursor:pointer;transition:background .12s;"
+        onclick="togglePUDrilldown('${p.id}')"
+        onmouseover="this.style.background='#F0FDF4'" onmouseout="this.style.background='${isExpanded?'#F8FBF9':''}'"
+        title="Click to see account breakdown">
       <td style="padding:12px 14px;white-space:nowrap;">
+        <span style="font-size:13px;color:#9ca3af;margin-right:6px;transition:transform .2s;display:inline-block;transform:rotate(${isExpanded?90:0}deg);">▶</span>
         <span style="font-size:16px;margin-right:8px;">${p.icon}</span>
         <span style="font-size:13px;font-weight:700;color:#111827;">${p.name}</span>
+        ${accountRows.length ? `<span style="font-size:10.5px;color:#9ca3af;margin-left:6px;">${accountRows.length} accounts</span>` : ''}
       </td>
       <td style="padding:12px 14px;text-align:right;font-size:13px;color:#374151;">${_puFmt(p.seats)}</td>
       <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#111827;">${_puFmt(p.used)}</td>
       <td style="padding:12px 14px;text-align:right;font-size:13px;color:#6b7280;">${_puFmt(p.seats-p.used)}</td>
       <td style="padding:12px 14px;min-width:160px;">${_puBar(utilPct, barColor)}</td>
       <td style="padding:12px 14px;text-align:center;">${badge}</td>
-    </tr>`;
+      <td style="padding:12px 14px;text-align:center;font-size:11px;color:#9ca3af;">${isExpanded?'▲ Collapse':'▼ Expand'}</td>
+    </tr>${drillDownRow}`;
   }).join('');
   const totSeats = visible.reduce((s,p)=>s+p.seats,0);
   const totUsed  = visible.reduce((s,p)=>s+p.used,0);
   const totOpen  = totSeats - totUsed;
   const totPct   = Math.round((totUsed/totSeats)*100);
   return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
+    <div style="padding:12px 16px;border-bottom:1px solid #f3f4f6;background:#F9FAFB;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:11px;color:#6b7280;">💡 Click any product row to drill down into account-level license usage</span>
+    </div>
     <table style="width:100%;border-collapse:collapse;">
       <thead>
         <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;">
@@ -8912,6 +9062,7 @@ function _puLicenseHTML(visible) {
           <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;">Available</th>
           <th style="padding:10px 14px;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Utilization</th>
           <th style="padding:10px 14px;text-align:center;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Status</th>
+          <th style="padding:10px 14px;text-align:center;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;"></th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -8921,20 +9072,20 @@ function _puLicenseHTML(visible) {
           <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:800;color:#111827;">${_puFmt(totSeats)}</td>
           <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:800;color:#047857;">${_puFmt(totUsed)}</td>
           <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:700;color:#6b7280;">${_puFmt(totOpen)}</td>
-          <td style="padding:11px 14px;">${_puBar(totPct,'#1B4D3E')}</td>
-          <td style="padding:11px 14px;text-align:center;font-size:12px;font-weight:800;color:#1B4D3E;">${totPct}%</td>
+          <td style="padding:11px 14px;" colspan="3">${_puBar(totPct,'#1B4D3E')}</td>
         </tr>
       </tfoot>
     </table>
     <div style="padding:9px 14px;font-size:11px;color:#9ca3af;border-top:1px solid #f3f4f6;">
-      License data reflects contracted seats vs. active MAU · Review with CSM for renewal planning
+      License data reflects contracted seats vs. active MAU · Click rows to see per-account breakdown
     </div>
   </div>`;
 }
 
 function _puLowUsageHTML(visible) {
-  const visIds = new Set(visible.map(p=>p.id));
-  const rows = PU_LOW_USAGE_ACCOUNTS.filter(a=>visIds.has(a.product));
+  const visIds   = new Set(visible.map(p=>p.id));
+  const acctFilt = document.getElementById('pu-account-filter')?.value || 'all';
+  const rows = PU_LOW_USAGE_ACCOUNTS.filter(a=>visIds.has(a.product) && (acctFilt==='all' || a.name===acctFilt));
   if (!rows.length) return `<div style="text-align:center;padding:48px;color:#9ca3af;font-size:13px;">No low-usage accounts for this filter.</div>`;
   const scoreBar = s => {
     const pct = Math.round((s/30)*100);
