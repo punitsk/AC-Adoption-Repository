@@ -10153,113 +10153,90 @@ async function loadProjectsFromSalesforce() {
     // ── Build a set of account names in our portfolio (for filtering) ──
     const portfolioNames = new Set(Object.values(acctByName));
 
-    // ── Build sorted account name list for fast substring matching ──
-    // (longest names first so "Hi-Speed Industrial Service LLC" matches before "Hi-Speed")
-    const acctEntries = Object.entries(acctByName)
-      .sort((a, b) => b[0].length - a[0].length);
+    // ── Build sorted account name list for fallback Name-parsing ──
+    const acctEntries = Object.entries(acctByName).sort((a,b) => b[0].length - a[0].length);
 
-    // Extract the best matching account name from a project record
+    // Resolve account: PSA object uses pse__Account__c (SF ID)
+    // Fallback: parse account name from rec.Name
     function _resolveProjectAccount(rec) {
-      // 1. SF relationship / explicit name fields
-      const explicit = rec.Account__r?.Name || rec.Account?.Name
-        || rec.AccountId__r?.Name || rec.Account_Name__c
-        || rec.AccountName__c || rec.AccountName || rec.Customer__c || '';
-      if (explicit) return acctByName[explicit.toLowerCase()] || explicit;
+      // 1. PSA standard field — pse__Account__c (Salesforce 15/18 char ID)
+      if (rec.pse__Account__c) {
+        const n = acctById[norm15(rec.pse__Account__c)];
+        if (n) return n;
+      }
+      // 2. Relationship field if Logic App expands it
+      const relName = rec.pse__Account__r?.Name || rec.Account__r?.Name || rec.Account?.Name || '';
+      if (relName) return acctByName[relName.toLowerCase()] || relName;
 
-      // 2. Standard / custom ID lookup
-      if (rec.AccountId) { const n = acctById[norm15(rec.AccountId)]; if (n) return n; }
-      if (rec.Account__c) { const n = acctById[norm15(rec.Account__c)]; if (n) return n; }
-
-      // 3. Parse from rec.Name — handles patterns like:
-      //    "Emerald Transformer - Process Date Mod"  → "Emerald Transformer"
-      //    "468304-Eemsco ACS Upgrade - TGS/SR"      → segment after digits
-      //    "532845-Hi-Speed Industrial Service - T&M" → "Hi-Speed Industrial Service"
-      const rawName = String(rec.Name || rec.Project_Name__c || '');
+      // 3. Parse from rec.Name: "AccountName - Project Description" or "NNNNN-AccountName - ..."
+      const rawName = String(rec.Name || '');
       if (!rawName) return '';
-
-      // Strip leading "NNNNNN-" prefix
-      const stripped = rawName.replace(/^\d+[-–]\s*/, '');
-      // Segments separated by " - "
-      const segments = stripped.split(/\s+[-–]\s+/);
-
-      // Try exact match on each segment first
+      const stripped  = rawName.replace(/^\d+[-–]\s*/, ''); // remove leading number prefix
+      const segments  = stripped.split(/\s+[-–]\s+/);       // split on " - " separators
+      // Exact segment match
       for (const seg of segments) {
         const t = seg.trim().toLowerCase();
         if (acctByName[t]) return acctByName[t];
       }
-      // Try substring match: does any segment contain a known account name?
+      // Substring match (account name contained within segment)
       for (const seg of segments) {
         const t = seg.trim().toLowerCase();
         for (const [key, val] of acctEntries) {
-          if (key.length >= 5 && t.includes(key)) return val;
+          if (key.length >= 6 && t.includes(key)) return val;
         }
       }
-      // Try reverse: does the first segment start with a known account prefix?
-      const firstSeg = segments[0]?.trim().toLowerCase() || '';
-      for (const [key, val] of acctEntries) {
-        if (key.length >= 5 && firstSeg.startsWith(key)) return val;
-      }
-      return ''; // could not match
+      return '';
     }
 
     const mapped = [];
     records.forEach((rec, idx) => {
+      // Skip template records (no real account data)
+      if ((rec.Name || '').startsWith('TEMPLATE')) return;
+      // Skip records with no account ID and no account resolvable
+      if (!rec.pse__Account__c && !rec.Name) return;
+
       const accountName = _resolveProjectAccount(rec);
 
-      // Only include projects for accounts in the consultant's portfolio
-      // (portfolioNames is empty until ACCOUNTS loads — skip filter if not yet loaded)
+      // Filter: only include projects linked to accounts in the consultant's portfolio
       if (portfolioNames.size > 0 && !accountName) return;
-      if (portfolioNames.size > 0 && accountName && !portfolioNames.has(accountName)) return;
+      if (portfolioNames.size > 0 && !portfolioNames.has(accountName)) return;
 
-      if (idx < 3) {
-      console.log('[PROJ] rec', idx, '| account:', accountName || '(none)', '| name:', rec.Name);
-      console.log('[PROJ] ALL FIELDS rec', idx, ':', JSON.stringify(rec, null, 2));
-    }
+      // ── Field mapping — exact PSA (pse__) field names ──
+      const name = rec.Name || ('Project ' + (idx+1));
 
-      // ── Field mapping ──
-      const name = rec.Project_Name__c || rec.Name || ('Project ' + (idx+1));
+      // Consultant: PSA stores the PM in pse__Project_Manager__c (User/Contact ID)
+      // If relationship is expanded, pse__Project_Manager__r.Name gives the display name
+      const pm  = rec.pse__Project_Manager__r?.Name
+        || rec.pse__Project_Manager__r?.Full_Name__c
+        || ''; // ID alone (rec.pse__Project_Manager__c) is not displayable
 
-      const csm = rec.SuccessManager__r?.Full_Name__c
-        || rec.SuccessManager__r?.Name
-        || rec.CSM__r?.Full_Name__c || rec.CSM__r?.Name
-        || rec.Consultant__r?.Full_Name__c || rec.Consultant__r?.Name
+      // No dedicated consultant field exposed in current API payload
+      // Future: ask Logic App to include pse__Resources__r or similar
+      const csm = rec.pse__Owning_Group__r?.Name
         || rec.AppCentral_Consultant__r?.Name
-        || rec.CSM__c || rec.Consultant__c || rec.AppCentral_Consultant__c
-        || rec.Success_Manager__c || '';
+        || rec.Consultant__r?.Name
+        || '';
 
-      const pm = rec.Project_Manager__r?.Full_Name__c
-        || rec.Project_Manager__r?.Name
-        || rec.PM__r?.Full_Name__c || rec.PM__r?.Name
-        || rec.Project_Manager__c || rec.PM__c
-        || rec.Project_Manager_Name__c || rec.PM_Name__c || '';
+      // Stage → normalise to Active / At Risk / On Hold / Completed
+      const stage = rec.pse__Stage__c || '';
+      const status = _normalizeProjectStatus(stage);
+      const phase  = stage; // show raw stage as the Phase column value
 
-      const rawStatus = rec.Status__c || rec.Project_Status__c
-        || rec.Stage__c || rec.ProjectStage__c || '';
-      const status = _normalizeProjectStatus(rawStatus);
+      // pse__Project_Status__c = RAG health (Green / Amber / Red)
+      const health = _normalizeProjectHealth(rec.pse__Project_Status__c || '');
 
-      const phase = rec.Phase__c || rec.Current_Phase__c
-        || rec.Implementation_Phase__c || rec.ProjectPhase__c || rawStatus || '';
+      // No progress % field in current payload
+      const progress = 0;
 
-      const progress = Math.min(100, Math.round(
-        parseFloat(rec.Completion_Percentage__c || rec.Progress__c
-          || rec.Percent_Complete__c || rec.Percentage_Complete__c
-          || rec.Completion__c || 0) || 0));
+      // Due date
+      const dueRaw = rec.Planned_Go_Live_Date__c || rec.pse__End_Date__c || rec.pse__Finish_Date__c || '';
+      const due    = dueRaw ? String(dueRaw).substring(0,10) : '';
 
-      const dueRaw = rec.Target_Go_Live_Date__c || rec.Due_Date__c
-        || rec.End_Date__c || rec.Planned_End_Date__c
-        || rec.Go_Live_Date__c || rec.Completion_Date__c
-        || rec.Planned_GoLive_Date__c || '';
-      const due = dueRaw ? String(dueRaw).substring(0,10) : '';
+      // Billing / type as notes
+      const notes  = [rec.pse__Billing_Type__c, rec.pse__Project_Type__c, rec.Opportunity_Order_Type__c]
+        .filter(Boolean).join(' · ');
 
-      const rawHealth = rec.Health_Status__c || rec.RAG_Status__c
-        || rec.Project_Health__c || rec.RAG__c || '';
-      const health = _normalizeProjectHealth(rawHealth);
-
-      const notes = rec.Description__c || rec.Notes__c
-        || rec.Comments__c || rec.Project_Description__c || '';
-
-      const id = rec.Project_Number__c || rec.Project_ID__c
-        || rec.Name || ('PRJ-' + String(idx+1).padStart(3,'0'));
+      const id = rec.Name || ('PRJ-' + String(idx+1).padStart(3,'0'));
 
       mapped.push({ id, name, account:accountName, csm, pm, status, phase, progress, due, health, notes });
     });
