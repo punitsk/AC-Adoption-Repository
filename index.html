@@ -4222,11 +4222,13 @@ async function loadAccountsFromSalesforce() {
     renderAccountsTable();
     renderTempChart('W');         // refresh temperament chart with live data
     renderDashboardIfActive();
-    loadNPSFromSalesforce();      // load NPS once accounts are ready
-    loadCasesFromSalesforce();    // load Cases once account map is ready
-    loadReferenceFromSalesforce(); // load Reference count
-    loadAdoptionFromSalesforce();  // load Adoption data for the panel
-    loadProjectsFromSalesforce();  // load Projects linked to consultant accounts
+    // Fire all secondary data loads in parallel — no awaits so they race concurrently
+    loadNPSFromSalesforce();        // NPS scores per account
+    loadReferenceFromSalesforce();  // Reference/logo counts
+    loadAdoptionFromSalesforce();   // Module adoption data
+    loadProjectsFromSalesforce();   // PSA projects linked to consultant accounts
+    // Note: loadCasesFromSalesforce() removed — cases are disabled for all roles
+    //       and its pagination probe loop was making 100+ sequential HTTP calls.
   } catch(err) {
     console.error('SF sync error:', err);
     const hint = err.message === 'Failed to fetch'
@@ -4317,25 +4319,17 @@ async function loadAdoptionFromSalesforce() {
   if (_adoptionLoading) return;
   _adoptionLoading = true;
   try {
-    console.log('[ADOPT] Step 1 — sending request to Adoption API…');
-    // No Content-Type header on GET → avoids CORS preflight (simple request)
     let res;
     try {
       res = await fetch(ADOPTION_API_URL, { method:'GET' });
-      console.log('[ADOPT] Step 2 — GET response status:', res.status, res.statusText);
     } catch(fetchErr) {
-      console.log('[ADOPT] GET failed (' + fetchErr.message + '), retrying with POST…');
       res = await fetch(ADOPTION_API_URL, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: '{}' });
-      console.log('[ADOPT] Step 2b — POST response status:', res.status, res.statusText);
     }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const raw = await res.json();
-    console.log('[ADOPT] Step 3 — raw response (first 800 chars):', JSON.stringify(raw).substring(0, 800));
-    console.log('[ADOPT] Top-level keys:', Object.keys(raw || {}).join(', '));
 
     // ── Extract records from { AdoptionDetails: { records: [...] } } ──
     const records = raw?.AdoptionDetails?.records || raw?.records || (Array.isArray(raw) ? raw : []);
-    console.log('[ADOPT] Record count:', records.length);
     if (records.length === 0) { console.log('[ADOPT] No records — keeping static data'); return; }
 
     // ── Module definitions: each AppCentral_App_Adoption__c record is ONE ROW PER ACCOUNT
@@ -6720,7 +6714,7 @@ const ROLE_DEFS = {
     description:'Portfolio-level view. Sees Executive Overview, adoption metrics, and Analytics.',
     perms: {
       dashboard:true, csmView:false, executiveView:true,
-      tasks:false, accounts:true, 'product-usage':true, meetings:true, cases:false, strategic:false, projects:true,
+      tasks:false, accounts:true, 'product-usage':true, meetings:true, cases:false, strategic:true, projects:true,
       settings:true, help:true,
       canCreate:false, canEdit:false, canDelete:false,
       seeAllCsms:true, manageTeam:false, defineRoles:false
@@ -10112,17 +10106,14 @@ async function loadProjectsFromSalesforce() {
   if (_projectsLoading) return;
   _projectsLoading = true;
   try {
-    console.log('[PROJ] Fetching project details from API…');
     let res;
     try {
       res = await fetch(PROJECTS_API_URL, { method:'GET' });
     } catch(e) {
-      console.log('[PROJ] GET failed (' + e.message + '), retrying with POST…');
       res = await fetch(PROJECTS_API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
     }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const raw = await res.json();
-    console.log('[PROJ] Top-level keys:', Object.keys(raw || {}).join(', '));
 
     // Unwrap whichever envelope the Logic App uses
     const records = raw?.ProjectDetails?.records
@@ -10131,16 +10122,11 @@ async function loadProjectsFromSalesforce() {
       || raw?.Projects?.records
       || raw?.records
       || (Array.isArray(raw) ? raw : []);
-    console.log('[PROJ] Record count:', records.length);
 
     if (!records.length) {
       console.log('[PROJ] No records returned — keeping static data');
       return;
     }
-
-    // Log first record so we can see field names in console
-    console.log('[PROJ] Sample record keys:', Object.keys(records[0] || {}).join(', '));
-    console.log('[PROJ] Sample record (first):', JSON.stringify(records[0]).substring(0, 600));
 
     // ── Build account lookup (ID and name) from already-loaded ACCOUNTS ──
     const norm15 = id => id ? String(id).substring(0,15).toLowerCase() : '';
