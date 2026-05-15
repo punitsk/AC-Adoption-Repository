@@ -6740,7 +6740,7 @@ const ROLE_DEFS = {
   }
 };
 
-let currentRole = 'consultant';
+let currentRole = 'executive';
 let _applyingRole = false; // guard: prevents switchView from overwriting role during applyRole
 
 const PERM_LABELS = {
@@ -7022,7 +7022,7 @@ window.showSettingsTab = function(tab) {
 };
 
 // Initialise with Consultant role
-applyRole('consultant');
+applyRole('executive');
 
 // Render adoption panels immediately from static ACCOUNT_DETAIL
 // (independent of SF fetch so numbers show even when SF is unavailable)
