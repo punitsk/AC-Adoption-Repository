@@ -6830,15 +6830,18 @@ function applyRole(roleKey) {
     navTo('dashboard');
   }
 
-  // Dashboard view enforcement — default to Executive Overview on load
+  // Dashboard view enforcement — show/hide tabs based on role permissions
+  const execBtn = document.getElementById('btn-leadership');
+  const csmBtn  = document.getElementById('btn-consultant');
+  if (execBtn) execBtn.style.display = p.executiveView ? '' : 'none';
+  if (csmBtn)  csmBtn.style.display  = p.csmView      ? '' : 'none';
+
   if (!p.executiveView) {
-    const execBtn = document.getElementById('btn-leadership');
-    if (execBtn) execBtn.style.display = 'none';
+    // Roles without executive view land on consultant view
     switchView('consultant');
   } else {
-    const execBtn = document.getElementById('btn-leadership');
-    if (execBtn) execBtn.style.display = '';
-    switchView('leadership');   // always open on Executive Overview
+    // Executive / Admin / Consultant all land on Executive Overview
+    switchView('leadership');
   }
 
   // CSM filter: non-admin CSMs locked to themselves
@@ -8480,17 +8483,11 @@ const SI_CAT_META = {
 };
 
 let SI_ITEMS = [
-  { id:1,  title:'Q2 Onboarding Playbook Refresh',       owner:'Kambi G.',   priority:'High',     category:'Enablement',  status:'inprogress', due:'2026-05-31', desc:'Update onboarding playbook with new product modules, video walk-throughs, and a revised 30-60-90 day plan template.', metric:'Reduce avg onboarding time by 20%',        completion:60,  visibility:'public'  },
-  { id:2,  title:'Adoption Health Score Automation',          owner:'Pratik P.',      priority:'Critical',  category:'Technology',  status:'backlog',    due:'2026-06-15', desc:'Automate health score calculation using product usage, support tickets, and NPS data. Push updates to the AppCentral dashboard weekly.', metric:'100% accounts scored automatically',      completion:10,  visibility:'public'  },
-  { id:3,  title:'At-Risk Account Intervention Program', owner:'James L.',     priority:'High',     category:'Retention',   status:'inprogress', due:'2026-05-15', desc:'Design a structured playbook for accounts scoring below 40. Includes exec escalation paths and QBR templates.', metric:'Reduce churn rate by 15% in Q2',           completion:45,  visibility:'public'  },
-  { id:4,  title:'EBR Template Standardisation',         owner:'Kambi G.',   priority:'Medium',   category:'Process',     status:'review',     due:'2026-04-30', desc:'Create a single standardised EBR deck template across all product lines. Include customer health, adoption, roadmap, and ROI sections.', metric:'EBR delivery consistency 95%+',           completion:80,  visibility:'private' },
-  { id:5,  title:'NPS Response Rate Campaign',           owner:'Pratik P.',      priority:'Medium',   category:'Process',     status:'done',       due:'2026-03-31', desc:'Run targeted email campaign to drive NPS survey responses from low-engagement accounts.', metric:'Achieve 35%+ response rate',               completion:100, visibility:'public'  },
-  { id:6,  title:'Salesforce ↔ AppCentral Dashboard Integration',owner:'James L.',    priority:'High',     category:'Technology',  status:'backlog',    due:'2026-07-01', desc:'Connect Salesforce data (opportunities, contacts, cases) to the AppCentral workspace via real-time API.', metric:'Live data sync with <5 min latency',       completion:5,   visibility:'public'  },
-  { id:7,  title:'Team Skill Gap Analysis',           owner:'Kambi G.',   priority:'Low',      category:'Enablement',  status:'done',       due:'2026-03-15', desc:'Survey CS team on product knowledge gaps. Map findings to training plan for Q2.', metric:'Training plan delivered by Apr 1',         completion:100, visibility:'private' },
-  { id:8,  title:'Renewal Forecasting Report',           owner:'Pratik P.',      priority:'High',     category:'Reporting',   status:'review',     due:'2026-04-30', desc:'Build automated monthly renewal forecast report showing ARR at risk, renewals due, and upsell pipeline.', metric:'Report published by 5th of each month',   completion:75,  visibility:'public'  },
-  { id:9,  title:'Customer Champion Identification',     owner:'James L.',     priority:'Medium',   category:'Expansion',   status:'backlog',    due:'2026-06-30', desc:'Identify and document champion contacts across all accounts. Build a structured nurture programme for reference customers.', metric:'25 champions identified and engaged',     completion:0,   visibility:'public'  },
+  { id:1, title:'AppCentral Adoption Workspace',           owner:'Kambi G.', priority:'High',   category:'Technology',  status:'inprogress', due:'2026-06-30', desc:'Build and deploy the AppCentral Adoption Workspace — a live dashboard covering adoption metrics, NPS, account health, and consultant views for the CS team.', metric:'Dashboard live and adopted by full CS team', completion:65, visibility:'public'  },
+  { id:2, title:'Adoption Team Training Plan & Gap Analysis', owner:'Kambi G.', priority:'Medium', category:'Enablement',  status:'inprogress', due:'',           desc:'Assess current adoption team capabilities, identify knowledge gaps, and deliver a structured training plan covering product modules and adoption methodologies.', metric:'Training plan delivered and gaps addressed',  completion:30, visibility:'public'  },
+  { id:3, title:'Product Usage of ERP & Industry Hub',    owner:'Kambi G.', priority:'Medium', category:'Reporting',   status:'inprogress', due:'',           desc:'Analyse product usage data for ERP and Industry Hub products across the customer base. Identify underutilised features and accounts requiring adoption support.', metric:'Usage report shared with CS and product teams', completion:20, visibility:'public'  },
 ];
-let _siNextId = 10;
+let _siNextId = 4;
 let _siEditId = null;
 
 function getFilteredSIItems() {
@@ -9871,14 +9868,14 @@ function renderAccountAdoptionGrid() {
     return;
   }
 
-  const CW = 34; // cell width px
+  const CW = 38; // cell width px
   let html = `<table style="border-collapse:collapse;font-size:11px;width:auto;table-layout:auto;">
     <thead>
-      <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;">
-        <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;width:220px;max-width:260px;position:sticky;left:0;background:#F9FAFB;z-index:2;box-shadow:2px 0 4px rgba(0,0,0,.05);">Account</th>
-        <th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;width:120px;white-space:nowrap;">Primary Product</th>
-        <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:700;color:#059669;width:52px;white-space:nowrap;">Active</th>
-        ${activeMODS.map(m => `<th style="padding:6px 2px;text-align:center;font-size:9.5px;font-weight:600;color:#6b7280;width:${CW}px;" title="${m}"><span style="writing-mode:vertical-lr;transform:rotate(180deg);display:inline-block;padding:2px 0;line-height:1.2;">${m}</span></th>`).join('')}
+      <tr style="background:#F9FAFB;border-bottom:2px solid #e5e7eb;height:130px;">
+        <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;width:220px;max-width:260px;position:sticky;left:0;background:#F9FAFB;z-index:2;box-shadow:2px 0 4px rgba(0,0,0,.05);vertical-align:bottom;">Account</th>
+        <th style="padding:8px 10px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;width:120px;white-space:nowrap;vertical-align:bottom;">Primary Product</th>
+        <th style="padding:8px 6px;text-align:center;font-size:10px;font-weight:700;color:#059669;width:52px;white-space:nowrap;vertical-align:bottom;">Active</th>
+        ${activeMODS.map(m => `<th style="width:${CW}px;min-width:${CW}px;padding:0 2px 8px 2px;vertical-align:bottom;overflow:visible;position:relative;" title="${m}"><span style="display:inline-block;transform:rotate(-45deg);transform-origin:left bottom;white-space:nowrap;font-size:13px;font-weight:600;color:#374151;padding-left:4px;">${m}</span></th>`).join('')}
       </tr>
     </thead>
     <tbody>`;
