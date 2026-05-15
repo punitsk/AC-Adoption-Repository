@@ -2455,6 +2455,7 @@ button { cursor: pointer; }
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Project</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Account</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Consultant</th>
+              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Project Manager</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Status</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Phase</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Progress</th>
@@ -4123,6 +4124,7 @@ const NPS_API_URL   = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azu
 const CASES_API_URL     = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/Getcasedata/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=CVoCCUlI3veHGWyuykBYk_0etVLVM-fl1yrhMGCGYok';
 const REFERENCE_API_URL = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/GetReference/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=KQCaebRDz_nA6rif0juAkf6J5n6JIm5vgowFYJKtQkQ';
 const ADOPTION_API_URL  = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/AdoptionData/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=HkesKSXfwVffF-1oM61JhX9wQ7uXk2ptD5Yw7oG8sZM';
+const PROJECTS_API_URL  = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/GetProjectDetails/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=z1PV5q8Q6zM7cR-AzXPG-N-vpvJ8USTnbE3--JMaAoQ';
 
 // (variables declared earlier — see top of script)
 
@@ -4225,6 +4227,7 @@ async function loadAccountsFromSalesforce() {
     loadCasesFromSalesforce();    // load Cases once account map is ready
     loadReferenceFromSalesforce(); // load Reference count
     loadAdoptionFromSalesforce();  // load Adoption data for the panel
+    loadProjectsFromSalesforce();  // load Projects linked to consultant accounts
   } catch(err) {
     console.error('SF sync error:', err);
     const hint = err.message === 'Failed to fetch'
@@ -10069,21 +10072,137 @@ function setGrowth(el, view, period) {
 // ══════════════════════════════════════════════════════════
 
 var PROJECTS = [
-  { id:'PRJ-001', name:'ERP Go-Live',              account:'Arpac Storage Systems Corp.', csm:'Kambi',  status:'Active',    phase:'Go-Live',       progress:80, due:'2026-05-30', health:'Green',  notes:'On track for go-live. UAT completed.' },
-  { id:'PRJ-002', name:'Insights Rollout',         account:'Arpac Storage Systems Corp.', csm:'Kambi',  status:'Active',    phase:'Training',      progress:55, due:'2026-06-15', health:'Green',  notes:'Training sessions scheduled with management team.' },
-  { id:'PRJ-003', name:'Pay Module Deployment',    account:'GlobalBank Ltd',              csm:'Pratik', status:'At Risk',   phase:'Configuration', progress:30, due:'2026-05-20', health:'Red',    notes:'Customer bandwidth constraints delaying config sign-off.' },
-  { id:'PRJ-004', name:'ERP Implementation',       account:'GlobalBank Ltd',              csm:'Pratik', status:'Active',    phase:'Data Migration', progress:65, due:'2026-06-30', health:'Amber', notes:'Data cleansing in progress. 2 weeks behind plan.' },
-  { id:'PRJ-005', name:'CRM Integration',          account:'Vertex Group',                csm:'Mani',   status:'Completed', phase:'Closed',        progress:100,due:'2026-04-01', health:'Green',  notes:'Completed ahead of schedule. Customer very satisfied.' },
-  { id:'PRJ-006', name:'EAM Go-Live',              account:'Vertex Group',                csm:'Mani',   status:'Active',    phase:'Testing',       progress:70, due:'2026-06-10', health:'Green',  notes:'UAT in progress. Minor defects being addressed.' },
-  { id:'PRJ-007', name:'ERP Phase 2',              account:'Metro Parts Inc',             csm:'Navya',  status:'On Hold',   phase:'Planning',      progress:15, due:'2026-07-15', health:'Amber', notes:'On hold pending customer budget approval.' },
-  { id:'PRJ-008', name:'Supply Chain Optimisation',account:'OrionTech',                   csm:'Pratik', status:'At Risk',   phase:'Configuration', progress:40, due:'2026-05-25', health:'Red',    notes:'Key stakeholder left. New sponsor being onboarded.' },
-  { id:'PRJ-009', name:'Insights & Reporting',     account:'Metro Parts Inc',             csm:'Navya',  status:'Active',    phase:'Training',      progress:60, due:'2026-06-20', health:'Green',  notes:'Training materials ready. Sessions starting next week.' },
-  { id:'PRJ-010', name:'ERP Core Implementation',  account:'Pinnacle Foods Co.',          csm:'Mani',   status:'Active',    phase:'Go-Live',       progress:90, due:'2026-05-15', health:'Green',  notes:'Go-live readiness review passed. Launch imminent.' },
-  { id:'PRJ-011', name:'Pay & HR Rollout',         account:'Lakewood Packaging',          csm:'Kambi',  status:'Active',    phase:'Configuration', progress:45, due:'2026-07-01', health:'Amber', notes:'Configuration delayed due to client data quality issues.' },
-  { id:'PRJ-012', name:'CRM Go-Live',              account:'TechBridge Solutions',        csm:'Pratik', status:'Completed', phase:'Closed',        progress:100,due:'2026-03-28', health:'Green',  notes:'Successfully delivered on time.' },
+  { id:'PRJ-001', name:'ERP Go-Live',              account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', status:'Active',    phase:'Go-Live',        progress:80,  due:'2026-05-30', health:'Green',  notes:'On track for go-live. UAT completed.' },
+  { id:'PRJ-002', name:'Insights Rollout',         account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', status:'Active',    phase:'Training',       progress:55,  due:'2026-06-15', health:'Green',  notes:'Training sessions scheduled with management team.' },
+  { id:'PRJ-003', name:'Pay Module Deployment',    account:'GlobalBank Ltd',              csm:'Pratik', pm:'', status:'At Risk',   phase:'Configuration',  progress:30,  due:'2026-05-20', health:'Red',    notes:'Customer bandwidth constraints delaying config sign-off.' },
+  { id:'PRJ-004', name:'ERP Implementation',       account:'GlobalBank Ltd',              csm:'Pratik', pm:'', status:'Active',    phase:'Data Migration', progress:65,  due:'2026-06-30', health:'Amber',  notes:'Data cleansing in progress. 2 weeks behind plan.' },
+  { id:'PRJ-005', name:'CRM Integration',          account:'Vertex Group',                csm:'Mani',   pm:'', status:'Completed', phase:'Closed',         progress:100, due:'2026-04-01', health:'Green',  notes:'Completed ahead of schedule. Customer very satisfied.' },
+  { id:'PRJ-006', name:'EAM Go-Live',              account:'Vertex Group',                csm:'Mani',   pm:'', status:'Active',    phase:'Testing',        progress:70,  due:'2026-06-10', health:'Green',  notes:'UAT in progress. Minor defects being addressed.' },
+  { id:'PRJ-007', name:'ERP Phase 2',              account:'Metro Parts Inc',             csm:'Navya',  pm:'', status:'On Hold',   phase:'Planning',       progress:15,  due:'2026-07-15', health:'Amber',  notes:'On hold pending customer budget approval.' },
+  { id:'PRJ-008', name:'Supply Chain Optimisation',account:'OrionTech',                   csm:'Pratik', pm:'', status:'At Risk',   phase:'Configuration',  progress:40,  due:'2026-05-25', health:'Red',    notes:'Key stakeholder left. New sponsor being onboarded.' },
+  { id:'PRJ-009', name:'Insights & Reporting',     account:'Metro Parts Inc',             csm:'Navya',  pm:'', status:'Active',    phase:'Training',       progress:60,  due:'2026-06-20', health:'Green',  notes:'Training materials ready. Sessions starting next week.' },
+  { id:'PRJ-010', name:'ERP Core Implementation',  account:'Pinnacle Foods Co.',          csm:'Mani',   pm:'', status:'Active',    phase:'Go-Live',        progress:90,  due:'2026-05-15', health:'Green',  notes:'Go-live readiness review passed. Launch imminent.' },
+  { id:'PRJ-011', name:'Pay & HR Rollout',         account:'Lakewood Packaging',          csm:'Kambi',  pm:'', status:'Active',    phase:'Configuration',  progress:45,  due:'2026-07-01', health:'Amber',  notes:'Configuration delayed due to client data quality issues.' },
+  { id:'PRJ-012', name:'CRM Go-Live',              account:'TechBridge Solutions',        csm:'Pratik', pm:'', status:'Completed', phase:'Closed',         progress:100, due:'2026-03-28', health:'Green',  notes:'Successfully delivered on time.' },
 ];
 
 let _projActiveTab = 'dashboard';
+let _projectsLoaded  = false;
+let _projectsLoading = false;
+
+// ── Project status / health normalizers ─────────────────────────────────
+function _normalizeProjectStatus(raw) {
+  if (!raw) return 'Active';
+  const l = String(raw).toLowerCase();
+  if (l.includes('risk') || l.includes('red'))           return 'At Risk';
+  if (l.includes('hold') || l.includes('pause'))         return 'On Hold';
+  if (l.includes('complet') || l.includes('done') || l.includes('clos')) return 'Completed';
+  return 'Active';
+}
+function _normalizeProjectHealth(raw) {
+  if (!raw) return 'Green';
+  const l = String(raw).toLowerCase();
+  if (l === 'red'   || l.includes('risk'))  return 'Red';
+  if (l === 'amber' || l === 'yellow' || l.includes('warn')) return 'Amber';
+  return 'Green';
+}
+
+async function loadProjectsFromSalesforce() {
+  if (_projectsLoading) return;
+  _projectsLoading = true;
+  try {
+    console.log('[PROJ] Fetching project details…');
+    let res;
+    try {
+      res = await fetch(PROJECTS_API_URL, { method:'GET' });
+    } catch(e) {
+      res = await fetch(PROJECTS_API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+    }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const raw = await res.json();
+    console.log('[PROJ] Top-level keys:', Object.keys(raw || {}).join(', '));
+
+    const records = raw?.ProjectDetails?.records
+      || raw?.projects?.records
+      || raw?.records
+      || (Array.isArray(raw) ? raw : []);
+    console.log('[PROJ] Record count:', records.length);
+    if (!records.length) { console.log('[PROJ] No records — keeping static data'); return; }
+
+    // Build account lookup keyed by 15-char Salesforce ID and by lowercase name
+    const norm15 = id => id ? String(id).substring(0,15).toLowerCase() : '';
+    const acctById   = {};
+    const acctByName = {};
+    (ACCOUNTS || []).forEach(a => {
+      if (a.id)   acctById[norm15(a.id)]           = a;
+      if (a.name) acctByName[a.name.toLowerCase()] = a;
+    });
+
+    const mapped = [];
+    records.forEach((rec, idx) => {
+      // ── Resolve account name — only include projects whose account we know ──
+      let accountName = '';
+      if (rec.Account__r?.Name) {
+        accountName = rec.Account__r.Name;
+      } else if (rec.Account__c) {
+        const a = acctById[norm15(rec.Account__c)];
+        accountName = a ? a.name : '';
+      } else if (rec.Account_Name__c) {
+        const a = acctByName[(rec.Account_Name__c || '').toLowerCase()];
+        accountName = a ? a.name : rec.Account_Name__c;
+      }
+      if (!accountName) return; // skip projects not linked to a known account
+
+      // ── Field mapping — try multiple common Salesforce field name patterns ──
+      const name = rec.Project_Name__c || rec.Name || ('Project ' + (idx+1));
+
+      const csm = rec.SuccessManager__r?.Full_Name__c
+        || rec.SuccessManager__r?.Name
+        || rec.CSM__r?.Name || rec.Consultant__r?.Name
+        || rec.CSM__c || rec.Consultant__c || rec.Success_Manager__c || '';
+
+      const pm = rec.Project_Manager__r?.Name
+        || rec.Project_Manager__r?.Full_Name__c
+        || rec.PM__r?.Name || rec.PM__r?.Full_Name__c
+        || rec.Project_Manager__c || rec.PM__c
+        || rec.Project_Manager_Name__c || '';
+
+      const status   = _normalizeProjectStatus(
+        rec.Status__c || rec.Project_Status__c || rec.Stage__c || '');
+
+      const phase    = rec.Phase__c || rec.Current_Phase__c || rec.Stage__c || '';
+
+      const progress = Math.min(100, Math.round(
+        parseFloat(rec.Completion_Percentage__c || rec.Progress__c
+          || rec.Percent_Complete__c || rec.Percentage_Complete__c || 0) || 0));
+
+      const due = (rec.Target_Go_Live_Date__c || rec.Due_Date__c
+        || rec.End_Date__c || rec.Planned_End_Date__c || rec.Completion_Date__c || '')
+        .substring(0, 10);
+
+      const health   = _normalizeProjectHealth(
+        rec.Health_Status__c || rec.RAG_Status__c || rec.Project_Health__c || '');
+
+      const notes    = rec.Description__c || rec.Notes__c || rec.Comments__c || '';
+
+      const id = rec.Project_Number__c || rec.Name || ('PRJ-' + String(idx+1).padStart(3,'0'));
+
+      mapped.push({ id, name, account:accountName, csm, pm, status, phase, progress, due, health, notes });
+    });
+
+    if (mapped.length > 0) {
+      PROJECTS = mapped;
+      _projectsLoaded = true;
+      console.log('[PROJ] Loaded', PROJECTS.length, 'projects from API');
+      const sec = document.getElementById('section-projects');
+      if (sec && !sec.classList.contains('hidden')) renderProjectsSection();
+    }
+  } catch(err) {
+    console.error('[PROJ] Load error:', err);
+  } finally {
+    _projectsLoading = false;
+  }
+}
 
 function switchProjectTab(tab) {
   _projActiveTab = tab;
@@ -10157,12 +10276,14 @@ function _renderProjDashboard() {
   const tbody = document.getElementById('proj-tbody');
   if (!tbody) return;
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:#9ca3af;font-size:13px;">No projects match the selected filters.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:#9ca3af;font-size:13px;">No projects match the selected filters.</td></tr>`;
     return;
   }
   tbody.innerHTML = rows.map(p => {
     const st = _projStatusStyle(p.status);
     const overdue = new Date(p.due) < new Date() && p.status !== 'Completed';
+    const pmName = p.pm || '—';
+    const pmInitials = p.pm ? p.pm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('') : '';
     return `<tr style="border-bottom:1px solid #f9fafb;cursor:pointer;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
       <td style="padding:10px 12px;">
         <div style="font-size:12px;color:#9ca3af;font-weight:600;">${p.id}</div>
@@ -10175,6 +10296,12 @@ function _renderProjDashboard() {
           <div style="width:26px;height:26px;border-radius:50%;background:#D1FAE5;color:#065f46;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">${p.csm.slice(0,2).toUpperCase()}</div>
           <span style="font-size:13px;color:#374151;">${p.csm}</span>
         </div>
+      </td>
+      <td style="padding:10px 12px;">
+        ${p.pm ? `<div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:26px;height:26px;border-radius:50%;background:#EDE9FE;color:#5b21b6;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">${pmInitials}</div>
+          <span style="font-size:13px;color:#374151;">${pmName}</span>
+        </div>` : `<span style="font-size:12px;color:#d1d5db;">—</span>`}
       </td>
       <td style="padding:10px 12px;"><span style="background:${st.bg};color:${st.color};font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;">${p.status}</span></td>
       <td style="padding:10px 12px;font-size:12px;color:#6b7280;font-weight:600;">${p.phase}</td>
@@ -10198,8 +10325,9 @@ function _renderProjAccounts() {
   if (!grid) return;
   const byAcct = {};
   PROJECTS.forEach(p => {
-    if (!byAcct[p.account]) byAcct[p.account] = { name:p.account, projects:[], csm:p.csm };
+    if (!byAcct[p.account]) byAcct[p.account] = { name:p.account, projects:[], csm:p.csm, pms:[] };
     byAcct[p.account].projects.push(p);
+    if (p.pm && !byAcct[p.account].pms.includes(p.pm)) byAcct[p.account].pms.push(p.pm);
   });
   grid.innerHTML = Object.values(byAcct).map(a => {
     const active    = a.projects.filter(p=>p.status==='Active').length;
@@ -10212,6 +10340,7 @@ function _renderProjAccounts() {
         <div>
           <div style="font-size:13px;font-weight:800;color:#111827;">${a.name}</div>
           <div style="font-size:11px;color:#6b7280;margin-top:2px;">Consultant: ${a.csm}</div>
+          ${a.pms.length ? `<div style="font-size:11px;color:#7c3aed;margin-top:1px;">PM: ${a.pms.join(', ')}</div>` : ''}
         </div>
         ${_projHealthDot(health)}
       </div>
