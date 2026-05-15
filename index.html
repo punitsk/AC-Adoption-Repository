@@ -2390,77 +2390,52 @@ button { cursor: pointer; }
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
     <div>
       <h2 style="font-size:20px;font-weight:800;color:#111827;margin:0;">Projects</h2>
-      <div style="font-size:13px;color:#6b7280;margin-top:2px;">Track implementation and adoption projects across accounts</div>
+      <div style="font-size:13px;color:#6b7280;margin-top:2px;">Implementation and adoption projects across your accounts</div>
     </div>
-    <button class="btn-primary" onclick="openNewProjectModal()" style="font-size:12px;padding:7px 14px;">+ New Project</button>
   </div>
 
   <!-- Sub-tab nav -->
   <div style="display:flex;gap:2px;background:#F0F2F5;border-radius:10px;padding:4px;width:fit-content;margin-bottom:20px;">
-    <button id="proj-tab-dashboard"  onclick="switchProjectTab('dashboard')"  style="font-size:12px;font-weight:700;padding:6px 18px;border:none;border-radius:8px;cursor:pointer;background:#1B4D3E;color:#fff;transition:all .15s;">Dashboard</button>
-    <button id="proj-tab-accounts"   onclick="switchProjectTab('accounts')"   style="font-size:12px;font-weight:700;padding:6px 18px;border:none;border-radius:8px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">Accounts</button>
-    <button id="proj-tab-analytics"  onclick="switchProjectTab('analytics')"  style="font-size:12px;font-weight:700;padding:6px 18px;border:none;border-radius:8px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">Analytics</button>
+    <button id="proj-tab-dashboard" onclick="switchProjectTab('dashboard')" style="font-size:12px;font-weight:700;padding:6px 18px;border:none;border-radius:8px;cursor:pointer;background:#1B4D3E;color:#fff;transition:all .15s;">All Projects</button>
+    <button id="proj-tab-analytics" onclick="switchProjectTab('analytics')" style="font-size:12px;font-weight:700;padding:6px 18px;border:none;border-radius:8px;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s;">Analytics</button>
   </div>
 
-  <!-- ── Tab: Dashboard ── -->
+  <!-- ── Tab: All Projects ── -->
   <div id="proj-pane-dashboard">
-    <!-- KPI tiles -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;" id="proj-kpi-row">
-      <div class="stat-card" style="background:#F0FDF4;border:1.5px solid #A7F3D0;">
-        <div class="stat-icon" style="background:#D1FAE5;">🟢</div>
-        <div class="stat-label">Active Projects</div>
-        <div class="stat-value" id="proj-kpi-active" style="color:#065f46;">—</div>
-        <div class="stat-trend" style="color:#059669;" id="proj-kpi-active-sub">loading…</div>
-      </div>
-      <div class="stat-card" style="background:#FFF7ED;border:1.5px solid #FED7AA;">
-        <div class="stat-icon" style="background:#FFEDD5;">⚠️</div>
-        <div class="stat-label">At Risk</div>
-        <div class="stat-value" id="proj-kpi-risk" style="color:#c2410c;">—</div>
-        <div class="stat-trend trend-down" id="proj-kpi-risk-sub">loading…</div>
-      </div>
-      <div class="stat-card" style="background:#EFF6FF;border:1.5px solid #BFDBFE;">
-        <div class="stat-icon" style="background:#DBEAFE;">✅</div>
-        <div class="stat-label">Completed</div>
-        <div class="stat-value" id="proj-kpi-done" style="color:#1d4ed8;">—</div>
-        <div class="stat-trend" style="color:#3b82f6;" id="proj-kpi-done-sub">loading…</div>
-      </div>
-      <div class="stat-card" style="background:#F5F3FF;border:1.5px solid #DDD6FE;">
-        <div class="stat-icon" style="background:#EDE9FE;">📅</div>
-        <div class="stat-label">Due This Month</div>
-        <div class="stat-value" id="proj-kpi-due" style="color:#6d28d9;">—</div>
-        <div class="stat-trend" style="color:#7c3aed;" id="proj-kpi-due-sub">loading…</div>
-      </div>
-    </div>
-    <!-- Recent projects table -->
+    <!-- KPI tiles (populated by JS from real data) -->
+    <div id="proj-kpi-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;"></div>
+
+    <!-- Stage filter chips (built dynamically from real stage values) -->
+    <div id="proj-stage-chips" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;"></div>
+
+    <!-- Projects table -->
     <div class="card">
       <div class="card-header" style="margin-bottom:14px;">
-        <div><div class="card-title">All Projects</div><div class="card-sub">Live view — click a row to expand</div></div>
+        <div><div class="card-title">All Projects</div><div class="card-sub" id="proj-table-sub">Live · linked to your accounts</div></div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <select id="proj-filter-status" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
-            <option value="">All Statuses</option>
-            <option value="Active">Active</option>
-            <option value="At Risk">At Risk</option>
-            <option value="On Hold">On Hold</option>
-            <option value="Completed">Completed</option>
-          </select>
           <select id="proj-filter-csm" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
             <option value="">All Consultants</option>
+          </select>
+          <select id="proj-filter-rag" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
+            <option value="">All Statuses</option>
+            <option value="Green">🟢 Green</option>
+            <option value="Amber">🟡 Amber</option>
+            <option value="Red">🔴 Red</option>
           </select>
         </div>
       </div>
       <div id="proj-table-wrap" style="overflow-x:auto;">
         <table style="width:100%;border-collapse:collapse;">
           <thead>
-            <tr style="border-bottom:1.5px solid #f3f4f6;">
+            <tr style="border-bottom:1.5px solid #f3f4f6;background:#F9FAFB;">
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Project</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Account</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Consultant</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Project Manager</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Status</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Phase</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Progress</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Due Date</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Health</th>
+              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Project Status</th>
+              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Start Date</th>
+              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Order Type</th>
             </tr>
           </thead>
           <tbody id="proj-tbody"></tbody>
@@ -2469,30 +2444,32 @@ button { cursor: pointer; }
     </div>
   </div>
 
-  <!-- ── Tab: Accounts ── -->
-  <div id="proj-pane-accounts" style="display:none;">
-    <div class="card">
-      <div class="card-header" style="margin-bottom:14px;">
-        <div><div class="card-title">Accounts with Projects</div><div class="card-sub">Project summary per account</div></div>
-      </div>
-      <div id="proj-accounts-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;"></div>
-    </div>
-  </div>
-
   <!-- ── Tab: Analytics ── -->
   <div id="proj-pane-analytics" style="display:none;">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
       <div class="card">
-        <div class="card-title" style="margin-bottom:14px;">Status Breakdown</div>
+        <div class="card-title" style="margin-bottom:14px;">By Stage</div>
         <div id="proj-chart-status" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
       <div class="card">
-        <div class="card-title" style="margin-bottom:14px;">Phase Distribution</div>
-        <div id="proj-chart-phase" style="display:flex;flex-direction:column;gap:10px;"></div>
+        <div class="card-title" style="margin-bottom:14px;">Project Status (RAG)</div>
+        <div id="proj-chart-rag" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">Billing Type</div>
+        <div id="proj-chart-billing" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+      <div class="card">
+        <div class="card-title" style="margin-bottom:14px;">Order Type</div>
+        <div id="proj-chart-order" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
       <div class="card" style="grid-column:1/-1;">
-        <div class="card-title" style="margin-bottom:14px;">Consultant Workload</div>
+        <div class="card-title" style="margin-bottom:14px;">Projects by Consultant</div>
         <div id="proj-chart-csm" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+      <div class="card" style="grid-column:1/-1;">
+        <div class="card-title" style="margin-bottom:14px;">Projects by Account</div>
+        <div id="proj-chart-account" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
     </div>
   </div>
@@ -10072,21 +10049,22 @@ function setGrowth(el, view, period) {
 // ══════════════════════════════════════════════════════════
 
 var PROJECTS = [
-  { id:'PRJ-001', name:'ERP Go-Live',              account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', status:'Active',    phase:'Go-Live',        progress:80,  due:'2026-05-30', health:'Green',  notes:'On track for go-live. UAT completed.' },
-  { id:'PRJ-002', name:'Insights Rollout',         account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', status:'Active',    phase:'Training',       progress:55,  due:'2026-06-15', health:'Green',  notes:'Training sessions scheduled with management team.' },
-  { id:'PRJ-003', name:'Pay Module Deployment',    account:'GlobalBank Ltd',              csm:'Pratik', pm:'', status:'At Risk',   phase:'Configuration',  progress:30,  due:'2026-05-20', health:'Red',    notes:'Customer bandwidth constraints delaying config sign-off.' },
-  { id:'PRJ-004', name:'ERP Implementation',       account:'GlobalBank Ltd',              csm:'Pratik', pm:'', status:'Active',    phase:'Data Migration', progress:65,  due:'2026-06-30', health:'Amber',  notes:'Data cleansing in progress. 2 weeks behind plan.' },
-  { id:'PRJ-005', name:'CRM Integration',          account:'Vertex Group',                csm:'Mani',   pm:'', status:'Completed', phase:'Closed',         progress:100, due:'2026-04-01', health:'Green',  notes:'Completed ahead of schedule. Customer very satisfied.' },
-  { id:'PRJ-006', name:'EAM Go-Live',              account:'Vertex Group',                csm:'Mani',   pm:'', status:'Active',    phase:'Testing',        progress:70,  due:'2026-06-10', health:'Green',  notes:'UAT in progress. Minor defects being addressed.' },
-  { id:'PRJ-007', name:'ERP Phase 2',              account:'Metro Parts Inc',             csm:'Navya',  pm:'', status:'On Hold',   phase:'Planning',       progress:15,  due:'2026-07-15', health:'Amber',  notes:'On hold pending customer budget approval.' },
-  { id:'PRJ-008', name:'Supply Chain Optimisation',account:'OrionTech',                   csm:'Pratik', pm:'', status:'At Risk',   phase:'Configuration',  progress:40,  due:'2026-05-25', health:'Red',    notes:'Key stakeholder left. New sponsor being onboarded.' },
-  { id:'PRJ-009', name:'Insights & Reporting',     account:'Metro Parts Inc',             csm:'Navya',  pm:'', status:'Active',    phase:'Training',       progress:60,  due:'2026-06-20', health:'Green',  notes:'Training materials ready. Sessions starting next week.' },
-  { id:'PRJ-010', name:'ERP Core Implementation',  account:'Pinnacle Foods Co.',          csm:'Mani',   pm:'', status:'Active',    phase:'Go-Live',        progress:90,  due:'2026-05-15', health:'Green',  notes:'Go-live readiness review passed. Launch imminent.' },
-  { id:'PRJ-011', name:'Pay & HR Rollout',         account:'Lakewood Packaging',          csm:'Kambi',  pm:'', status:'Active',    phase:'Configuration',  progress:45,  due:'2026-07-01', health:'Amber',  notes:'Configuration delayed due to client data quality issues.' },
-  { id:'PRJ-012', name:'CRM Go-Live',              account:'TechBridge Solutions',        csm:'Pratik', pm:'', status:'Completed', phase:'Closed',         progress:100, due:'2026-03-28', health:'Green',  notes:'Successfully delivered on time.' },
+  { id:'PRJ-001', name:'ERP Go-Live',               account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', status:'Active',    ragStatus:'Green',  startDate:'2025-11-01', orderType:'New Implementation', notes:'On track for go-live. UAT completed.' },
+  { id:'PRJ-002', name:'Insights Rollout',          account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', status:'Active',    ragStatus:'Green',  startDate:'2026-01-15', orderType:'Add-On',             notes:'Training sessions scheduled with management team.' },
+  { id:'PRJ-003', name:'Pay Module Deployment',     account:'GlobalBank Ltd',              csm:'Pratik', pm:'', status:'Active',    ragStatus:'Red',    startDate:'2025-12-01', orderType:'New Implementation', notes:'Customer bandwidth constraints delaying config sign-off.' },
+  { id:'PRJ-004', name:'ERP Implementation',        account:'GlobalBank Ltd',              csm:'Pratik', pm:'', status:'Active',    ragStatus:'Amber',  startDate:'2026-02-01', orderType:'New Implementation', notes:'Data cleansing in progress. 2 weeks behind plan.' },
+  { id:'PRJ-005', name:'CRM Integration',           account:'Vertex Group',                csm:'Mani',   pm:'', status:'Closed',    ragStatus:'Green',  startDate:'2025-09-01', orderType:'Add-On',             notes:'Completed ahead of schedule. Customer very satisfied.' },
+  { id:'PRJ-006', name:'EAM Go-Live',               account:'Vertex Group',                csm:'Mani',   pm:'', status:'Active',    ragStatus:'Green',  startDate:'2026-01-10', orderType:'New Implementation', notes:'UAT in progress. Minor defects being addressed.' },
+  { id:'PRJ-007', name:'ERP Phase 2',               account:'Metro Parts Inc',             csm:'Navya',  pm:'', status:'Draft',     ragStatus:'',       startDate:'2026-03-01', orderType:'Upgrade',            notes:'On hold pending customer budget approval.' },
+  { id:'PRJ-008', name:'Supply Chain Optimisation', account:'OrionTech',                   csm:'Pratik', pm:'', status:'Active',    ragStatus:'Red',    startDate:'2025-10-15', orderType:'New Implementation', notes:'Key stakeholder left. New sponsor being onboarded.' },
+  { id:'PRJ-009', name:'Insights & Reporting',      account:'Metro Parts Inc',             csm:'Navya',  pm:'', status:'Active',    ragStatus:'Green',  startDate:'2026-02-20', orderType:'Add-On',             notes:'Training materials ready. Sessions starting next week.' },
+  { id:'PRJ-010', name:'ERP Core Implementation',   account:'Pinnacle Foods Co.',          csm:'Mani',   pm:'', status:'Active',    ragStatus:'Green',  startDate:'2025-08-01', orderType:'New Implementation', notes:'Go-live readiness review passed. Launch imminent.' },
+  { id:'PRJ-011', name:'Pay & HR Rollout',          account:'Lakewood Packaging',          csm:'Kambi',  pm:'', status:'Active',    ragStatus:'Amber',  startDate:'2026-01-05', orderType:'Add-On',             notes:'Configuration delayed due to client data quality issues.' },
+  { id:'PRJ-012', name:'CRM Go-Live',               account:'TechBridge Solutions',        csm:'Pratik', pm:'', status:'Closed',    ragStatus:'Green',  startDate:'2025-07-01', orderType:'New Implementation', notes:'Successfully delivered on time.' },
 ];
 
 let _projActiveTab = 'dashboard';
+let _projActiveStageFilter = '';
 let _projectsLoaded  = false;
 let _projectsLoading = false;
 
@@ -10204,41 +10182,34 @@ async function loadProjectsFromSalesforce() {
       // ── Field mapping — exact PSA (pse__) field names ──
       const name = rec.Name || ('Project ' + (idx+1));
 
-      // Consultant: PSA stores the PM in pse__Project_Manager__c (User/Contact ID)
-      // If relationship is expanded, pse__Project_Manager__r.Name gives the display name
-      const pm  = rec.pse__Project_Manager__r?.Name
+      // Project Manager: pse__Project_Manager__r must be expanded by SOQL in Logic App
+      const pm = rec.pse__Project_Manager__r?.Name
         || rec.pse__Project_Manager__r?.Full_Name__c
-        || ''; // ID alone (rec.pse__Project_Manager__c) is not displayable
+        || ''; // raw ID (rec.pse__Project_Manager__c) is not displayable
 
-      // No dedicated consultant field exposed in current API payload
-      // Future: ask Logic App to include pse__Resources__r or similar
-      const csm = rec.pse__Owning_Group__r?.Name
-        || rec.AppCentral_Consultant__r?.Name
-        || rec.Consultant__r?.Name
-        || '';
+      // Consultant: derived from ACCOUNTS array by matching resolved accountName
+      const acctObj = (ACCOUNTS || []).find(a => a.name === accountName);
+      const csm = acctObj?.csm || '';
 
-      // Stage → normalise to Active / At Risk / On Hold / Completed
-      const stage = rec.pse__Stage__c || '';
-      const status = _normalizeProjectStatus(stage);
-      const phase  = stage; // show raw stage as the Phase column value
+      // Status: raw pse__Stage__c value (Draft / Active / Closed / etc.)
+      const status = rec.pse__Stage__c || '';
 
-      // pse__Project_Status__c = RAG health (Green / Amber / Red)
-      const health = _normalizeProjectHealth(rec.pse__Project_Status__c || '');
+      // Project Status: RAG indicator from pse__Project_Status__c (Green / Amber / Red)
+      const ragStatus = rec.pse__Project_Status__c || '';
 
-      // No progress % field in current payload
-      const progress = 0;
+      // Start Date
+      const startDate = rec.pse__Start_Date__c ? String(rec.pse__Start_Date__c).substring(0,10) : '';
 
-      // Due date
-      const dueRaw = rec.Planned_Go_Live_Date__c || rec.pse__End_Date__c || rec.pse__Finish_Date__c || '';
-      const due    = dueRaw ? String(dueRaw).substring(0,10) : '';
+      // Order Type
+      const orderType = rec.Opportunity_Order_Type__c || '';
 
-      // Billing / type as notes
-      const notes  = [rec.pse__Billing_Type__c, rec.pse__Project_Type__c, rec.Opportunity_Order_Type__c]
+      // Billing type as notes (Order Type is now a column)
+      const notes = [rec.pse__Billing_Type__c, rec.pse__Project_Type__c]
         .filter(Boolean).join(' · ');
 
       const id = rec.Name || ('PRJ-' + String(idx+1).padStart(3,'0'));
 
-      mapped.push({ id, name, account:accountName, csm, pm, status, phase, progress, due, health, notes });
+      mapped.push({ id, name, account:accountName, csm, pm, status, ragStatus, startDate, orderType, notes });
     });
 
     console.log('[PROJ] Mapped', mapped.length, 'projects (from', records.length, 'records)');
@@ -10246,6 +10217,12 @@ async function loadProjectsFromSalesforce() {
     if (mapped.length > 0) {
       PROJECTS = mapped;
       _projectsLoaded = true;
+      // Force KPI + chips to rebuild with fresh data
+      _projActiveStageFilter = '';
+      ['proj-kpi-row','proj-stage-chips','proj-filter-csm'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.dataset.built = '';
+      });
       // Show "Live" badge on the Projects page header
       const hdr = document.querySelector('#section-projects h2');
       if (hdr && !hdr.querySelector('.proj-live-badge')) {
@@ -10269,7 +10246,7 @@ async function loadProjectsFromSalesforce() {
 
 function switchProjectTab(tab) {
   _projActiveTab = tab;
-  ['dashboard','accounts','analytics'].forEach(t => {
+  ['dashboard','analytics'].forEach(t => {
     const pane = document.getElementById('proj-pane-' + t);
     const btn  = document.getElementById('proj-tab-' + t);
     if (pane) pane.style.display = (t === tab) ? '' : 'none';
@@ -10283,75 +10260,114 @@ function switchProjectTab(tab) {
 
 function renderProjectsSection() {
   if (_projActiveTab === 'dashboard')  _renderProjDashboard();
-  if (_projActiveTab === 'accounts')   _renderProjAccounts();
   if (_projActiveTab === 'analytics')  _renderProjAnalytics();
 }
 
-function _projStatusStyle(status) {
-  const map = {
-    'Active':    { bg:'#D1FAE5', color:'#065f46' },
-    'At Risk':   { bg:'#FEE2E2', color:'#991b1b' },
-    'On Hold':   { bg:'#FEF3C7', color:'#92400e' },
-    'Completed': { bg:'#DBEAFE', color:'#1e40af' },
-  };
-  return map[status] || { bg:'#F3F4F6', color:'#374151' };
-}
-function _projHealthDot(h) {
-  if (h==='Green') return '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;"></span>';
-  if (h==='Red')   return '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#ef4444;"></span>';
-  return              '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;"></span>';
-}
+// (Legacy _projStatusStyle / _projHealthDot removed — replaced by _projStageStyle / _projRagDot)
 function _fmtDate(d) {
   if (!d) return '—';
   const dt = new Date(d); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 }
 
-function _renderProjDashboard() {
-  const statusF = (document.getElementById('proj-filter-status')||{}).value || '';
-  const csmF    = (document.getElementById('proj-filter-csm')||{}).value    || '';
+function _projRagDot(rag) {
+  const r = (rag || '').toLowerCase();
+  if (r === 'green')  return '<span title="Green" style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#22c55e;"></span>';
+  if (r === 'red')    return '<span title="Red" style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#ef4444;"></span>';
+  if (r === 'amber' || r === 'yellow') return '<span title="Amber" style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#f59e0b;"></span>';
+  return '<span style="display:inline-block;width:11px;height:11px;border-radius:50%;background:#d1d5db;"></span>';
+}
 
-  // Populate CSM filter
-  const csmSel = document.getElementById('proj-filter-csm');
-  if (csmSel) {
-    const csms = [...new Set(PROJECTS.map(p=>p.csm))].sort();
-    const prev = csmSel.value;
-    csmSel.innerHTML = '<option value="">All Consultants</option>' +
-      csms.map(c=>`<option value="${c}"${c===prev?' selected':''}>${c}</option>`).join('');
+function _projStageStyle(stage) {
+  const s = (stage || '').toLowerCase();
+  if (s === 'active')   return { bg:'#D1FAE5', color:'#065f46' };
+  if (s === 'draft')    return { bg:'#EDE9FE', color:'#5b21b6' };
+  if (s === 'closed' || s === 'complete' || s === 'completed') return { bg:'#DBEAFE', color:'#1e40af' };
+  if (s === 'on hold' || s === 'hold')  return { bg:'#FEF3C7', color:'#92400e' };
+  if (s === 'at risk')  return { bg:'#FEE2E2', color:'#991b1b' };
+  return { bg:'#F3F4F6', color:'#374151' };
+}
+
+function _renderProjDashboard() {
+  const stageF = _projActiveStageFilter || '';
+  const csmF   = (document.getElementById('proj-filter-csm')||{}).value  || '';
+  const ragF   = (document.getElementById('proj-filter-rag')||{}).value  || '';
+
+  const all = PROJECTS;
+
+  // ── Dynamic KPI tiles ──
+  const kpiRow = document.getElementById('proj-kpi-row');
+  if (kpiRow && (!kpiRow.dataset.built || kpiRow.dataset.built !== String(all.length))) {
+    kpiRow.dataset.built = String(all.length);
+    const activeCount    = all.filter(p => (p.status||'').toLowerCase() === 'active').length;
+    const redCount       = all.filter(p => (p.ragStatus||'').toLowerCase() === 'red').length;
+    const closedCount    = all.filter(p => ['closed','complete','completed'].includes((p.status||'').toLowerCase())).length;
+    const draftCount     = all.filter(p => (p.status||'').toLowerCase() === 'draft').length;
+    const tiles = [
+      { label:'Total Projects',   value: all.length,    sub: `${draftCount} in draft`,         bg:'#F0FDF4', accent:'#065f46',  icon:'📂' },
+      { label:'Active',           value: activeCount,   sub: 'currently running',               bg:'#DBEAFE', accent:'#1e40af',  icon:'▶' },
+      { label:'Red Status',       value: redCount,      sub: 'need attention',                  bg:'#FEE2E2', accent:'#991b1b',  icon:'🔴' },
+      { label:'Completed',        value: closedCount,   sub: 'delivered',                       bg:'#EDE9FE', accent:'#5b21b6',  icon:'✓' },
+    ];
+    kpiRow.innerHTML = tiles.map(t => `
+      <div style="background:${t.bg};border-radius:12px;padding:16px 18px;display:flex;align-items:flex-start;gap:12px;">
+        <div style="font-size:26px;line-height:1;">${t.icon}</div>
+        <div>
+          <div style="font-size:26px;font-weight:800;color:${t.accent};line-height:1;">${t.value}</div>
+          <div style="font-size:12px;font-weight:700;color:#374151;margin-top:3px;">${t.label}</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:1px;">${t.sub}</div>
+        </div>
+      </div>`).join('');
   }
 
-  let rows = PROJECTS.filter(p => (!statusF || p.status===statusF) && (!csmF || p.csm===csmF));
+  // ── Dynamic stage filter chips ──
+  const chipsEl = document.getElementById('proj-stage-chips');
+  if (chipsEl && (!chipsEl.dataset.built || chipsEl.dataset.built !== String(all.length))) {
+    chipsEl.dataset.built = String(all.length);
+    const stages = ['All', ...([...new Set(all.map(p=>p.status).filter(Boolean))].sort())];
+    chipsEl.innerHTML = stages.map(s => {
+      const active = (s === 'All' && !stageF) || s === stageF;
+      return `<button onclick="_setProjStageFilter('${s === 'All' ? '' : s}')"
+        style="font-size:11px;font-weight:700;padding:4px 12px;border:1.5px solid ${active?'#1B4D3E':'#e5e7eb'};
+               border-radius:20px;cursor:pointer;background:${active?'#1B4D3E':'#fff'};
+               color:${active?'#fff':'#374151'};transition:all .15s;">${s}</button>`;
+    }).join('');
+  }
 
-  // KPIs
-  const all = PROJECTS;
-  const now = new Date(); const eom = new Date(now.getFullYear(), now.getMonth()+1, 0);
-  const active    = all.filter(p=>p.status==='Active').length;
-  const atRisk    = all.filter(p=>p.status==='At Risk').length;
-  const completed = all.filter(p=>p.status==='Completed').length;
-  const dueMonth  = all.filter(p=>{ const d=new Date(p.due); return d>=now && d<=eom; }).length;
+  // ── Populate CSM filter ──
+  const csmSel = document.getElementById('proj-filter-csm');
+  if (csmSel && (!csmSel.dataset.built || csmSel.dataset.built !== String(all.length))) {
+    csmSel.dataset.built = String(all.length);
+    const prev = csmSel.value;
+    const csms = [...new Set(all.map(p=>p.csm).filter(Boolean))].sort();
+    csmSel.innerHTML = '<option value="">All Consultants</option>' +
+      csms.map(c=>`<option value="${c}"${c===prev?' selected':''}>${c||'—'}</option>`).join('');
+  }
 
-  const s = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-  s('proj-kpi-active',    active);    s('proj-kpi-active-sub',  `${all.filter(p=>p.status==='On Hold').length} on hold`);
-  s('proj-kpi-risk',      atRisk);    s('proj-kpi-risk-sub',    'need attention');
-  s('proj-kpi-done',      completed); s('proj-kpi-done-sub',    'this quarter');
-  s('proj-kpi-due',       dueMonth);  s('proj-kpi-due-sub',     'deadlines approaching');
+  // ── Filter rows ──
+  let rows = all.filter(p =>
+    (!stageF || p.status === stageF) &&
+    (!csmF   || p.csm === csmF) &&
+    (!ragF   || (p.ragStatus||'').toLowerCase() === ragF.toLowerCase())
+  );
 
-  // Table
+  // Update subtitle
+  const sub = document.getElementById('proj-table-sub');
+  if (sub) sub.textContent = `${rows.length} of ${all.length} projects`;
+
+  // ── Table rows ──
   const tbody = document.getElementById('proj-tbody');
   if (!tbody) return;
   if (!rows.length) {
-    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:32px;color:#9ca3af;font-size:13px;">No projects match the selected filters.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:32px;color:#9ca3af;font-size:13px;">No projects match the selected filters.</td></tr>`;
     return;
   }
+
   tbody.innerHTML = rows.map(p => {
-    const st = _projStatusStyle(p.status);
-    const overdue = p.due && new Date(p.due) < new Date() && p.status !== 'Completed';
-    // Don't show the ID line if it's identical to the name (happens when rec.Name is the only field)
-    const showId = p.id && p.id !== p.name;
+    const st     = _projStageStyle(p.status);
     const csmInit = p.csm ? p.csm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('') : '';
     const pmInit  = p.pm  ? p.pm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')  : '';
-    return `<tr style="border-bottom:1px solid #f9fafb;cursor:pointer;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
-      <td style="padding:10px 12px;max-width:300px;">
-        ${showId ? `<div style="font-size:11px;color:#9ca3af;font-weight:600;margin-bottom:2px;">${p.id}</div>` : ''}
+    return `<tr style="border-bottom:1px solid #f3f4f6;cursor:pointer;" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
+      <td style="padding:10px 12px;max-width:280px;">
         <div style="font-size:13px;font-weight:700;color:#111827;white-space:normal;line-height:1.3;">${p.name}</div>
         ${p.notes ? `<div style="font-size:11px;color:#6b7280;margin-top:2px;">${p.notes}</div>` : ''}
       </td>
@@ -10372,127 +10388,119 @@ function _renderProjDashboard() {
              </div>`
           : `<span style="font-size:12px;color:#d1d5db;">—</span>`}
       </td>
-      <td style="padding:10px 12px;"><span style="background:${st.bg};color:${st.color};font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;">${p.status}</span></td>
-      <td style="padding:10px 12px;font-size:12px;color:#6b7280;font-weight:600;">${p.phase || '—'}</td>
-      <td style="padding:10px 12px;min-width:120px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div style="flex:1;height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;">
-            <div style="width:${p.progress}%;height:100%;background:${p.health==='Red'?'#ef4444':p.health==='Amber'?'#f59e0b':'#059669'};border-radius:3px;"></div>
-          </div>
-          <span style="font-size:11px;font-weight:700;color:#374151;min-width:28px;">${p.progress}%</span>
-        </div>
+      <td style="padding:10px 12px;">
+        <span style="background:${st.bg};color:${st.color};font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;white-space:nowrap;">
+          ${p.status || '—'}
+        </span>
       </td>
-      <td style="padding:10px 12px;font-size:12px;${overdue?'color:#dc2626;font-weight:700;':'color:#6b7280;'}">${_fmtDate(p.due)}${overdue?' ⚠':''}</td>
-      <td style="padding:10px 12px;">${_projHealthDot(p.health)}</td>
+      <td style="padding:10px 12px;text-align:center;">${_projRagDot(p.ragStatus)}</td>
+      <td style="padding:10px 12px;font-size:12px;color:#6b7280;white-space:nowrap;">${p.startDate ? _fmtDate(p.startDate) : '—'}</td>
+      <td style="padding:10px 12px;font-size:12px;color:#374151;font-weight:500;white-space:nowrap;">${p.orderType || '—'}</td>
     </tr>`;
   }).join('');
 }
 
-function _renderProjAccounts() {
-  const grid = document.getElementById('proj-accounts-grid');
-  if (!grid) return;
-  const byAcct = {};
-  PROJECTS.forEach(p => {
-    if (!byAcct[p.account]) byAcct[p.account] = { name:p.account, projects:[], csm:p.csm, pms:[] };
-    byAcct[p.account].projects.push(p);
-    if (p.pm && !byAcct[p.account].pms.includes(p.pm)) byAcct[p.account].pms.push(p.pm);
-  });
-  grid.innerHTML = Object.values(byAcct).map(a => {
-    const active    = a.projects.filter(p=>p.status==='Active').length;
-    const atRisk    = a.projects.filter(p=>p.status==='At Risk').length;
-    const completed = a.projects.filter(p=>p.status==='Completed').length;
-    const avgProg   = Math.round(a.projects.reduce((s,p)=>s+p.progress,0)/a.projects.length);
-    const health    = atRisk>0 ? 'Red' : avgProg>=80 ? 'Green' : 'Amber';
-    return `<div class="card" style="cursor:default;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-        <div>
-          <div style="font-size:13px;font-weight:800;color:#111827;">${a.name}</div>
-          <div style="font-size:11px;color:#6b7280;margin-top:2px;">Consultant: ${a.csm}</div>
-          ${a.pms.length ? `<div style="font-size:11px;color:#7c3aed;margin-top:1px;">PM: ${a.pms.join(', ')}</div>` : ''}
-        </div>
-        ${_projHealthDot(health)}
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;">
-        <div style="text-align:center;background:#F0FDF4;border-radius:8px;padding:8px;">
-          <div style="font-size:18px;font-weight:800;color:#065f46;">${active}</div>
-          <div style="font-size:10px;color:#059669;font-weight:600;">Active</div>
-        </div>
-        <div style="text-align:center;background:#FEE2E2;border-radius:8px;padding:8px;">
-          <div style="font-size:18px;font-weight:800;color:#991b1b;">${atRisk}</div>
-          <div style="font-size:10px;color:#dc2626;font-weight:600;">At Risk</div>
-        </div>
-        <div style="text-align:center;background:#DBEAFE;border-radius:8px;padding:8px;">
-          <div style="font-size:18px;font-weight:800;color:#1e40af;">${completed}</div>
-          <div style="font-size:10px;color:#3b82f6;font-weight:600;">Done</div>
-        </div>
-      </div>
-      <div style="margin-bottom:6px;display:flex;justify-content:space-between;font-size:11px;color:#6b7280;"><span>Overall progress</span><span style="font-weight:700;color:#374151;">${avgProg}%</span></div>
-      <div style="height:6px;background:#e5e7eb;border-radius:3px;overflow:hidden;">
-        <div style="width:${avgProg}%;height:100%;background:${health==='Red'?'#ef4444':health==='Amber'?'#f59e0b':'#059669'};border-radius:3px;transition:width .4s;"></div>
-      </div>
-      <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:5px;">
-        ${a.projects.map(p=>{const st=_projStatusStyle(p.status);return `<span style="background:${st.bg};color:${st.color};font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;">${p.name}</span>`;}).join('')}
-      </div>
-    </div>`;
-  }).join('');
+// Stage chip filter state + setter
+function _setProjStageFilter(stage) {
+  _projActiveStageFilter = stage;
+  // Re-render chips & table
+  const chipsEl = document.getElementById('proj-stage-chips');
+  if (chipsEl) chipsEl.dataset.built = '';  // force rebuild
+  _renderProjDashboard();
 }
 
+// _renderProjAccounts removed — Accounts tab removed from Projects section
+
 function _renderProjAnalytics() {
-  // Status breakdown
-  const statusCounts = {};
-  PROJECTS.forEach(p => { statusCounts[p.status] = (statusCounts[p.status]||0)+1; });
-  const statusColors = { Active:'#059669', 'At Risk':'#ef4444', 'On Hold':'#f59e0b', Completed:'#3b82f6' };
-  const statusEl = document.getElementById('proj-chart-status');
-  if (statusEl) statusEl.innerHTML = Object.entries(statusCounts).map(([s,n]) => {
-    const pct = Math.round(n/PROJECTS.length*100);
-    return `<div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-        <span style="font-weight:600;color:#374151;">${s}</span>
-        <span style="font-weight:700;color:${statusColors[s]||'#6b7280'};">${n} (${pct}%)</span>
-      </div>
-      <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
-        <div style="width:${pct}%;height:100%;background:${statusColors[s]||'#6b7280'};border-radius:4px;transition:width .4s;"></div>
-      </div>
-    </div>`;
-  }).join('');
+  const all = PROJECTS;
+  if (!all.length) return;
 
-  // Phase breakdown
-  const phaseCounts = {};
-  PROJECTS.forEach(p => { phaseCounts[p.phase] = (phaseCounts[p.phase]||0)+1; });
-  const phaseColors = ['#6366f1','#0891b2','#059669','#d97706','#7c3aed','#dc2626'];
-  const phaseEl = document.getElementById('proj-chart-phase');
-  if (phaseEl) phaseEl.innerHTML = Object.entries(phaseCounts).map(([ph,n],i) => {
-    const pct = Math.round(n/PROJECTS.length*100);
-    return `<div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
-        <span style="font-weight:600;color:#374151;">${ph}</span>
-        <span style="font-weight:700;color:${phaseColors[i%phaseColors.length]};">${n} project${n!==1?'s':''}</span>
-      </div>
-      <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
-        <div style="width:${pct}%;height:100%;background:${phaseColors[i%phaseColors.length]};border-radius:4px;transition:width .4s;"></div>
-      </div>
-    </div>`;
-  }).join('');
+  // ── Helper: render a horizontal bar chart into a container element ──
+  function _barChart(el, entries, colorMap, palette) {
+    if (!el) return;
+    const maxVal = Math.max(...entries.map(e=>e[1]), 1);
+    el.innerHTML = entries.map(([label, n], i) => {
+      const pct  = Math.round(n / all.length * 100);
+      const barW = Math.round(n / maxVal * 100);
+      const col  = colorMap?.[label] || palette[i % palette.length];
+      return `<div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;">
+          <span style="font-weight:600;color:#374151;">${label || '—'}</span>
+          <span style="font-weight:700;color:${col};">${n} (${pct}%)</span>
+        </div>
+        <div style="height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
+          <div style="width:${barW}%;height:100%;background:${col};border-radius:4px;transition:width .5s;"></div>
+        </div>
+      </div>`;
+    }).join('');
+  }
 
-  // CSM workload
+  const PALETTE = ['#6366f1','#0891b2','#059669','#d97706','#7c3aed','#dc2626','#0ea5e9','#84cc16'];
+
+  // ── By Stage (pse__Stage__c) ──
+  const stageCounts = {};
+  all.forEach(p => { const s = p.status || 'Unknown'; stageCounts[s] = (stageCounts[s]||0)+1; });
+  const stageColorMap = { Active:'#059669', Draft:'#7c3aed', Closed:'#3b82f6', Completed:'#3b82f6', 'On Hold':'#f59e0b', 'At Risk':'#ef4444' };
+  _barChart(document.getElementById('proj-chart-status'),
+    Object.entries(stageCounts).sort((a,b)=>b[1]-a[1]), stageColorMap, PALETTE);
+
+  // ── Project Status RAG (pse__Project_Status__c) ──
+  const ragCounts = {};
+  all.forEach(p => { const r = p.ragStatus || 'Not Set'; ragCounts[r] = (ragCounts[r]||0)+1; });
+  const ragColorMap = { Green:'#22c55e', Amber:'#f59e0b', Yellow:'#f59e0b', Red:'#ef4444', 'Not Set':'#d1d5db' };
+  _barChart(document.getElementById('proj-chart-rag'),
+    Object.entries(ragCounts).sort((a,b)=>b[1]-a[1]), ragColorMap, PALETTE);
+
+  // ── Billing Type ──
+  const billCounts = {};
+  all.forEach(p => {
+    const b = (p.notes || '').split(' · ')[0] || 'Unknown';
+    billCounts[b] = (billCounts[b]||0)+1;
+  });
+  _barChart(document.getElementById('proj-chart-billing'),
+    Object.entries(billCounts).sort((a,b)=>b[1]-a[1]), null, PALETTE);
+
+  // ── Order Type (Opportunity_Order_Type__c) ──
+  const orderCounts = {};
+  all.forEach(p => { const o = p.orderType || 'Not Set'; orderCounts[o] = (orderCounts[o]||0)+1; });
+  _barChart(document.getElementById('proj-chart-order'),
+    Object.entries(orderCounts).sort((a,b)=>b[1]-a[1]), null, PALETTE);
+
+  // ── Projects by Consultant ──
   const csmCounts = {};
-  PROJECTS.forEach(p => { csmCounts[p.csm] = (csmCounts[p.csm]||0)+1; });
-  const maxCsm = Math.max(...Object.values(csmCounts));
+  all.forEach(p => { const c = p.csm || 'Unassigned'; csmCounts[c] = (csmCounts[c]||0)+1; });
+  const maxCsm = Math.max(...Object.values(csmCounts), 1);
   const csmEl = document.getElementById('proj-chart-csm');
-  if (csmEl) csmEl.innerHTML = Object.entries(csmCounts).sort((a,b)=>b[1]-a[1]).map(([csm,n]) => {
-    const pct = Math.round(n/maxCsm*100);
-    const active = PROJECTS.filter(p=>p.csm===csm&&p.status==='Active').length;
-    const risk   = PROJECTS.filter(p=>p.csm===csm&&p.status==='At Risk').length;
-    return `<div style="display:flex;align-items:center;gap:12px;">
-      <div style="display:flex;align-items:center;gap:7px;min-width:120px;">
-        <div style="width:30px;height:30px;border-radius:50%;background:#D1FAE5;color:#065f46;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">${csm.slice(0,2).toUpperCase()}</div>
-        <span style="font-size:13px;font-weight:600;color:#374151;">${csm}</span>
-      </div>
+  if (csmEl) csmEl.innerHTML = Object.entries(csmCounts).sort((a,b)=>b[1]-a[1]).map(([csm, n]) => {
+    const barW   = Math.round(n / maxCsm * 100);
+    const active = all.filter(p=>(p.csm||'Unassigned')===csm && (p.status||'').toLowerCase()==='active').length;
+    const red    = all.filter(p=>(p.csm||'Unassigned')===csm && (p.ragStatus||'').toLowerCase()==='red').length;
+    const init   = csm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('');
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <div style="width:30px;height:30px;border-radius:50%;background:#D1FAE5;color:#065f46;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">${init||'?'}</div>
+      <span style="font-size:13px;font-weight:600;color:#374151;min-width:130px;">${csm}</span>
       <div style="flex:1;height:10px;background:#f3f4f6;border-radius:5px;overflow:hidden;">
-        <div style="width:${pct}%;height:100%;background:#1B4D3E;border-radius:5px;transition:width .4s;"></div>
+        <div style="width:${barW}%;height:100%;background:#1B4D3E;border-radius:5px;transition:width .5s;"></div>
       </div>
-      <span style="font-size:12px;font-weight:700;color:#111827;min-width:20px;">${n}</span>
-      <span style="font-size:11px;color:#6b7280;min-width:100px;">${active} active · ${risk} at risk</span>
+      <span style="font-size:12px;font-weight:700;color:#111827;min-width:22px;">${n}</span>
+      <span style="font-size:11px;color:#6b7280;min-width:130px;">${active} active · ${red} red</span>
+    </div>`;
+  }).join('');
+
+  // ── Projects by Account ──
+  const acctCounts = {};
+  all.forEach(p => { const a = p.account || 'Unknown'; acctCounts[a] = (acctCounts[a]||0)+1; });
+  const maxAcct = Math.max(...Object.values(acctCounts), 1);
+  const acctEl = document.getElementById('proj-chart-account');
+  if (acctEl) acctEl.innerHTML = Object.entries(acctCounts).sort((a,b)=>b[1]-a[1]).slice(0,20).map(([acct, n], i) => {
+    const barW = Math.round(n / maxAcct * 100);
+    const col  = PALETTE[i % PALETTE.length];
+    return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+      <span style="font-size:12px;font-weight:600;color:#374151;min-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${acct}">${acct}</span>
+      <div style="flex:1;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
+        <div style="width:${barW}%;height:100%;background:${col};border-radius:4px;transition:width .5s;"></div>
+      </div>
+      <span style="font-size:12px;font-weight:700;color:#111827;min-width:22px;">${n}</span>
     </div>`;
   }).join('');
 }
