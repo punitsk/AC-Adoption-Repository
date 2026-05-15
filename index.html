@@ -10153,49 +10153,68 @@ async function loadProjectsFromSalesforce() {
     // ── Build a set of account names in our portfolio (for filtering) ──
     const portfolioNames = new Set(Object.values(acctByName));
 
-    const mapped = [];
-    records.forEach((rec, idx) => {
-      // ── Resolve account name — try every known SF field pattern ──
-      let accountName = '';
+    // ── Build sorted account name list for fast substring matching ──
+    // (longest names first so "Hi-Speed Industrial Service LLC" matches before "Hi-Speed")
+    const acctEntries = Object.entries(acctByName)
+      .sort((a, b) => b[0].length - a[0].length);
 
-      // 1. Relationship field (most reliable when included in SOQL SELECT)
-      const relName = rec.Account__r?.Name || rec.Account?.Name || rec.AccountId__r?.Name;
-      if (relName) accountName = acctByName[relName.toLowerCase()] || relName;
+    // Extract the best matching account name from a project record
+    function _resolveProjectAccount(rec) {
+      // 1. SF relationship / explicit name fields
+      const explicit = rec.Account__r?.Name || rec.Account?.Name
+        || rec.AccountId__r?.Name || rec.Account_Name__c
+        || rec.AccountName__c || rec.AccountName || rec.Customer__c || '';
+      if (explicit) return acctByName[explicit.toLowerCase()] || explicit;
 
-      // 2. Standard AccountId lookup against our ACCOUNTS list
-      if (!accountName && rec.AccountId) {
-        accountName = acctById[norm15(rec.AccountId)] || '';
+      // 2. Standard / custom ID lookup
+      if (rec.AccountId) { const n = acctById[norm15(rec.AccountId)]; if (n) return n; }
+      if (rec.Account__c) { const n = acctById[norm15(rec.Account__c)]; if (n) return n; }
+
+      // 3. Parse from rec.Name — handles patterns like:
+      //    "Emerald Transformer - Process Date Mod"  → "Emerald Transformer"
+      //    "468304-Eemsco ACS Upgrade - TGS/SR"      → segment after digits
+      //    "532845-Hi-Speed Industrial Service - T&M" → "Hi-Speed Industrial Service"
+      const rawName = String(rec.Name || rec.Project_Name__c || '');
+      if (!rawName) return '';
+
+      // Strip leading "NNNNNN-" prefix
+      const stripped = rawName.replace(/^\d+[-–]\s*/, '');
+      // Segments separated by " - "
+      const segments = stripped.split(/\s+[-–]\s+/);
+
+      // Try exact match on each segment first
+      for (const seg of segments) {
+        const t = seg.trim().toLowerCase();
+        if (acctByName[t]) return acctByName[t];
       }
-
-      // 3. Custom Account__c ID lookup
-      if (!accountName && rec.Account__c) {
-        accountName = acctById[norm15(rec.Account__c)] || '';
-      }
-
-      // 4. Plain name fields
-      if (!accountName) {
-        const rawName = rec.Account_Name__c || rec.AccountName__c
-          || rec.AccountName || rec.Customer__c || rec.Customer_Name__c || '';
-        if (rawName) accountName = acctByName[rawName.toLowerCase()] || rawName;
-      }
-
-      // 5. Last resort — if still nothing, use empty string but DON'T skip
-      //    (the Salesforce security model ensures only authorised records come back)
-      console.log('[PROJ] rec', idx, '| account resolved:', accountName || '(none)', '| name:', rec.Name || rec.Project_Name__c);
-
-      // ── Field mapping (broad coverage of common SF field names) ──
-      const rawRecName = rec.Project_Name__c || rec.Name || ('Project ' + (idx+1));
-      // If rec.Name looks like "123456-Account Name - Project Title", use it as-is for the project name
-      // and try to extract account if still unresolved
-      const name = rawRecName;
-      if (!accountName && rec.Name) {
-        // Try parsing "NNNNNN-AccountName ..." pattern
-        const m = String(rec.Name).match(/^\d+-(.+?)(?:\s+-\s+|\s+\d{4,})/);
-        if (m) {
-          const candidate = m[1].trim();
-          accountName = acctByName[candidate.toLowerCase()] || candidate;
+      // Try substring match: does any segment contain a known account name?
+      for (const seg of segments) {
+        const t = seg.trim().toLowerCase();
+        for (const [key, val] of acctEntries) {
+          if (key.length >= 5 && t.includes(key)) return val;
         }
       }
+      // Try reverse: does the first segment start with a known account prefix?
+      const firstSeg = segments[0]?.trim().toLowerCase() || '';
+      for (const [key, val] of acctEntries) {
+        if (key.length >= 5 && firstSeg.startsWith(key)) return val;
+      }
+      return ''; // could not match
+    }
+
+    const mapped = [];
+    records.forEach((rec, idx) => {
+      const accountName = _resolveProjectAccount(rec);
+
+      // Only include projects for accounts in the consultant's portfolio
+      // (portfolioNames is empty until ACCOUNTS loads — skip filter if not yet loaded)
+      if (portfolioNames.size > 0 && !accountName) return;
+      if (portfolioNames.size > 0 && accountName && !portfolioNames.has(accountName)) return;
+
+      if (idx < 5) console.log('[PROJ] rec', idx, '| account:', accountName || '(none)', '| name:', rec.Name);
+
+      // ── Field mapping ──
+      const name = rec.Project_Name__c || rec.Name || ('Project ' + (idx+1));
 
       const csm = rec.SuccessManager__r?.Full_Name__c
         || rec.SuccessManager__r?.Name
