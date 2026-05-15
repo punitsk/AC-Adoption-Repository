@@ -10111,94 +10111,144 @@ async function loadProjectsFromSalesforce() {
   if (_projectsLoading) return;
   _projectsLoading = true;
   try {
-    console.log('[PROJ] Fetching project details…');
+    console.log('[PROJ] Fetching project details from API…');
     let res;
     try {
       res = await fetch(PROJECTS_API_URL, { method:'GET' });
     } catch(e) {
+      console.log('[PROJ] GET failed (' + e.message + '), retrying with POST…');
       res = await fetch(PROJECTS_API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
     }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const raw = await res.json();
     console.log('[PROJ] Top-level keys:', Object.keys(raw || {}).join(', '));
 
+    // Unwrap whichever envelope the Logic App uses
     const records = raw?.ProjectDetails?.records
+      || raw?.Project_Details?.records
       || raw?.projects?.records
+      || raw?.Projects?.records
       || raw?.records
       || (Array.isArray(raw) ? raw : []);
     console.log('[PROJ] Record count:', records.length);
-    if (!records.length) { console.log('[PROJ] No records — keeping static data'); return; }
 
-    // Build account lookup keyed by 15-char Salesforce ID and by lowercase name
+    if (!records.length) {
+      console.log('[PROJ] No records returned — keeping static data');
+      return;
+    }
+
+    // Log first record so we can see field names in console
+    console.log('[PROJ] Sample record keys:', Object.keys(records[0] || {}).join(', '));
+    console.log('[PROJ] Sample record (first):', JSON.stringify(records[0]).substring(0, 600));
+
+    // ── Build account lookup (ID and name) from already-loaded ACCOUNTS ──
     const norm15 = id => id ? String(id).substring(0,15).toLowerCase() : '';
     const acctById   = {};
     const acctByName = {};
     (ACCOUNTS || []).forEach(a => {
-      if (a.id)   acctById[norm15(a.id)]           = a;
-      if (a.name) acctByName[a.name.toLowerCase()] = a;
+      if (a.id)   acctById[norm15(a.id)]           = a.name;
+      if (a.name) acctByName[a.name.toLowerCase()] = a.name;
     });
+
+    // ── Build a set of account names in our portfolio (for filtering) ──
+    const portfolioNames = new Set(Object.values(acctByName));
 
     const mapped = [];
     records.forEach((rec, idx) => {
-      // ── Resolve account name — only include projects whose account we know ──
+      // ── Resolve account name (try ID match → name match → raw string) ──
       let accountName = '';
       if (rec.Account__r?.Name) {
-        accountName = rec.Account__r.Name;
+        const canonical = acctByName[rec.Account__r.Name.toLowerCase()];
+        accountName = canonical || rec.Account__r.Name;
       } else if (rec.Account__c) {
-        const a = acctById[norm15(rec.Account__c)];
-        accountName = a ? a.name : '';
-      } else if (rec.Account_Name__c) {
-        const a = acctByName[(rec.Account_Name__c || '').toLowerCase()];
-        accountName = a ? a.name : rec.Account_Name__c;
+        accountName = acctById[norm15(rec.Account__c)] || '';
       }
-      if (!accountName) return; // skip projects not linked to a known account
+      // Fallback to any other name field
+      if (!accountName) {
+        const rawName = rec.Account_Name__c || rec.AccountName__c || rec.AccountName || '';
+        if (rawName) accountName = acctByName[rawName.toLowerCase()] || rawName;
+      }
 
-      // ── Field mapping — try multiple common Salesforce field name patterns ──
+      // Skip if account not in consultant's portfolio (when ACCOUNTS is loaded)
+      if (portfolioNames.size > 0 && accountName && !portfolioNames.has(accountName)) {
+        console.log('[PROJ] Skipping project — account not in portfolio:', accountName, '|', rec.Name);
+        return;
+      }
+      // If we still have no account name at all, skip
+      if (!accountName) {
+        console.log('[PROJ] Skipping project — no account resolved for record:', rec.Name || rec.Id);
+        return;
+      }
+
+      // ── Field mapping (broad coverage of common SF field names) ──
       const name = rec.Project_Name__c || rec.Name || ('Project ' + (idx+1));
 
       const csm = rec.SuccessManager__r?.Full_Name__c
         || rec.SuccessManager__r?.Name
-        || rec.CSM__r?.Name || rec.Consultant__r?.Name
-        || rec.CSM__c || rec.Consultant__c || rec.Success_Manager__c || '';
+        || rec.CSM__r?.Full_Name__c || rec.CSM__r?.Name
+        || rec.Consultant__r?.Full_Name__c || rec.Consultant__r?.Name
+        || rec.AppCentral_Consultant__r?.Name
+        || rec.CSM__c || rec.Consultant__c || rec.AppCentral_Consultant__c
+        || rec.Success_Manager__c || '';
 
-      const pm = rec.Project_Manager__r?.Name
-        || rec.Project_Manager__r?.Full_Name__c
-        || rec.PM__r?.Name || rec.PM__r?.Full_Name__c
+      const pm = rec.Project_Manager__r?.Full_Name__c
+        || rec.Project_Manager__r?.Name
+        || rec.PM__r?.Full_Name__c || rec.PM__r?.Name
         || rec.Project_Manager__c || rec.PM__c
-        || rec.Project_Manager_Name__c || '';
+        || rec.Project_Manager_Name__c || rec.PM_Name__c || '';
 
-      const status   = _normalizeProjectStatus(
-        rec.Status__c || rec.Project_Status__c || rec.Stage__c || '');
+      const rawStatus = rec.Status__c || rec.Project_Status__c
+        || rec.Stage__c || rec.ProjectStage__c || '';
+      const status = _normalizeProjectStatus(rawStatus);
 
-      const phase    = rec.Phase__c || rec.Current_Phase__c || rec.Stage__c || '';
+      const phase = rec.Phase__c || rec.Current_Phase__c
+        || rec.Implementation_Phase__c || rec.ProjectPhase__c || rawStatus || '';
 
       const progress = Math.min(100, Math.round(
         parseFloat(rec.Completion_Percentage__c || rec.Progress__c
-          || rec.Percent_Complete__c || rec.Percentage_Complete__c || 0) || 0));
+          || rec.Percent_Complete__c || rec.Percentage_Complete__c
+          || rec.Completion__c || 0) || 0));
 
-      const due = (rec.Target_Go_Live_Date__c || rec.Due_Date__c
-        || rec.End_Date__c || rec.Planned_End_Date__c || rec.Completion_Date__c || '')
-        .substring(0, 10);
+      const dueRaw = rec.Target_Go_Live_Date__c || rec.Due_Date__c
+        || rec.End_Date__c || rec.Planned_End_Date__c
+        || rec.Go_Live_Date__c || rec.Completion_Date__c
+        || rec.Planned_GoLive_Date__c || '';
+      const due = dueRaw ? String(dueRaw).substring(0,10) : '';
 
-      const health   = _normalizeProjectHealth(
-        rec.Health_Status__c || rec.RAG_Status__c || rec.Project_Health__c || '');
+      const rawHealth = rec.Health_Status__c || rec.RAG_Status__c
+        || rec.Project_Health__c || rec.RAG__c || '';
+      const health = _normalizeProjectHealth(rawHealth);
 
-      const notes    = rec.Description__c || rec.Notes__c || rec.Comments__c || '';
+      const notes = rec.Description__c || rec.Notes__c
+        || rec.Comments__c || rec.Project_Description__c || '';
 
-      const id = rec.Project_Number__c || rec.Name || ('PRJ-' + String(idx+1).padStart(3,'0'));
+      const id = rec.Project_Number__c || rec.Project_ID__c
+        || rec.Name || ('PRJ-' + String(idx+1).padStart(3,'0'));
 
       mapped.push({ id, name, account:accountName, csm, pm, status, phase, progress, due, health, notes });
     });
 
+    console.log('[PROJ] Mapped', mapped.length, 'projects (from', records.length, 'records)');
+
     if (mapped.length > 0) {
       PROJECTS = mapped;
       _projectsLoaded = true;
-      console.log('[PROJ] Loaded', PROJECTS.length, 'projects from API');
+      // Show "Live" badge on the Projects page header
+      const hdr = document.querySelector('#section-projects h2');
+      if (hdr && !hdr.querySelector('.proj-live-badge')) {
+        const badge = document.createElement('span');
+        badge.className = 'proj-live-badge';
+        badge.style.cssText = 'margin-left:10px;font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px;background:#D1FAE5;color:#065f46;vertical-align:middle;';
+        badge.textContent = '● Live';
+        hdr.appendChild(badge);
+      }
       const sec = document.getElementById('section-projects');
       if (sec && !sec.classList.contains('hidden')) renderProjectsSection();
+    } else {
+      console.log('[PROJ] No projects matched portfolio — keeping static data. Check console for skipped records.');
     }
   } catch(err) {
-    console.error('[PROJ] Load error:', err);
+    console.error('[PROJ] Load error:', err.message, err);
   } finally {
     _projectsLoading = false;
   }
