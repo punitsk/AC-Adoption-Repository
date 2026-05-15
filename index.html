@@ -2728,7 +2728,7 @@ let _casesTotalSize = 0;
 
 function switchView(view) {
   currentView = view;
-  const csmView    = document.getElementById('consultant-view');
+  const csmViewEl  = document.getElementById('consultant-view');
   const leaderView = document.getElementById('leadership-view');
   const btnCsm     = document.getElementById('btn-consultant');
   const btnLeader  = document.getElementById('btn-leadership');
@@ -2736,14 +2736,14 @@ function switchView(view) {
   // itself or it would hide leadership-view too. Just toggle hidden class.
 
   if (view === 'consultant') {
-    csmView.classList.remove('hidden');
+    csmViewEl.classList.remove('hidden');
     leaderView.classList.add('hidden');
-    csmView.classList.add('fade-in');
+    csmViewEl.classList.add('fade-in');
     btnCsm.classList.add('active');
     btnLeader.classList.remove('active');
   } else {
     leaderView.classList.remove('hidden');
-    csmView.classList.add('hidden');
+    csmViewEl.classList.add('hidden');
     leaderView.classList.add('fade-in');
     btnLeader.classList.add('active');
     btnCsm.classList.remove('active');
@@ -2758,9 +2758,31 @@ function switchView(view) {
     renderAdoptionPanels();
   }
   setTimeout(() => {
-    csmView.classList.remove('fade-in');
+    csmViewEl.classList.remove('fade-in');
     leaderView.classList.remove('fade-in');
   }, 300);
+
+  // ── Keep the role dropdown in sync with the active view ──
+  // Skipped when applyRole() is the caller — it already manages currentRole.
+  // Only auto-sync for the two primary roles; Admin stays Admin regardless of tab.
+  if (!_applyingRole) {
+    const viewRoleMap = { leadership: 'executive', consultant: 'consultant' };
+    const matchedRole = viewRoleMap[view];
+    const autoSyncRoles = new Set(['consultant', 'executive']);
+    if (matchedRole && ROLE_DEFS && ROLE_DEFS[matchedRole] && currentRole !== matchedRole && autoSyncRoles.has(currentRole)) {
+      currentRole = matchedRole;
+      const r = ROLE_DEFS[currentRole];
+      const btn = document.getElementById('role-switcher-btn');
+      if (btn && r) {
+        document.getElementById('role-switcher-icon').textContent  = r.icon;
+        document.getElementById('role-switcher-label').textContent = r.label;
+        btn.style.background  = r.bg;
+        btn.style.color       = r.color;
+        btn.style.borderColor = r.color + '55';
+      }
+      if (typeof buildRolePickerDropdown === 'function') buildRolePickerDropdown();
+    }
+  }
 }
 
 function applyFilters() {
@@ -6719,6 +6741,7 @@ const ROLE_DEFS = {
 };
 
 let currentRole = 'consultant';
+let _applyingRole = false; // guard: prevents switchView from overwriting role during applyRole
 
 const PERM_LABELS = {
   dashboard:      'Dashboard',
@@ -6816,13 +6839,13 @@ function applyRole(roleKey) {
   if (execBtn) execBtn.style.display = p.executiveView ? '' : 'none';
   if (csmBtn)  csmBtn.style.display  = p.csmView      ? '' : 'none';
 
+  _applyingRole = true;  // prevent switchView from double-updating currentRole
   if (!p.executiveView) {
-    // Roles without executive view land on consultant view
     switchView('consultant');
   } else {
-    // Executive / Admin / Consultant all land on Executive Overview
     switchView('leadership');
   }
+  _applyingRole = false;
 
   // CSM filter: non-admin CSMs locked to themselves
   const csmFilter = document.getElementById('csm-filter');
