@@ -10155,33 +10155,47 @@ async function loadProjectsFromSalesforce() {
 
     const mapped = [];
     records.forEach((rec, idx) => {
-      // ── Resolve account name (try ID match → name match → raw string) ──
+      // ── Resolve account name — try every known SF field pattern ──
       let accountName = '';
-      if (rec.Account__r?.Name) {
-        const canonical = acctByName[rec.Account__r.Name.toLowerCase()];
-        accountName = canonical || rec.Account__r.Name;
-      } else if (rec.Account__c) {
+
+      // 1. Relationship field (most reliable when included in SOQL SELECT)
+      const relName = rec.Account__r?.Name || rec.Account?.Name || rec.AccountId__r?.Name;
+      if (relName) accountName = acctByName[relName.toLowerCase()] || relName;
+
+      // 2. Standard AccountId lookup against our ACCOUNTS list
+      if (!accountName && rec.AccountId) {
+        accountName = acctById[norm15(rec.AccountId)] || '';
+      }
+
+      // 3. Custom Account__c ID lookup
+      if (!accountName && rec.Account__c) {
         accountName = acctById[norm15(rec.Account__c)] || '';
       }
-      // Fallback to any other name field
+
+      // 4. Plain name fields
       if (!accountName) {
-        const rawName = rec.Account_Name__c || rec.AccountName__c || rec.AccountName || '';
+        const rawName = rec.Account_Name__c || rec.AccountName__c
+          || rec.AccountName || rec.Customer__c || rec.Customer_Name__c || '';
         if (rawName) accountName = acctByName[rawName.toLowerCase()] || rawName;
       }
 
-      // Skip if account not in consultant's portfolio (when ACCOUNTS is loaded)
-      if (portfolioNames.size > 0 && accountName && !portfolioNames.has(accountName)) {
-        console.log('[PROJ] Skipping project — account not in portfolio:', accountName, '|', rec.Name);
-        return;
-      }
-      // If we still have no account name at all, skip
-      if (!accountName) {
-        console.log('[PROJ] Skipping project — no account resolved for record:', rec.Name || rec.Id);
-        return;
-      }
+      // 5. Last resort — if still nothing, use empty string but DON'T skip
+      //    (the Salesforce security model ensures only authorised records come back)
+      console.log('[PROJ] rec', idx, '| account resolved:', accountName || '(none)', '| name:', rec.Name || rec.Project_Name__c);
 
       // ── Field mapping (broad coverage of common SF field names) ──
-      const name = rec.Project_Name__c || rec.Name || ('Project ' + (idx+1));
+      const rawRecName = rec.Project_Name__c || rec.Name || ('Project ' + (idx+1));
+      // If rec.Name looks like "123456-Account Name - Project Title", use it as-is for the project name
+      // and try to extract account if still unresolved
+      const name = rawRecName;
+      if (!accountName && rec.Name) {
+        // Try parsing "NNNNNN-AccountName ..." pattern
+        const m = String(rec.Name).match(/^\d+-(.+?)(?:\s+-\s+|\s+\d{4,})/);
+        if (m) {
+          const candidate = m[1].trim();
+          accountName = acctByName[candidate.toLowerCase()] || candidate;
+        }
+      }
 
       const csm = rec.SuccessManager__r?.Full_Name__c
         || rec.SuccessManager__r?.Name
