@@ -10187,9 +10187,6 @@ async function loadProjectsFromSalesforce() {
       if (a.name) acctByName[a.name.toLowerCase()] = a.name;
     });
 
-    // ── Build a set of account names in our portfolio (for filtering) ──
-    const portfolioNames = new Set(Object.values(acctByName));
-
     // ── Build sorted account name list for fallback Name-parsing ──
     const acctEntries = Object.entries(acctByName).sort((a,b) => b[0].length - a[0].length);
 
@@ -10226,17 +10223,22 @@ async function loadProjectsFromSalesforce() {
     }
 
     const mapped = [];
+    let skippedTemplate = 0, skippedEmpty = 0;
     records.forEach((rec, idx) => {
-      // Skip template records (no real account data)
-      if ((rec.Name || '').startsWith('TEMPLATE')) return;
-      // Skip records with no account ID and no account resolvable
-      if (!rec.pse__Account__c && !rec.Name) return;
+      // Skip template/placeholder records
+      if ((rec.Name || '').startsWith('TEMPLATE')) { skippedTemplate++; return; }
+      // Skip completely empty records (no name and no account ID)
+      if (!rec.pse__Account__c && !rec.Name) { skippedEmpty++; return; }
 
-      const accountName = _resolveProjectAccount(rec);
+      // Resolve account name — best effort, never drop the project if it can't be matched
+      let accountName = _resolveProjectAccount(rec);
 
-      // Filter: only include projects linked to accounts in the consultant's portfolio
-      if (portfolioNames.size > 0 && !accountName) return;
-      if (portfolioNames.size > 0 && !portfolioNames.has(accountName)) return;
+      // Fallback: use the relationship name or raw ID so the project still appears
+      if (!accountName) {
+        accountName = rec.pse__Account__r?.Name
+          || rec.Account__r?.Name
+          || (rec.pse__Account__c ? '(Account ' + String(rec.pse__Account__c).substring(0,8) + '…)' : 'Unknown Account');
+      }
 
       // ── Field mapping — exact PSA (pse__) field names ──
       const name = rec.Name || ('Project ' + (idx+1));
@@ -10271,7 +10273,8 @@ async function loadProjectsFromSalesforce() {
       mapped.push({ id, name, account:accountName, csm, pm, status, ragStatus, startDate, orderType, notes });
     });
 
-    console.log('[PROJ] Mapped', mapped.length, 'projects (from', records.length, 'records)');
+    const unresolved = mapped.filter(p => p.account.startsWith('(Account ') || p.account === 'Unknown Account').length;
+    console.log(`[PROJ] ${mapped.length} projects mapped from ${records.length} records | skipped: ${skippedTemplate} templates, ${skippedEmpty} empty | ${unresolved} with unresolved accounts`);
 
     if (mapped.length > 0) {
       PROJECTS = mapped;
