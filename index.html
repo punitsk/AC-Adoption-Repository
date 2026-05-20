@@ -3179,7 +3179,8 @@ function _buildNpsEntry(records, label) {
 // Read the survey received/submitted date from an NPS record.
 // Checks known Salesforce field names in priority order.
 function _npsDate(r) {
-  const raw = r?.QS_Submitted_Date__c
+  const raw = r?.Survey_Recieved_Date__c        // actual field name in QS_Survey_Feedback__c
+           || r?.QS_Submitted_Date__c
            || r?.QS_Survey_Completion_Date__c
            || r?.CreatedDate
            || r?.LastModifiedDate
