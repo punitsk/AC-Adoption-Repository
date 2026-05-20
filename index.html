@@ -9232,103 +9232,104 @@ function renderExecAdoptionMetrics() {
 // ── Account × Product Adoption Grid ───────────────────────────
 // ── Product Usage ─────────────────────────────────────────────────────────────
 // ══ PRODUCT USAGE — shared data & helpers ══════════════════════════════
+// tenant status values: 'active' | 'partial' | 'inactive' | 'pending'
 const PU_PRODUCTS = [
   { id:'M2M ERP',  name:'Made2Manage ERP',      icon:'🏭', dau:2341, wau:8912,  mau:14823, seats:18500, used:14823,
     modules:[
-      { name:'Manufacturing Orders',      pct:91 },
-      { name:'Sales Order Management',    pct:87 },
-      { name:'Purchasing & Procurement',  pct:83 },
-      { name:'Inventory Management',      pct:79 },
-      { name:'Finance (GL / AP / AR)',    pct:75 },
-      { name:'Shop Floor Execution',      pct:68 },
-      { name:'Quality Management',        pct:54 },
-      { name:'Engineering Change Orders', pct:41 },
-      { name:'Planning & Scheduling',     pct:36 },
+      { name:'Manufacturing Orders',      pct:91, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:42},{name:'IronWorks Corp',status:'active',users:38},{name:'Pinnacle Foods Co.',status:'active',users:29},{name:'Metro Parts Inc',status:'partial',users:11},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Sales Order Management',    pct:87, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:35},{name:'IronWorks Corp',status:'active',users:31},{name:'Pinnacle Foods Co.',status:'active',users:24},{name:'Metro Parts Inc',status:'active',users:18},{name:'Lakewood Packaging',status:'partial',users:6}]},
+      { name:'Purchasing & Procurement',  pct:83, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:28},{name:'IronWorks Corp',status:'active',users:25},{name:'Pinnacle Foods Co.',status:'active',users:20},{name:'Metro Parts Inc',status:'partial',users:9},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Inventory Management',      pct:79, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:32},{name:'IronWorks Corp',status:'active',users:27},{name:'Pinnacle Foods Co.',status:'partial',users:14},{name:'Metro Parts Inc',status:'partial',users:8},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Finance (GL / AP / AR)',    pct:75, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:18},{name:'IronWorks Corp',status:'active',users:16},{name:'Pinnacle Foods Co.',status:'partial',users:9},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'Lakewood Packaging',status:'pending',users:0}]},
+      { name:'Shop Floor Execution',      pct:68, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:24},{name:'IronWorks Corp',status:'partial',users:12},{name:'Pinnacle Foods Co.',status:'inactive',users:0},{name:'Metro Parts Inc',status:'pending',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Quality Management',        pct:54, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:15},{name:'IronWorks Corp',status:'partial',users:8},{name:'Pinnacle Foods Co.',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Engineering Change Orders', pct:41, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:7},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Planning & Scheduling',     pct:36, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:5},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0},{name:'Metro Parts Inc',status:'pending',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
     ]},
   { id:'EAM',      name:'EAM',                   icon:'🔧', dau:1187, wau:4203,  mau:7640,  seats:9200,  used:7640,
     modules:[
-      { name:'Work Order Management',     pct:88 },
-      { name:'Asset Registry',            pct:82 },
-      { name:'Preventive Maintenance',    pct:71 },
-      { name:'Parts & Inventory',         pct:63 },
-      { name:'Inspection & Compliance',   pct:49 },
-      { name:'Resource & Labor Mgmt',     pct:44 },
-      { name:'Visual Planning',           pct:37 },
-      { name:'IoT Integration',           pct:22 },
+      { name:'Work Order Management',     pct:88, tenants:[{name:'Vertex Group',status:'active',users:55},{name:'OrionTech',status:'active',users:48},{name:'TechBridge Solutions',status:'active',users:36},{name:'GlobalBank Ltd',status:'partial',users:14},{name:'Cascade Energy',status:'inactive',users:0}]},
+      { name:'Asset Registry',            pct:82, tenants:[{name:'Vertex Group',status:'active',users:50},{name:'OrionTech',status:'active',users:41},{name:'TechBridge Solutions',status:'active',users:30},{name:'GlobalBank Ltd',status:'partial',users:12},{name:'Cascade Energy',status:'pending',users:0}]},
+      { name:'Preventive Maintenance',    pct:71, tenants:[{name:'Vertex Group',status:'active',users:38},{name:'OrionTech',status:'active',users:32},{name:'TechBridge Solutions',status:'partial',users:17},{name:'GlobalBank Ltd',status:'inactive',users:0},{name:'Cascade Energy',status:'inactive',users:0}]},
+      { name:'Parts & Inventory',         pct:63, tenants:[{name:'Vertex Group',status:'active',users:29},{name:'OrionTech',status:'partial',users:18},{name:'TechBridge Solutions',status:'partial',users:12},{name:'GlobalBank Ltd',status:'inactive',users:0},{name:'Cascade Energy',status:'inactive',users:0}]},
+      { name:'Inspection & Compliance',   pct:49, tenants:[{name:'Vertex Group',status:'partial',users:20},{name:'OrionTech',status:'partial',users:14},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'GlobalBank Ltd',status:'inactive',users:0},{name:'Cascade Energy',status:'inactive',users:0}]},
+      { name:'Resource & Labor Mgmt',     pct:44, tenants:[{name:'Vertex Group',status:'partial',users:17},{name:'OrionTech',status:'inactive',users:0},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'GlobalBank Ltd',status:'inactive',users:0},{name:'Cascade Energy',status:'pending',users:0}]},
+      { name:'Visual Planning',           pct:37, tenants:[{name:'Vertex Group',status:'partial',users:11},{name:'OrionTech',status:'inactive',users:0},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'GlobalBank Ltd',status:'inactive',users:0},{name:'Cascade Energy',status:'inactive',users:0}]},
+      { name:'IoT Integration',           pct:22, tenants:[{name:'Vertex Group',status:'partial',users:6},{name:'OrionTech',status:'inactive',users:0},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'GlobalBank Ltd',status:'inactive',users:0},{name:'Cascade Energy',status:'inactive',users:0}]},
     ]},
   { id:'EDI',      name:'EDI',                   icon:'🔄', dau:892,  wau:3104,  mau:5917,  seats:7000,  used:5917,
     modules:[
-      { name:'Trading Partner Mgmt',      pct:94 },
-      { name:'Inbound (830/850)',          pct:89 },
-      { name:'Outbound (856/810)',         pct:85 },
-      { name:'Acknowledgments (997/855)', pct:78 },
-      { name:'EDI Mapper',                pct:66 },
-      { name:'EDI Monitor & Alerts',      pct:52 },
-      { name:'ERP Integration',           pct:47 },
+      { name:'Trading Partner Mgmt',      pct:94, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:60},{name:'Metro Parts Inc',status:'active',users:52},{name:'IronWorks Corp',status:'active',users:45},{name:'Pinnacle Foods Co.',status:'active',users:38},{name:'Lakewood Packaging',status:'partial',users:16}]},
+      { name:'Inbound (830/850)',          pct:89, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:55},{name:'Metro Parts Inc',status:'active',users:48},{name:'IronWorks Corp',status:'active',users:40},{name:'Pinnacle Foods Co.',status:'partial',users:22},{name:'Lakewood Packaging',status:'partial',users:12}]},
+      { name:'Outbound (856/810)',         pct:85, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:52},{name:'Metro Parts Inc',status:'active',users:44},{name:'IronWorks Corp',status:'active',users:37},{name:'Pinnacle Foods Co.',status:'partial',users:18},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Acknowledgments (997/855)', pct:78, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:46},{name:'Metro Parts Inc',status:'active',users:39},{name:'IronWorks Corp',status:'partial',users:21},{name:'Pinnacle Foods Co.',status:'partial',users:14},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'EDI Mapper',                pct:66, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:34},{name:'Metro Parts Inc',status:'partial',users:19},{name:'IronWorks Corp',status:'partial',users:15},{name:'Pinnacle Foods Co.',status:'inactive',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'EDI Monitor & Alerts',      pct:52, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:22},{name:'Metro Parts Inc',status:'partial',users:14},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'ERP Integration',           pct:47, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:18},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'pending',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
     ]},
   { id:'CRM',      name:'CRM',                   icon:'👥', dau:654,  wau:2341,  mau:4208,  seats:5500,  used:4208,
     modules:[
-      { name:'Contact Management',        pct:85 },
-      { name:'Sales Automation',          pct:78 },
-      { name:'Opportunity Management',    pct:70 },
-      { name:'Marketing Automation',      pct:58 },
-      { name:'Workflow Automation',       pct:51 },
-      { name:'Contact Center',            pct:42 },
-      { name:'Mobile CRM',                pct:35 },
+      { name:'Contact Management',        pct:85, tenants:[{name:'GlobalBank Ltd',status:'active',users:72},{name:'TechBridge Solutions',status:'active',users:58},{name:'Cascade Energy',status:'active',users:44},{name:'OrionTech',status:'partial',users:19},{name:'Vertex Group',status:'partial',users:14}]},
+      { name:'Sales Automation',          pct:78, tenants:[{name:'GlobalBank Ltd',status:'active',users:63},{name:'TechBridge Solutions',status:'active',users:49},{name:'Cascade Energy',status:'partial',users:28},{name:'OrionTech',status:'partial',users:15},{name:'Vertex Group',status:'inactive',users:0}]},
+      { name:'Opportunity Management',    pct:70, tenants:[{name:'GlobalBank Ltd',status:'active',users:55},{name:'TechBridge Solutions',status:'partial',users:32},{name:'Cascade Energy',status:'partial',users:22},{name:'OrionTech',status:'inactive',users:0},{name:'Vertex Group',status:'inactive',users:0}]},
+      { name:'Marketing Automation',      pct:58, tenants:[{name:'GlobalBank Ltd',status:'partial',users:38},{name:'TechBridge Solutions',status:'partial',users:24},{name:'Cascade Energy',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Vertex Group',status:'inactive',users:0}]},
+      { name:'Workflow Automation',       pct:51, tenants:[{name:'GlobalBank Ltd',status:'partial',users:31},{name:'TechBridge Solutions',status:'partial',users:19},{name:'Cascade Energy',status:'inactive',users:0},{name:'OrionTech',status:'pending',users:0},{name:'Vertex Group',status:'inactive',users:0}]},
+      { name:'Contact Center',            pct:42, tenants:[{name:'GlobalBank Ltd',status:'partial',users:24},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'Cascade Energy',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Vertex Group',status:'inactive',users:0}]},
+      { name:'Mobile CRM',                pct:35, tenants:[{name:'GlobalBank Ltd',status:'partial',users:17},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'Cascade Energy',status:'pending',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Vertex Group',status:'inactive',users:0}]},
     ]},
   { id:'Insights', name:'Insights',               icon:'📊', dau:512,  wau:1987,  mau:3841,  seats:5000,  used:3841,
     modules:[
-      { name:'Pre-built Dashboards',      pct:79 },
-      { name:'Custom Reports',            pct:61 },
-      { name:'KPI Management',            pct:53 },
-      { name:'Data Explorer',             pct:44 },
-      { name:'Scheduled Reports',         pct:38 },
-      { name:'Embedded Analytics',        pct:28 },
+      { name:'Pre-built Dashboards',      pct:79, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:48},{name:'Vertex Group',status:'active',users:39},{name:'Metro Parts Inc',status:'partial',users:21},{name:'IronWorks Corp',status:'partial',users:16},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Custom Reports',            pct:61, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:35},{name:'Vertex Group',status:'partial',users:22},{name:'Metro Parts Inc',status:'partial',users:14},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'KPI Management',            pct:53, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:28},{name:'Vertex Group',status:'partial',users:18},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Data Explorer',             pct:44, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:21},{name:'Vertex Group',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'pending',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Scheduled Reports',         pct:38, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:16},{name:'Vertex Group',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Lakewood Packaging',status:'pending',users:0}]},
+      { name:'Embedded Analytics',        pct:28, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:10},{name:'Vertex Group',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
     ]},
   { id:'Gen AI',   name:'Gen AI',                 icon:'🤖', dau:287,  wau:1102,  mau:2634,  seats:4000,  used:2634,
     modules:[
-      { name:'GenAI Query (Chat BI)',     pct:72 },
-      { name:'AI Agents & Workflows',     pct:58 },
-      { name:'Document Intelligence',     pct:51 },
-      { name:'Predictive Analytics',      pct:38 },
-      { name:'Smart Search',              pct:44 },
-      { name:'No-Code AI Tools',          pct:29 },
+      { name:'GenAI Query (Chat BI)',     pct:72, tenants:[{name:'GlobalBank Ltd',status:'active',users:44},{name:'Cascade Energy',status:'active',users:36},{name:'TechBridge Solutions',status:'partial',users:18},{name:'OrionTech',status:'inactive',users:0},{name:'Metro Parts Inc',status:'pending',users:0}]},
+      { name:'AI Agents & Workflows',     pct:58, tenants:[{name:'GlobalBank Ltd',status:'partial',users:31},{name:'Cascade Energy',status:'partial',users:24},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0}]},
+      { name:'Document Intelligence',     pct:51, tenants:[{name:'GlobalBank Ltd',status:'partial',users:26},{name:'Cascade Energy',status:'partial',users:18},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'OrionTech',status:'pending',users:0},{name:'Metro Parts Inc',status:'inactive',users:0}]},
+      { name:'Predictive Analytics',      pct:38, tenants:[{name:'GlobalBank Ltd',status:'partial',users:16},{name:'Cascade Energy',status:'inactive',users:0},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0}]},
+      { name:'Smart Search',              pct:44, tenants:[{name:'GlobalBank Ltd',status:'partial',users:20},{name:'Cascade Energy',status:'partial',users:13},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Metro Parts Inc',status:'pending',users:0}]},
+      { name:'No-Code AI Tools',          pct:29, tenants:[{name:'GlobalBank Ltd',status:'partial',users:11},{name:'Cascade Energy',status:'inactive',users:0},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0}]},
     ]},
   { id:'Ship',     name:'Ship',                   icon:'🚢', dau:431,  wau:1872,  mau:3506,  seats:4500,  used:3506,
     modules:[
-      { name:'Multi-Carrier Parcel',      pct:84 },
-      { name:'LTL Freight',               pct:77 },
-      { name:'Rate Shopping',             pct:73 },
-      { name:'Label & Documentation',     pct:62 },
-      { name:'International Shipping',    pct:48 },
-      { name:'Shipment Tracking',         pct:55 },
-      { name:'Batch Processing',          pct:31 },
+      { name:'Multi-Carrier Parcel',      pct:84, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:52},{name:'Lakewood Packaging',status:'active',users:44},{name:'Metro Parts Inc',status:'active',users:35},{name:'IronWorks Corp',status:'partial',users:17},{name:'Pinnacle Foods Co.',status:'partial',users:12}]},
+      { name:'LTL Freight',               pct:77, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:46},{name:'Lakewood Packaging',status:'active',users:38},{name:'Metro Parts Inc',status:'partial',users:21},{name:'IronWorks Corp',status:'partial',users:14},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
+      { name:'Rate Shopping',             pct:73, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:42},{name:'Lakewood Packaging',status:'active',users:34},{name:'Metro Parts Inc',status:'partial',users:18},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
+      { name:'Label & Documentation',     pct:62, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:34},{name:'Lakewood Packaging',status:'partial',users:22},{name:'Metro Parts Inc',status:'partial',users:14},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
+      { name:'International Shipping',    pct:48, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:24},{name:'Lakewood Packaging',status:'partial',users:14},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'pending',users:0}]},
+      { name:'Shipment Tracking',         pct:55, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:29},{name:'Lakewood Packaging',status:'partial',users:20},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'pending',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
+      { name:'Batch Processing',          pct:31, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:14},{name:'Lakewood Packaging',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
     ]},
   { id:'Pay',      name:'Pay',                    icon:'💳', dau:387,  wau:1604,  mau:2981,  seats:3800,  used:2981,
     modules:[
-      { name:'Digital Payment Processing',pct:88 },
-      { name:'AR Reconciliation',         pct:80 },
-      { name:'Recurring Billing',         pct:67 },
-      { name:'Payment Requests (Email/SMS)',pct:58 },
-      { name:'Payer Portal',              pct:47 },
-      { name:'Chargeback Management',     pct:35 },
+      { name:'Digital Payment Processing',pct:88, tenants:[{name:'GlobalBank Ltd',status:'active',users:65},{name:'Pinnacle Foods Co.',status:'active',users:48},{name:'TechBridge Solutions',status:'active',users:36},{name:'Cascade Energy',status:'partial',users:19},{name:'OrionTech',status:'partial',users:12}]},
+      { name:'AR Reconciliation',         pct:80, tenants:[{name:'GlobalBank Ltd',status:'active',users:55},{name:'Pinnacle Foods Co.',status:'active',users:40},{name:'TechBridge Solutions',status:'partial',users:24},{name:'Cascade Energy',status:'partial',users:14},{name:'OrionTech',status:'inactive',users:0}]},
+      { name:'Recurring Billing',         pct:67, tenants:[{name:'GlobalBank Ltd',status:'active',users:42},{name:'Pinnacle Foods Co.',status:'partial',users:27},{name:'TechBridge Solutions',status:'partial',users:16},{name:'Cascade Energy',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0}]},
+      { name:'Payment Requests (Email/SMS)',pct:58,tenants:[{name:'GlobalBank Ltd',status:'partial',users:33},{name:'Pinnacle Foods Co.',status:'partial',users:20},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'Cascade Energy',status:'pending',users:0},{name:'OrionTech',status:'inactive',users:0}]},
+      { name:'Payer Portal',              pct:47, tenants:[{name:'GlobalBank Ltd',status:'partial',users:26},{name:'Pinnacle Foods Co.',status:'inactive',users:0},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'Cascade Energy',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0}]},
+      { name:'Chargeback Management',     pct:35, tenants:[{name:'GlobalBank Ltd',status:'partial',users:17},{name:'Pinnacle Foods Co.',status:'inactive',users:0},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'Cascade Energy',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0}]},
     ]},
   { id:'Invoice Automation', name:'Invoice Automation', icon:'🧾', dau:301, wau:1243, mau:2417, seats:3200, used:2417,
     modules:[
-      { name:'Invoice Capture (OCR)',     pct:82 },
-      { name:'2-Way / 3-Way PO Match',    pct:74 },
-      { name:'Approval Workflows',        pct:68 },
-      { name:'Auto GL Coding',            pct:55 },
-      { name:'Vendor Portal',             pct:43 },
+      { name:'Invoice Capture (OCR)',     pct:82, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:48},{name:'IronWorks Corp',status:'active',users:38},{name:'Vertex Group',status:'active',users:29},{name:'Metro Parts Inc',status:'partial',users:14},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'2-Way / 3-Way PO Match',    pct:74, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:41},{name:'IronWorks Corp',status:'active',users:32},{name:'Vertex Group',status:'partial',users:20},{name:'Metro Parts Inc',status:'partial',users:10},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Approval Workflows',        pct:68, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:36},{name:'IronWorks Corp',status:'partial',users:22},{name:'Vertex Group',status:'partial',users:15},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'Lakewood Packaging',status:'pending',users:0}]},
+      { name:'Auto GL Coding',            pct:55, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:26},{name:'IronWorks Corp',status:'partial',users:16},{name:'Vertex Group',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
+      { name:'Vendor Portal',             pct:43, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:18},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Vertex Group',status:'inactive',users:0},{name:'Metro Parts Inc',status:'pending',users:0},{name:'Lakewood Packaging',status:'inactive',users:0}]},
     ]},
   { id:'Fixed Assets', name:'Fixed Assets',       icon:'🏢', dau:218, wau:897,  mau:1732,  seats:2400,  used:1732,
     modules:[
-      { name:'Asset Register & Tracking', pct:91 },
-      { name:'Depreciation (MACRS / SL)', pct:85 },
-      { name:'Multi-book Depreciation',   pct:67 },
-      { name:'Disposal & Retirement',     pct:58 },
-      { name:'Lease vs. Buy Analysis',    pct:44 },
-      { name:'GL Auto Journal Entries',   pct:72 },
+      { name:'Asset Register & Tracking', pct:91, tenants:[{name:'GlobalBank Ltd',status:'active',users:52},{name:'Cascade Energy',status:'active',users:43},{name:'TechBridge Solutions',status:'active',users:34},{name:'OrionTech',status:'partial',users:16},{name:'Vertex Group',status:'partial',users:11}]},
+      { name:'Depreciation (MACRS / SL)', pct:85, tenants:[{name:'GlobalBank Ltd',status:'active',users:46},{name:'Cascade Energy',status:'active',users:37},{name:'TechBridge Solutions',status:'partial',users:22},{name:'OrionTech',status:'partial',users:13},{name:'Vertex Group',status:'inactive',users:0}]},
+      { name:'Multi-book Depreciation',   pct:67, tenants:[{name:'GlobalBank Ltd',status:'active',users:34},{name:'Cascade Energy',status:'partial',users:22},{name:'TechBridge Solutions',status:'partial',users:14},{name:'OrionTech',status:'inactive',users:0},{name:'Vertex Group',status:'inactive',users:0}]},
+      { name:'Disposal & Retirement',     pct:58, tenants:[{name:'GlobalBank Ltd',status:'partial',users:27},{name:'Cascade Energy',status:'partial',users:18},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Vertex Group',status:'inactive',users:0}]},
+      { name:'Lease vs. Buy Analysis',    pct:44, tenants:[{name:'GlobalBank Ltd',status:'partial',users:19},{name:'Cascade Energy',status:'inactive',users:0},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'OrionTech',status:'pending',users:0},{name:'Vertex Group',status:'inactive',users:0}]},
+      { name:'GL Auto Journal Entries',   pct:72, tenants:[{name:'GlobalBank Ltd',status:'active',users:38},{name:'Cascade Energy',status:'active',users:29},{name:'TechBridge Solutions',status:'partial',users:17},{name:'OrionTech',status:'partial',users:10},{name:'Vertex Group',status:'inactive',users:0}]},
     ]},
 ];
 
@@ -9773,22 +9774,57 @@ function _puLowUsageHTML(visible) {
 
 function _puFeaturesHTML(visible) {
   if (!visible.length) return `<div style="text-align:center;padding:48px;color:#9ca3af;font-size:13px;">Select a product to view feature-level usage.</div>`;
+
+  const TENANT_STATUS = {
+    active:   { bg:'#D1FAE5', color:'#065f46',  dot:'#22c55e', label:'Active'   },
+    partial:  { bg:'#FEF3C7', color:'#92400e',  dot:'#f59e0b', label:'Partial'  },
+    inactive: { bg:'#F3F4F6', color:'#9ca3af',  dot:'#d1d5db', label:'Inactive' },
+    pending:  { bg:'#EDE9FE', color:'#5b21b6',  dot:'#a78bfa', label:'Pending'  },
+  };
+
   const cards = visible.map(p => {
-    const maxPct = Math.max(...p.modules.map(m=>m.pct));
-    const mods = p.modules.map(m => {
+    const avgPct = Math.round(p.modules.reduce((s,m)=>s+m.pct,0)/p.modules.length);
+    const mods = p.modules.map((m, mi) => {
       const barColor = m.pct>=70?'#1B4D3E':m.pct>=40?'#d97706':'#ef4444';
       const badge = m.pct>=70
-        ? `<span style="background:#D1FAE5;color:#065f46;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:8px;">Active</span>`
+        ? `<span style="background:#D1FAE5;color:#065f46;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;">Active</span>`
         : m.pct>=40
-        ? `<span style="background:#FEF3C7;color:#92400e;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:8px;">Moderate</span>`
-        : `<span style="background:#FEE2E2;color:#991b1b;font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:8px;">Low</span>`;
-      return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f9fafb;">
-        <div style="flex:0 0 160px;font-size:12px;color:#374151;font-weight:500;">${m.name}</div>
-        <div style="flex:1;">${_puBar(m.pct, barColor)}</div>
-        <div style="flex:0 0 72px;text-align:right;">${badge}</div>
+        ? `<span style="background:#FEF3C7;color:#92400e;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;">Moderate</span>`
+        : `<span style="background:#FEE2E2;color:#991b1b;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:8px;white-space:nowrap;">Low</span>`;
+
+      // Tenant breakdown
+      const tenants = m.tenants || [];
+      const activeCount  = tenants.filter(t=>t.status==='active').length;
+      const partialCount = tenants.filter(t=>t.status==='partial').length;
+      const rowId = `feat-${p.id.replace(/\s/g,'_')}-${mi}`;
+
+      const tenantRows = tenants.map(t => {
+        const st = TENANT_STATUS[t.status] || TENANT_STATUS.inactive;
+        return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f9fafb;">
+          <span style="width:8px;height:8px;border-radius:50%;background:${st.dot};flex-shrink:0;display:inline-block;"></span>
+          <span style="flex:1;font-size:11.5px;color:#374151;font-weight:500;">${t.name}</span>
+          <span style="font-size:10.5px;color:${st.color};font-weight:700;background:${st.bg};padding:1px 7px;border-radius:8px;">${st.label}</span>
+          ${t.users > 0 ? `<span style="font-size:10.5px;color:#9ca3af;min-width:52px;text-align:right;">${t.users} users</span>` : `<span style="font-size:10.5px;color:#d1d5db;min-width:52px;text-align:right;">—</span>`}
+        </div>`;
+      }).join('');
+
+      const tenantSummary = tenants.length
+        ? `<span style="font-size:10.5px;color:#6b7280;cursor:pointer;text-decoration:underline;text-decoration-style:dotted;" onclick="(function(el){el.style.display=el.style.display==='none'?'':'none';})(document.getElementById('${rowId}'))">${activeCount} active · ${partialCount} partial · ${tenants.length} tenants ▾</span>`
+        : `<span style="font-size:10.5px;color:#d1d5db;">No tenant data yet</span>`;
+
+      return `<div style="border-bottom:1px solid #f3f4f6;">
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;">
+          <div style="flex:0 0 175px;font-size:12px;color:#374151;font-weight:600;">${m.name}</div>
+          <div style="flex:1;">${_puBar(m.pct, barColor)}</div>
+          <div style="flex:0 0 72px;text-align:right;">${badge}</div>
+        </div>
+        <div style="padding:0 0 6px 8px;">${tenantSummary}</div>
+        <div id="${rowId}" style="display:none;background:#FAFAFA;border-radius:8px;padding:4px 12px;margin:0 0 8px 8px;">
+          ${tenantRows}
+        </div>
       </div>`;
     }).join('');
-    const avgPct = Math.round(p.modules.reduce((s,m)=>s+m.pct,0)/p.modules.length);
+
     return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;margin-bottom:16px;">
       <div style="padding:14px 18px;background:linear-gradient(135deg,#1B4D3E08 0%,#1B4D3E03 100%);border-bottom:1px solid #e5e7eb;display:flex;align-items:center;gap:12px;">
         <span style="font-size:22px;">${p.icon}</span>
