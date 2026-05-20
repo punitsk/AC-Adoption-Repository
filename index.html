@@ -10178,48 +10178,74 @@ async function loadProjectsFromSalesforce() {
       return;
     }
 
-    // ── Build account lookup (ID and name) from already-loaded ACCOUNTS ──
+    // ── Build account lookups from already-loaded ACCOUNTS ──
     const norm15 = id => id ? String(id).substring(0,15).toLowerCase() : '';
-    const acctById   = {};
-    const acctByName = {};
+
+    // ID → { name, csm }  and  name-lower → { name, csm }
+    const acctById   = {};   // 15-char SF id → canonical account name
+    const acctByName = {};   // lower-case account name → canonical account name
+    const csmById    = {};   // 15-char SF id → csm full name
+    const csmByName  = {};   // lower-case account name → csm full name
+
     (ACCOUNTS || []).forEach(a => {
-      if (a.id)   acctById[norm15(a.id)]           = a.name;
-      if (a.name) acctByName[a.name.toLowerCase()] = a.name;
+      if (a.id) {
+        const k = norm15(a.id);
+        acctById[k] = a.name;
+        if (a.csm) csmById[k] = a.csm;
+      }
+      if (a.name) {
+        const k = a.name.toLowerCase();
+        acctByName[k] = a.name;
+        if (a.csm) csmByName[k] = a.csm;
+      }
     });
 
-    // ── Build sorted account name list for fallback Name-parsing ──
+    // Build sorted name list for fuzzy name-parse fallback (longest-first to prefer specific matches)
     const acctEntries = Object.entries(acctByName).sort((a,b) => b[0].length - a[0].length);
 
-    // Resolve account: PSA object uses pse__Account__c (SF ID)
-    // Fallback: parse account name from rec.Name
-    function _resolveProjectAccount(rec) {
-      // 1. PSA standard field — pse__Account__c (Salesforce 15/18 char ID)
+    // ── Helper: get canonical { accountName, csm } for a project record ──
+    // Returns null if the project is not linked to any portfolio account.
+    function _resolveProjectCSM(rec) {
+      // 1. Primary: match by pse__Account__c (Salesforce ID, 15-char normalised)
       if (rec.pse__Account__c) {
-        const n = acctById[norm15(rec.pse__Account__c)];
-        if (n) return n;
+        const k = norm15(rec.pse__Account__c);
+        if (csmById[k]) return { accountName: acctById[k] || rec.pse__Account__r?.Name || '', csm: csmById[k] };
       }
-      // 2. Relationship field if Logic App expands it
-      const relName = rec.pse__Account__r?.Name || rec.Account__r?.Name || rec.Account?.Name || '';
-      if (relName) return acctByName[relName.toLowerCase()] || relName;
 
-      // 3. Parse from rec.Name: "AccountName - Project Description" or "NNNNN-AccountName - ..."
-      const rawName = String(rec.Name || '');
-      if (!rawName) return '';
-      const stripped  = rawName.replace(/^\d+[-–]\s*/, ''); // remove leading number prefix
-      const segments  = stripped.split(/\s+[-–]\s+/);       // split on " - " separators
-      // Exact segment match
-      for (const seg of segments) {
-        const t = seg.trim().toLowerCase();
-        if (acctByName[t]) return acctByName[t];
+      // 2. Fallback: relationship field expanded by Logic App (pse__Account__r.Name)
+      const relName = rec.pse__Account__r?.Name || rec.Account__r?.Name || rec.Account?.Name || '';
+      if (relName) {
+        const k = relName.toLowerCase();
+        if (csmByName[k]) return { accountName: acctByName[k] || relName, csm: csmByName[k] };
+        // Partial / fuzzy match against portfolio accounts (e.g. "Acme Inc" vs "Acme Incorporated")
+        for (const [key, canonical] of acctEntries) {
+          if (key.length >= 6 && (k.includes(key) || key.includes(k))) {
+            return { accountName: canonical, csm: csmByName[key] || '' };
+          }
+        }
+        // Relationship field returned a name but it's not in portfolio — skip
+        return null;
       }
-      // Substring match (account name contained within segment)
+
+      // 3. Last-resort: parse account name from project Name field
+      //    Only accept if the parsed name IS in the portfolio (name-parse is too unreliable to infer CSM otherwise)
+      const rawName = String(rec.Name || '');
+      if (!rawName) return null;
+      const stripped = rawName.replace(/^\d+[-–]\s*/, '');
+      const segments = stripped.split(/\s+[-–]\s+/);
       for (const seg of segments) {
         const t = seg.trim().toLowerCase();
-        for (const [key, val] of acctEntries) {
-          if (key.length >= 6 && t.includes(key)) return val;
+        if (csmByName[t]) return { accountName: acctByName[t], csm: csmByName[t] };
+      }
+      for (const seg of segments) {
+        const t = seg.trim().toLowerCase();
+        for (const [key, canonical] of acctEntries) {
+          if (key.length >= 6 && t.includes(key)) {
+            return { accountName: canonical, csm: csmByName[key] || '' };
+          }
         }
       }
-      return '';
+      return null;  // not a portfolio account
     }
 
     // Closed stage values — projects in these stages are excluded
@@ -10238,10 +10264,10 @@ async function loadProjectsFromSalesforce() {
       const stageRaw = (rec.pse__Stage__c || '').toLowerCase().trim();
       if (CLOSED_STAGES.has(stageRaw)) { skippedClosed++; return; }
 
-      // 4. Resolve account — must match a consultant portfolio account to be included
-      const accountName = _resolveProjectAccount(rec);
-      if (!accountName) { skippedNoPortfolio++; return; }
-      if (!acctByName[accountName.toLowerCase()]) { skippedNoPortfolio++; return; }
+      // 4. Resolve account & CSM — project must be linked to a portfolio account
+      const resolved = _resolveProjectCSM(rec);
+      if (!resolved) { skippedNoPortfolio++; return; }
+      const { accountName, csm } = resolved;
 
       // ── Field mapping — exact PSA (pse__) field names ──
       const name = rec.Name || ('Project ' + (idx+1));
@@ -10250,10 +10276,6 @@ async function loadProjectsFromSalesforce() {
       const pm = rec.pse__Project_Manager__r?.Name
         || rec.pse__Project_Manager__r?.Full_Name__c
         || ''; // raw ID (rec.pse__Project_Manager__c) is not displayable
-
-      // Consultant: derived from ACCOUNTS array by matching resolved accountName
-      const acctObj = (ACCOUNTS || []).find(a => a.name === accountName);
-      const csm = acctObj?.csm || '';
 
       // Status: raw pse__Stage__c value (Draft / Active / Closed / etc.)
       const status = rec.pse__Stage__c || '';
@@ -10277,6 +10299,27 @@ async function loadProjectsFromSalesforce() {
     });
 
     console.log(`[PROJ] ${mapped.length} active portfolio projects from ${records.length} total | skipped: ${skippedClosed} closed, ${skippedNoPortfolio} not in portfolio, ${skippedTemplate} templates, ${skippedEmpty} empty`);
+    // Debug: log up to 10 skipped-by-portfolio records so mismatches can be diagnosed
+    if (skippedNoPortfolio > 0) {
+      const skippedSamples = [];
+      records.forEach(rec => {
+        if (skippedSamples.length >= 10) return;
+        const stageRaw = (rec.pse__Stage__c || '').toLowerCase().trim();
+        if (CLOSED_STAGES.has(stageRaw)) return;
+        if ((rec.Name || '').startsWith('TEMPLATE')) return;
+        if (!rec.pse__Account__c && !rec.Name) return;
+        if (!_resolveProjectCSM(rec)) {
+          skippedSamples.push({
+            name: rec.Name,
+            accountId: rec.pse__Account__c,
+            accountName: rec.pse__Account__r?.Name || '(no rel field)',
+            stage: rec.pse__Stage__c,
+          });
+        }
+      });
+      console.log('[PROJ] Sample skipped-by-portfolio records (check IDs vs ACCOUNTS):', skippedSamples);
+      console.log('[PROJ] Portfolio account IDs loaded:', Object.keys(csmById).length, '| names:', Object.keys(csmByName).length);
+    }
 
     if (mapped.length > 0) {
       PROJECTS = mapped;
