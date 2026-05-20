@@ -10222,23 +10222,26 @@ async function loadProjectsFromSalesforce() {
       return '';
     }
 
+    // Closed stage values — projects in these stages are excluded
+    const CLOSED_STAGES = new Set(['closed','complete','completed','cancelled','canceled','archived']);
+
     const mapped = [];
-    let skippedTemplate = 0, skippedEmpty = 0;
+    let skippedTemplate = 0, skippedEmpty = 0, skippedClosed = 0, skippedNoPortfolio = 0;
     records.forEach((rec, idx) => {
-      // Skip template/placeholder records
+      // 1. Skip template/placeholder records
       if ((rec.Name || '').startsWith('TEMPLATE')) { skippedTemplate++; return; }
-      // Skip completely empty records (no name and no account ID)
+
+      // 2. Skip completely empty records
       if (!rec.pse__Account__c && !rec.Name) { skippedEmpty++; return; }
 
-      // Resolve account name — best effort, never drop the project if it can't be matched
-      let accountName = _resolveProjectAccount(rec);
+      // 3. Skip closed / completed projects
+      const stageRaw = (rec.pse__Stage__c || '').toLowerCase().trim();
+      if (CLOSED_STAGES.has(stageRaw)) { skippedClosed++; return; }
 
-      // Fallback: use the relationship name or raw ID so the project still appears
-      if (!accountName) {
-        accountName = rec.pse__Account__r?.Name
-          || rec.Account__r?.Name
-          || (rec.pse__Account__c ? '(Account ' + String(rec.pse__Account__c).substring(0,8) + '…)' : 'Unknown Account');
-      }
+      // 4. Resolve account — must match a consultant portfolio account to be included
+      const accountName = _resolveProjectAccount(rec);
+      if (!accountName) { skippedNoPortfolio++; return; }
+      if (!acctByName[accountName.toLowerCase()]) { skippedNoPortfolio++; return; }
 
       // ── Field mapping — exact PSA (pse__) field names ──
       const name = rec.Name || ('Project ' + (idx+1));
@@ -10273,8 +10276,7 @@ async function loadProjectsFromSalesforce() {
       mapped.push({ id, name, account:accountName, csm, pm, status, ragStatus, startDate, orderType, notes });
     });
 
-    const unresolved = mapped.filter(p => p.account.startsWith('(Account ') || p.account === 'Unknown Account').length;
-    console.log(`[PROJ] ${mapped.length} projects mapped from ${records.length} records | skipped: ${skippedTemplate} templates, ${skippedEmpty} empty | ${unresolved} with unresolved accounts`);
+    console.log(`[PROJ] ${mapped.length} active portfolio projects from ${records.length} total | skipped: ${skippedClosed} closed, ${skippedNoPortfolio} not in portfolio, ${skippedTemplate} templates, ${skippedEmpty} empty`);
 
     if (mapped.length > 0) {
       PROJECTS = mapped;
