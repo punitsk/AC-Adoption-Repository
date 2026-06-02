@@ -2022,7 +2022,7 @@ button { cursor: pointer; }
         <!-- Product filter -->
         <div style="position:relative;">
           <label style="font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:3px;">Product</label>
-          <select id="pu-product-filter" onchange="renderProductUsage()" style="font-size:12px;font-weight:600;padding:6px 28px 6px 10px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;appearance:none;min-width:160px;">
+          <select id="pu-product-filter" onchange="_renderM2MLivePanel();renderProductUsage()" style="font-size:12px;font-weight:600;padding:6px 28px 6px 10px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;appearance:none;min-width:160px;">
             <option value="all">All Products</option>
             <option value="M2M ERP">Made2Manage ERP</option>
             <option value="EAM">EAM</option>
@@ -2082,6 +2082,8 @@ button { cursor: pointer; }
     </div>
     <!-- Summary KPI row -->
     <div id="pu-kpi-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;"></div>
+    <!-- M2M Live Telemetry Panel -->
+    <div id="m2m-live-panel" style="margin-bottom:16px;"></div>
     <!-- Tab content -->
     <div id="pu-content"></div>
   </div>
@@ -9844,11 +9846,146 @@ function _puFeaturesHTML(visible) {
   return `<div>${cards}</div>`;
 }
 
+// ── M2M Live Telemetry ────────────────────────────────────────────────────────
+const M2M_AI_ENDPOINT = 'https://api.applicationinsights.io/v1/apps/c823febd-2b5b-4c33-af16-ea9acb065fb4/query';
+const M2M_AI_KEY      = 'u6876qpi7v115dlsco3hhqxled42d0o1qkblcjec';
+let _m2mLiveCache     = null;
+let _m2mLiveLoading   = false;
+
+async function _fetchM2MLive() {
+  if (_m2mLiveCache) return _m2mLiveCache;
+  if (_m2mLiveLoading) return null;
+  _m2mLiveLoading = true;
+  const hdrs = { 'x-api-key': M2M_AI_KEY, 'Content-Type': 'application/json' };
+  const q1 = `customEvents | where name == 'buttonclick' | where timestamp > ago(30d) | extend companyId = extract('companyId=([^&]+)', 1, operation_Name) | where companyId != '' and companyId != '01' | summarize sessions=dcount(session_Id), clicks=count() by companyId | order by clicks desc | take 25`;
+  const q2 = `customEvents | where name == 'buttonclick' | where timestamp > ago(30d) | extend form = tostring(parse_json(customDimensions).form) | extend companyId = extract('companyId=([^&]+)', 1, operation_Name) | where form != '' and companyId != '' and companyId != '01' | summarize clicks=count() by form | order by clicks desc | take 12`;
+  try {
+    const [r1, r2] = await Promise.all([
+      fetch(M2M_AI_ENDPOINT, { method:'POST', headers:hdrs, body:JSON.stringify({query:q1}) }).then(r=>r.json()),
+      fetch(M2M_AI_ENDPOINT, { method:'POST', headers:hdrs, body:JSON.stringify({query:q2}) }).then(r=>r.json()),
+    ]);
+    const companies = (r1.tables?.[0]?.rows||[]).map(r=>({companyId:r[0],sessions:r[1],clicks:r[2]}));
+    const forms     = (r2.tables?.[0]?.rows||[]).map(r=>({form:r[0],clicks:r[1]}));
+    _m2mLiveCache   = { companies, forms, loadedAt: new Date() };
+    return _m2mLiveCache;
+  } catch(e) {
+    console.error('[M2M Live]', e);
+    return null;
+  } finally {
+    _m2mLiveLoading = false;
+  }
+}
+
+function _renderM2MLivePanel() {
+  const el = document.getElementById('m2m-live-panel');
+  if (!el) return;
+  const f = document.getElementById('pu-product-filter')?.value || 'all';
+  if (f !== 'all' && f !== 'M2M ERP') { el.innerHTML = ''; return; }
+
+  el.innerHTML = `<div style="background:#F0F9FF;border:1px solid #bae6fd;border-radius:14px;padding:14px 18px;display:flex;align-items:center;gap:10px;">
+    <div style="width:8px;height:8px;border-radius:50%;background:#0EA5E9;flex-shrink:0;"></div>
+    <span style="font-size:13px;color:#0369a1;font-weight:500;">Loading live M2M telemetry from Azure Application Insights…</span>
+  </div>`;
+
+  _fetchM2MLive().then(data => {
+    if (!data) {
+      el.innerHTML = `<div style="background:#FEF2F2;border:1px solid #fecaca;border-radius:14px;padding:12px 16px;font-size:12.5px;color:#991b1b;">⚠ Unable to load M2M live data — check API connectivity.</div>`;
+      return;
+    }
+    const { companies, forms, loadedAt } = data;
+    const totalSessions = companies.reduce((s,c)=>s+c.sessions,0);
+    const totalClicks   = companies.reduce((s,c)=>s+c.clicks,0);
+    const maxClicks     = companies[0]?.clicks || 1;
+    const maxFormClicks = forms[0]?.clicks || 1;
+
+    const compRows = companies.map(c => {
+      const pct = Math.round((c.clicks/maxClicks)*100);
+      return `<tr style="border-top:1px solid #f3f4f6;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background=''">
+        <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#374151;">Company ${c.companyId} <span style="font-size:10px;font-weight:400;color:#d1d5db;">(mapping pending)</span></td>
+        <td style="padding:7px 12px;text-align:right;font-size:12px;color:#6b7280;">${c.sessions.toLocaleString()}</td>
+        <td style="padding:7px 12px;text-align:right;font-size:12px;font-weight:700;color:#111827;">${c.clicks.toLocaleString()}</td>
+        <td style="padding:7px 16px;min-width:100px;">${_puBar(pct,'#0369A1')}</td>
+      </tr>`;
+    }).join('');
+
+    const formRows = forms.map(f => {
+      const pct = Math.round((f.clicks/maxFormClicks)*100);
+      return `<tr style="border-top:1px solid #f3f4f6;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background=''">
+        <td style="padding:6px 12px;font-size:12px;font-weight:600;color:#374151;">${f.form}</td>
+        <td style="padding:6px 12px;text-align:right;font-size:12px;font-weight:700;color:#111827;">${f.clicks.toLocaleString()}</td>
+        <td style="padding:6px 16px;min-width:100px;">${_puBar(pct,'#7c3aed')}</td>
+      </tr>`;
+    }).join('');
+
+    el.innerHTML = `
+    <div style="background:#fff;border:1px solid #bae6fd;border-radius:14px;overflow:hidden;">
+      <div style="padding:12px 18px;background:#F0F9FF;border-bottom:1px solid #e0f2fe;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:16px;">🏭</span>
+          <span style="font-size:13.5px;font-weight:700;color:#111827;">Made2Manage — Live Telemetry</span>
+          <span style="font-size:10.5px;font-weight:700;background:#0EA5E9;color:#fff;padding:2px 9px;border-radius:10px;">LIVE</span>
+          <span style="font-size:10.5px;color:#64748b;background:#F1F5F9;padding:2px 8px;border-radius:8px;">Last 30 days · Azure App Insights</span>
+        </div>
+        <div style="display:flex;gap:24px;">
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:800;color:#0369A1;">${companies.length}</div>
+            <div style="font-size:10.5px;color:#6b7280;">Active companies</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:800;color:#059669;">${totalSessions.toLocaleString()}</div>
+            <div style="font-size:10.5px;color:#6b7280;">Sessions</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:20px;font-weight:800;color:#7c3aed;">${(totalClicks/1000).toFixed(0)}K</div>
+            <div style="font-size:10.5px;color:#6b7280;">Interactions</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;">
+        <div style="border-right:1px solid #f3f4f6;">
+          <div style="padding:8px 12px;background:#F9FAFB;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;justify-content:space-between;">
+            <span style="font-size:10.5px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;">Company Activity</span>
+            <span style="font-size:10px;background:#FEF3C7;color:#92400e;padding:2px 8px;border-radius:8px;font-weight:600;">Tenant names pending</span>
+          </div>
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:#F9FAFB;">
+              <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Company</th>
+              <th style="padding:6px 12px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Sessions</th>
+              <th style="padding:6px 12px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Clicks</th>
+              <th style="padding:6px 16px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Activity</th>
+            </tr></thead>
+            <tbody>${compRows}</tbody>
+          </table>
+        </div>
+        <div>
+          <div style="padding:8px 12px;background:#F9FAFB;border-bottom:1px solid #f3f4f6;">
+            <span style="font-size:10.5px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;">Top Modules Used</span>
+          </div>
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:#F9FAFB;">
+              <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Module / Form</th>
+              <th style="padding:6px 12px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Interactions</th>
+              <th style="padding:6px 16px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Usage</th>
+            </tr></thead>
+            <tbody>${formRows}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="padding:7px 14px;font-size:10.5px;color:#9ca3af;border-top:1px solid #f3f4f6;display:flex;justify-content:space-between;">
+        <span>Source: Azure Application Insights · Excluding internal Aptean environment (Company 01)</span>
+        <span>Loaded at ${loadedAt.toLocaleTimeString()}</span>
+      </div>
+    </div>`;
+  });
+}
+
 function renderProductUsage() {
   const kpiEl = document.getElementById('pu-kpi-row');
   const cntEl = document.getElementById('pu-content');
   if (!kpiEl || !cntEl) return;
-  // Ensure a tab is active
+  _renderM2MLivePanel();
   setPUTab(_puActiveTab || 'ranking');
 }
 
