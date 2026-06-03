@@ -1647,12 +1647,12 @@ button { cursor: pointer; }
         </div>
       </div>
 
-      <!-- Exec: Product Penetration Chart -->
+      <!-- Exec: Adoption Coverage Chart -->
       <div style="background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #e8eaf0;margin-bottom:10px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
           <div>
-            <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">Product Penetration</div>
-            <div style="font-size:11px;color:#6b7280;margin-top:1px;">% of accounts with Adopted or Adopting status — sorted by penetration</div>
+            <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">Adoption Coverage</div>
+            <div style="font-size:11px;color:#6b7280;margin-top:1px;">% of tracked accounts with Adopted or In Progress status — sorted by coverage</div>
           </div>
         </div>
         <div id="exec-adoption-penetration">
@@ -3685,17 +3685,25 @@ function renderDashboard() {
   const legacyProdMap = { erp:'ERP', wms:'WMS', scm:'SCM', tms:'TMS' };
   const prodFilter = productSel === 'all' ? null : (legacyProdMap[productSel] || productSel);
 
-  // Filter accounts for CSM view (by selected CSM + product)
+  // Only count accounts where adoption data has been populated
+  // When adoption data is loaded, restrict to accounts present in ADOPTION_LIVE
+  const adoptionNames = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0)
+    ? new Set(Object.keys(ADOPTION_LIVE))
+    : null;
+
+  // Filter accounts for Adoption Engineer view (by CSM + product + adoption data)
   const csmAccts = ACCOUNTS.filter(a => {
     if (csmSel !== 'all' && a.csm !== csmSel) return false;
     if (prodFilter && !_accountHasProduct(a, prodFilter)) return false;
+    if (adoptionNames && !adoptionNames.has(a.name)) return false;
     return true;
   });
 
-  // All accounts (for leadership view, respecting both CSM and product filters)
+  // All accounts (for Executive view, respecting CSM + product + adoption data filters)
   const allAccts = ACCOUNTS.filter(a => {
     if (csmSel !== 'all' && a.csm !== csmSel) return false;
     if (prodFilter && !_accountHasProduct(a, prodFilter)) return false;
+    if (adoptionNames && !adoptionNames.has(a.name)) return false;
     return true;
   });
 
@@ -3712,7 +3720,7 @@ function renderDashboard() {
   const totalArr   = ACCOUNTS.reduce((s, a) => s + a.arr, 0);
 
   set$('csm-stat-total',      csmTotal);
-  set$('csm-stat-total-trend', csmSel === 'all' ? 'all accounts' : 'in your portfolio');
+  set$('csm-stat-total-trend', csmSel === 'all' ? 'with adoption data' : 'in your portfolio');
   set$('csm-stat-arr',        fmtARR(csmArr));
   set$('csm-stat-arr-trend',  totalArr ? pct(csmArr, totalArr) + ' of total portfolio' : 'of total portfolio');
   set$('csm-stat-healthy',    csmHealthy);
@@ -3742,7 +3750,7 @@ function renderDashboard() {
 
   const isFiltered = csmSel !== 'all' || prodFilter;
   set$('lead-stat-total',       leadTotal);
-  set$('lead-stat-total-trend', isFiltered ? 'filtered accounts' : 'from Salesforce');
+  set$('lead-stat-total-trend', isFiltered ? 'filtered accounts' : 'with adoption data');
   set$('lead-stat-arr',         fmtARR(leadArr));
   set$('lead-stat-arr-trend',   isFiltered ? 'filtered portfolio' : 'across all accounts');
   set$('lead-stat-healthy',     leadHealthy);
@@ -9231,7 +9239,7 @@ function renderExecAdoptionMetrics() {
       </div>`;
   }).join(''));
 
-  // ── Product Penetration ──
+  // ── Adoption Coverage ──
   if (m.penetration.length === 0) {
     h('exec-adoption-penetration', '<div style="color:#9ca3af;font-size:12px;padding:4px 0;">No module data available yet</div>');
     return;
