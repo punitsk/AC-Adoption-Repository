@@ -1212,10 +1212,10 @@ button { cursor: pointer; }
       </button>
     </div>
     <div class="filter-divider"></div>
-    <span class="filter-label">Consultant</span>
+    <span class="filter-label">Adoption Engineer</span>
     <div class="filter-select-wrap">
       <select class="filter-select" id="csm-filter" onchange="applyFilters()">
-        <option value="all">All Consultants</option>
+        <option value="all">All Adoption Engineers</option>
       </select>
     </div>
     <span class="filter-label">Product Line</span>
@@ -1812,7 +1812,7 @@ button { cursor: pointer; }
       <!-- CSM -->
       <div style="position:relative;">
         <select id="acct-csm" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px 28px 6px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:130px;transition:border-color .15s;" onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='#e5e7eb'">
-          <option value="">All Consultants</option>
+          <option value="">All Adoption Engineers</option>
         </select>
         <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10px;color:#6b7280;pointer-events:none;">▾</span>
       </div>
@@ -1887,7 +1887,7 @@ button { cursor: pointer; }
           <tr style="background:#F9FAFB;border-bottom:1.5px solid #f0f0f0;">
             <th onclick="sortAccounts('name')"    style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;position:sticky;left:0;z-index:3;background:#F9FAFB;box-shadow:2px 0 6px rgba(0,0,0,.06);min-width:160px;max-width:200px;">Account ↕</th>
             <th onclick="sortAccounts('product')" style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;min-width:100px;">Primary Product ↕</th>
-            <th onclick="sortAccounts('csm')"     style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;min-width:110px;">Consultant ↕</th>
+            <th onclick="sortAccounts('csm')"     style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;min-width:110px;">Adoption Engineer ↕</th>
             <th onclick="sortAccounts('am')"      style="padding:11px 14px;text-align:left;font-size:12px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;cursor:pointer;user-select:none;white-space:nowrap;min-width:130px;">Account Manager ↕</th>
             <th style="padding:11px 14px;text-align:center;font-size:12px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:140px;">Adoption Status</th>
             <th style="padding:11px 14px;text-align:center;font-size:12px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:90px;">Active Modules</th>
@@ -2140,13 +2140,9 @@ button { cursor: pointer; }
 
       <!-- CSM filter -->
       <div style="display:flex;gap:6px;align-items:center;">
-        <span style="font-size:12px;color:#9ca3af;font-weight:600;">Consultant</span>
+        <span style="font-size:12px;color:#9ca3af;font-weight:600;">Adoption Engineer</span>
         <select id="act-csm-filter" onchange="renderActivitiesFeed()" style="font-size:12px;font-weight:600;padding:5px 10px;border-radius:8px;border:1.5px solid #e5e7eb;color:#374151;background:#fff;cursor:pointer;">
-          <option value="all">All Consultants</option>
-          <option value="Praveen">Kambi G.</option>
-          <option value="Sara">Pratik P.</option>
-          <option value="Raj">Mani M.</option>
-          <option value="Alex">Navya N.</option>
+          <option value="all">All Adoption Engineers</option>
         </select>
       </div>
 
@@ -2418,7 +2414,7 @@ button { cursor: pointer; }
         <div><div class="card-title">All Projects</div><div class="card-sub" id="proj-table-sub">Live · linked to your accounts</div></div>
         <div style="display:flex;gap:8px;align-items:center;">
           <select id="proj-filter-csm" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
-            <option value="">All Consultants</option>
+            <option value="">All Adoption Engineers</option>
           </select>
           <select id="proj-filter-rag" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
             <option value="">All Statuses</option>
@@ -2434,7 +2430,7 @@ button { cursor: pointer; }
             <tr style="border-bottom:1.5px solid #f3f4f6;background:#F9FAFB;">
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Project</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Account</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Consultant</th>
+              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Adoption Engineer</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Project Manager</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Status</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">Project Status</th>
@@ -2468,7 +2464,7 @@ button { cursor: pointer; }
         <div id="proj-chart-order" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
       <div class="card" style="grid-column:1/-1;">
-        <div class="card-title" style="margin-bottom:14px;">Projects by Consultant</div>
+        <div class="card-title" style="margin-bottom:14px;">Projects by Adoption Engineer</div>
         <div id="proj-chart-csm" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
       <div class="card" style="grid-column:1/-1;">
@@ -2820,7 +2816,7 @@ function _productLabel(v) {
 function updateBanner() {
   const csm = document.getElementById('csm-filter')?.value || 'all';
   const product = document.getElementById('product-filter')?.value || 'all';
-  const csmLabel = csm === 'all' ? 'All Consultants' : csm;
+  const csmLabel = csm === 'all' ? 'All Adoption Engineers' : csm;
   const prodLabel = _productLabel(product);
 
   // CSM view banner
@@ -3530,7 +3526,7 @@ function populateDashboardCsmFilter() {
   if (!sel || !ACCOUNTS.length) return;
   const prev = sel.value;
   const csms = [...new Set(ACCOUNTS.map(a => a.csm).filter(c => c && c !== 'Unassigned'))].sort();
-  sel.innerHTML = `<option value="all">All Consultants</option>` +
+  sel.innerHTML = `<option value="all">All Adoption Engineers</option>` +
     csms.map(c => `<option value="${c}">${c}</option>`).join('');
   if (csms.includes(prev) || prev === 'all') sel.value = prev;
   enhanceSearchableDropdown(sel, 'Search CSMs…');
@@ -4452,7 +4448,7 @@ function populateCsmFilter() {
   if (!sel) return;
   const csms = [...new Set(ACCOUNTS.map(a => a.csm).filter(Boolean))].sort();
   const prev = sel.value;
-  sel.innerHTML = '<option value="">All Consultants</option>' +
+  sel.innerHTML = '<option value="">All Adoption Engineers</option>' +
     csms.map(c => `<option value="${c}">${c}</option>`).join('');
   if (csms.includes(prev)) sel.value = prev;
 }
@@ -4991,7 +4987,7 @@ function renderAccountDetailPage(a, tab) {
           <span style="font-size:12px;font-weight:700;background:${hs.bg};color:${hs.color};padding:4px 12px;border-radius:20px;">${a.health}</span>
           <span style="font-size:12.5px;color:#6b7280;">📦 ${a.product}</span>
           <span style="color:#d1d5db;">·</span>
-          <span style="font-size:12.5px;color:#6b7280;">👤 Consultant: <strong style="color:#374151;">${a.csm}</strong></span>
+          <span style="font-size:12.5px;color:#6b7280;">👤 Adoption Engineer: <strong style="color:#374151;">${a.csm}</strong></span>
           <span style="color:#d1d5db;">·</span>
           <span style="font-size:12.5px;color:#6b7280;">🤝 AM: <strong style="color:#374151;">${a.am}</strong></span>
           ${a.ref ? '<span style="font-size:12px;font-weight:700;background:#FEF3C7;color:#92400e;padding:3px 10px;border-radius:20px;">⭐ Referenceable</span>' : ''}
@@ -5483,7 +5479,7 @@ function renderDrawerHeader(a) {
           <span style="font-size:11px;font-weight:600;background:${hs.bg};color:${hs.color};padding:3px 9px;border-radius:20px;">${a.health}</span>
           <span style="font-size:12px;color:#9ca3af;">${a.product}</span>
           <span style="font-size:12px;color:#9ca3af;">·</span>
-          <span style="font-size:12px;color:#9ca3af;">Consultant: ${a.csm}</span>
+          <span style="font-size:12px;color:#9ca3af;">Adoption Engineer: ${a.csm}</span>
           <span style="font-size:12px;color:#9ca3af;">·</span>
           <span style="font-size:12px;color:#9ca3af;">AM: ${a.am}</span>
         </div>
@@ -6575,7 +6571,7 @@ function renderSettingsPanel(tab) {
 
   } else if (tab === 'team') {
     const members = [
-      { name:'Kambi G.', role:'Sr. Consultant',  email:'Gangadarayya.Kambi@aptean.com', av:'GK', bg:'#D1FAE5', tc:'#065f46', accounts:14, status:'Active' },
+      { name:'Kambi G.', role:'Sr. Adoption Engineer',  email:'Gangadarayya.Kambi@aptean.com', av:'GK', bg:'#D1FAE5', tc:'#065f46', accounts:14, status:'Active' },
       { name:'Sara Kim',       role:'CSM',          email:'sara.kim@aptean.com',             av:'PR', bg:'#DBEAFE', tc:'#1d4ed8', accounts:11, status:'Active' },
       { name:'Raj Mehta',      role:'CSM',          email:'raj.mehta@aptean.com',            av:'MA', bg:'#EDE9FE', tc:'#5b21b6', accounts:10, status:'Active' },
       { name:'Alex Torres',    role:'Junior CSM',   email:'alex.torres@aptean.com',          av:'NA', bg:'#FEF3C7', tc:'#92400e', accounts:7,  status:'Active' },
@@ -6599,7 +6595,7 @@ function renderSettingsPanel(tab) {
             <div style="display:flex;align-items:center;gap:10px;">
               <select class="settings-select" style="width:140px;font-size:12px;padding:6px 10px;">
                 <option${m.role.includes('Senior')?'selected':''}>Admin</option>
-                <option${!m.role.includes('Senior')&&!m.role.includes('Junior')?'selected':''}>Consultant</option>
+                <option${!m.role.includes('Senior')&&!m.role.includes('Junior')?'selected':''}>Adoption Engineer</option>
                 <option${m.role.includes('Junior')?'selected':''}>Viewer</option>
               </select>
               <span style="font-size:11.5px;font-weight:600;background:#D1FAE5;color:#065f46;padding:3px 9px;border-radius:20px;">Active</span>
@@ -10622,7 +10618,7 @@ function _renderProjDashboard() {
     csmSel.dataset.built = String(all.length);
     const prev = csmSel.value;
     const csms = [...new Set(all.map(p=>p.csm).filter(Boolean))].sort();
-    csmSel.innerHTML = '<option value="">All Consultants</option>' +
+    csmSel.innerHTML = '<option value="">All Adoption Engineers</option>' +
       csms.map(c=>`<option value="${c}"${c===prev?' selected':''}>${c||'—'}</option>`).join('');
   }
 
