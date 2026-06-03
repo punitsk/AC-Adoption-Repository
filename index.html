@@ -1393,14 +1393,6 @@ button { cursor: pointer; }
           <div class="stat-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
         </div>
 
-        <!-- 6. Referenceable Customers -->
-        <div class="stat-card purple clickable" onclick="navToAccounts('ref')" title="View referenceable accounts">
-          <div class="stat-icon" style="background:#EDE9FE;">⭐</div>
-          <div class="stat-label">Referenceable</div>
-          <div class="stat-value" id="csm-stat-ref">—</div>
-          <div class="stat-trend" style="color:#6d28d9;" id="csm-stat-ref-pct">of portfolio</div>
-          <div class="stat-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
-        </div>
 
 
 
@@ -1452,7 +1444,6 @@ button { cursor: pointer; }
 
       <div class="page-header">
         <div class="page-header-lead">
-          <div class="page-title">Executive Dashboard</div>
           <div class="context-banner leadership" id="context-banner-leadership">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
             <span>Showing <strong id="banner-text-leadership">All Consultants · All Products</strong> — Executive overview</span>
@@ -1529,18 +1520,6 @@ button { cursor: pointer; }
           <div style="font-size:10.5px;color:#6b7280;margin-top:5px;">on a single product only</div>
         </div>
 
-        <!-- 5. Referenceable Customers -->
-        <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
-          onclick="navToAccounts('ref')" title="View referenceable accounts"
-          onmouseenter="this.style.borderColor='#F59E0B';this.style.boxShadow='0 2px 12px rgba(245,158,11,.15)'"
-          onmouseleave="this.style.borderColor='#FDE68A';this.style.boxShadow='none'">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:10.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">Referenceable</span>
-            <span style="font-size:16px;">🏆</span>
-          </div>
-          <div style="font-size:26px;font-weight:900;color:#D97706;line-height:1;" id="exec-kpi-advocacy">—</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;" id="exec-kpi-advocacy-sub">willing to be references</div>
-        </div>
 
         <!-- 6. AI Adoption -->
         <div style="background:#F0F9FF;border:1.5px solid #BAE6FD;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
@@ -1674,14 +1653,6 @@ button { cursor: pointer; }
           <div class="stat-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
         </div>
 
-        <!-- 6. Referenceable Customers -->
-        <div class="stat-card purple clickable" onclick="navToAccounts('ref')" title="View referenceable accounts">
-          <div class="stat-icon" style="background:#EDE9FE;">⭐</div>
-          <div class="stat-label">Referenceable</div>
-          <div class="stat-value" id="lead-stat-ref">—</div>
-          <div class="stat-trend" style="color:#6d28d9;" id="lead-stat-ref-pct">of portfolio</div>
-          <div class="stat-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
-        </div>
 
 
 
@@ -3244,7 +3215,7 @@ function renderConsultantNPS() {
   if (!accts.length || !NPS_RAW.length) {
     scoreEl.textContent = '—';
     scoreEl.style.color = '#9ca3af';
-    if (labelEl) labelEl.textContent = NPS_RAW.length ? 'No responses for this CSM' : 'Awaiting NPS data…';
+    if (labelEl) labelEl.textContent = NPS_RAW.length ? 'No responses for this Adoption Engineer' : 'Awaiting NPS data…';
     ['csm-nps-promoters','csm-nps-passives','csm-nps-detractors'].forEach(id => {
       const el = document.getElementById(id); if (el) el.textContent = '—';
     });
@@ -3726,7 +3697,7 @@ function renderDashboard() {
   set$('lead-stat-healthy-pct', pct(leadHealthy, leadTotal) + ' of portfolio');
   set$('lead-stat-stale',       leadStale);
   set$('lead-stat-red',         leadRed);
-  set$('lead-stat-red-trend',   leadRed ? 'Across ' + csmCount + ' CSMs' : 'All clear ✓');
+  set$('lead-stat-red-trend',   leadRed ? 'Across ' + csmCount + ' Adoption Engineers' : 'All clear ✓');
   set$('lead-stat-ref',         leadRef);
   set$('lead-stat-ref-pct',     pct(leadRef, leadTotal) + ' of portfolio');
 
@@ -4081,7 +4052,7 @@ function navToAccounts(filter) {
     case 'stale':
       window._acctStaleFilter = true;
       acctSortKey = 'lastContact'; acctSortAsc = false;
-      window._acctTileLabel = '⏰ No Touch >30d — accounts needing CSM engagement';
+      window._acctTileLabel = '⏰ No Touch >30d — accounts needing AE engagement';
       break;
     case 'arr':
       acctSortKey = 'arr'; acctSortAsc = false;
@@ -4857,10 +4828,10 @@ const ACCOUNT_DETAIL = {
       { name:'Kim Roberts',   role:'Finance Manager', av:'KR', bg:'#DBEAFE', tc:'#1d4ed8', email:'k.roberts@account.com' },
     ],
     activities: [
-      { type:'📞', bg:'#E8F5F0', title:'Quarterly business review',     date:'Apr 10, 2026', by:'CSM',       note:'Reviewed roadmap and adoption metrics. Customer very happy.' },
-      { type:'✉️', bg:'#EFF6FF', title:'Sent product update summary',   date:'Apr 5, 2026',  by:'CSM',       note:'Shared April release notes and training resources.' },
-      { type:'📝', bg:'#F5F3FF', title:'Health check note',             date:'Mar 28, 2026', by:'CSM',       note:'Adoption improving. Power users up 22% MoM.' },
-      { type:'📞', bg:'#E8F5F0', title:'Onboarding follow-up call',     date:'Mar 20, 2026', by:'CSM',       note:'Completed onboarding phase 2. All users trained.' },
+      { type:'📞', bg:'#E8F5F0', title:'Quarterly business review',     date:'Apr 10, 2026', by:'AE',        note:'Reviewed roadmap and adoption metrics. Customer very happy.' },
+      { type:'✉️', bg:'#EFF6FF', title:'Sent product update summary',   date:'Apr 5, 2026',  by:'AE',        note:'Shared April release notes and training resources.' },
+      { type:'📝', bg:'#F5F3FF', title:'Health check note',             date:'Mar 28, 2026', by:'AE',        note:'Adoption improving. Power users up 22% MoM.' },
+      { type:'📞', bg:'#E8F5F0', title:'Onboarding follow-up call',     date:'Mar 20, 2026', by:'AE',        note:'Completed onboarding phase 2. All users trained.' },
     ],
     tasks: [
       { text:'Schedule next QBR', due:'May 1, 2026', priority:'Med', done:false },
@@ -4868,7 +4839,7 @@ const ACCOUNT_DETAIL = {
     ],
     opportunities: [],
     projects: [
-      { name:'Core Implementation', type:'Implementation', status:'Green', golive:'Feb 1, 2026', pm:'CSM', phase:'Live', note:'All modules live. Customer self-sufficient.' },
+      { name:'Core Implementation', type:'Implementation', status:'Green', golive:'Feb 1, 2026', pm:'AE', phase:'Live', note:'All modules live. Customer self-sufficient.' },
     ],
     surveys: [
       { name:'Q1 2026 NPS Survey', type:'NPS', score:72, date:'Mar 31, 2026', respondent:'Alex Johnson', feedback:'Really happy with the product and the support team. Would highly recommend Aptean.' },
@@ -6444,7 +6415,7 @@ function renderSettingsPanel(tab) {
           </select>
         </div>
         <div class="settings-row">
-          <div><div class="settings-row-label">Default CSM Filter</div><div class="settings-row-sub">Pre-select your name on load</div></div>
+          <div><div class="settings-row-label">Default Adoption Engineer Filter</div><div class="settings-row-sub">Pre-select your name on load</div></div>
           <label class="toggle-switch"><input type="checkbox" checked><span class="toggle-slider"></span></label>
         </div>
         <div class="settings-row">
@@ -6546,9 +6517,9 @@ function renderSettingsPanel(tab) {
   } else if (tab === 'team') {
     const members = [
       { name:'Kambi G.', role:'Sr. Adoption Engineer',  email:'Gangadarayya.Kambi@aptean.com', av:'GK', bg:'#D1FAE5', tc:'#065f46', accounts:14, status:'Active' },
-      { name:'Sara Kim',       role:'CSM',          email:'sara.kim@aptean.com',             av:'PR', bg:'#DBEAFE', tc:'#1d4ed8', accounts:11, status:'Active' },
-      { name:'Raj Mehta',      role:'CSM',          email:'raj.mehta@aptean.com',            av:'MA', bg:'#EDE9FE', tc:'#5b21b6', accounts:10, status:'Active' },
-      { name:'Alex Torres',    role:'Junior CSM',   email:'alex.torres@aptean.com',          av:'NA', bg:'#FEF3C7', tc:'#92400e', accounts:7,  status:'Active' },
+      { name:'Sara Kim',       role:'Adoption Engineer',        email:'sara.kim@aptean.com',             av:'PR', bg:'#DBEAFE', tc:'#1d4ed8', accounts:11, status:'Active' },
+      { name:'Raj Mehta',      role:'Adoption Engineer',        email:'raj.mehta@aptean.com',            av:'MA', bg:'#EDE9FE', tc:'#5b21b6', accounts:10, status:'Active' },
+      { name:'Alex Torres',    role:'Junior Adoption Engineer', email:'alex.torres@aptean.com',          av:'NA', bg:'#FEF3C7', tc:'#92400e', accounts:7,  status:'Active' },
     ];
     panel.innerHTML = `
       <div class="settings-card">
@@ -6742,7 +6713,7 @@ const PERM_LABELS = {
   canCreate:      'Create records',
   canEdit:        'Edit records',
   canDelete:      'Delete records',
-  seeAllCsms:     'View all CSMs data',
+  seeAllCsms:     'View all Adoption Engineers data',
   manageTeam:     'Manage team members',
   defineRoles:    'Define roles & permissions',
 };
@@ -7051,7 +7022,7 @@ var MEETINGS = [
   { id:2,  title:'Monthly Check-in – Brightfield', type:'Check-in',   account:'Brightfield Logistics',  date:daysFromToday(1),   time:'14:00', duration:30,  attendees:['Kambi G.','James Okafor'],                    location:'Zoom',             notes:'Health check – NPS dipped last month.',                           status:'upcoming' },
   { id:3,  title:'Onboarding Session – NovaTech',  type:'Onboarding', account:'NovaTech Solutions',     date:daysFromToday(0),   time:'09:00', duration:90,  attendees:['Kambi G.','Sara Kim','Ravi Patel','Tom B.'],   location:'Microsoft Teams',  notes:'Module 2: integrations and data import.',                         status:'upcoming' },
   { id:4,  title:'Escalation Call – Delta Foods',  type:'Escalation', account:'Delta Foods Co.',        date:daysFromToday(0),   time:'15:30', duration:45,  attendees:['Kambi G.','Amy Grant','VP Ops'],               location:'Phone',            notes:'Critical issue with reporting module – exec loop-in required.',   status:'upcoming' },
-  { id:5,  title:'Internal CSM Sync',              type:'Internal',   account:'',                       date:daysFromToday(2),   time:'11:00', duration:30,  attendees:['Kambi G.','Team'],                            location:'Teams',            notes:'Weekly pipeline review and risk flags.',                          status:'upcoming' },
+  { id:5,  title:'Internal AE Sync',               type:'Internal',   account:'',                       date:daysFromToday(2),   time:'11:00', duration:30,  attendees:['Kambi G.','Team'],                            location:'Teams',            notes:'Weekly pipeline review and risk flags.',                          status:'upcoming' },
   { id:6,  title:'Check-in – Sunrise Health',      type:'Check-in',   account:'Sunrise Health Systems', date:daysFromToday(5),   time:'13:00', duration:30,  attendees:['Kambi G.','Dr. Patel'],                       location:'Zoom',             notes:'Post go-live follow-up.',                                         status:'upcoming' },
   { id:7,  title:'Q2 QBR – Vertex Dynamics',       type:'QBR',        account:'Vertex Dynamics',        date:daysFromToday(8),   time:'10:00', duration:60,  attendees:['Kambi G.','CFO','IT Lead'],                   location:'Microsoft Teams',  notes:'Prepare exec summary deck before meeting.',                       status:'upcoming' },
   { id:8,  title:'Onboarding – Blue Ridge Tech',   type:'Onboarding', account:'Blue Ridge Tech',        date:daysFromToday(12),  time:'14:30', duration:60,  attendees:['Kambi G.','Ops Manager'],                     location:'Zoom',             notes:'Final onboarding milestone – sign-off needed.',                   status:'upcoming' },
@@ -9509,7 +9480,7 @@ function _puRenderKPIs(visible) {
       { label:'Total Flagged',  value:String(relevant.length),
         sub:'accounts below engagement threshold', bg:'#FFF7ED', border:'#FED7AA', vClr:'#c2410c', sClr:'#f97316' },
       { label:'Critical',       value:String(critical),
-        sub:'score ≤ 10 · immediate CSM action', bg:'#FEF2F2', border:'#FECACA', vClr:'#dc2626', sClr:'#ef4444' },
+        sub:'score ≤ 10 · immediate AE action', bg:'#FEF2F2', border:'#FECACA', vClr:'#dc2626', sClr:'#ef4444' },
       { label:'At Risk',        value:String(atRisk),
         sub:'score 11–20 · monitor closely', bg:'#FFFBEB', border:'#FDE68A', vClr:'#d97706', sClr:'#f59e0b' },
       { label:'Watch',          value:String(watch),
@@ -9606,7 +9577,11 @@ function _puRankingHTML(visible) {
 }
 
 function _puLicenseHTML(visible) {
-  const sorted = [...visible].sort((a,b)=>(b.used/b.seats)-(a.used/a.seats));
+  const sorted = [...visible].sort((a,b) => {
+    if (a.id === 'M2M ERP') return -1;
+    if (b.id === 'M2M ERP') return 1;
+    return (b.used/b.seats) - (a.used/a.seats);
+  });
   const rows = sorted.map(p => {
     const utilPct = Math.round((p.used/p.seats)*100);
     const barColor = utilPct>=80?'#1B4D3E':utilPct>=60?'#d97706':'#ef4444';
@@ -9737,7 +9712,7 @@ function _puLowUsageHTML(visible) {
       <td style="padding:12px 14px;font-size:12px;color:#6b7280;">${a.lastActive}</td>
       <td style="padding:12px 14px;text-align:center;">${urgency}</td>
       <td style="padding:12px 14px;">
-        <button onclick="alert('CSM outreach initiated for ${a.name}')" style="font-size:11px;color:#1B4D3E;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:4px 12px;cursor:pointer;font-weight:600;">Reach Out</button>
+        <button onclick="alert('AE outreach initiated for ${a.name}')" style="font-size:11px;color:#1B4D3E;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:4px 12px;cursor:pointer;font-weight:600;">Reach Out</button>
       </td>
     </tr>`;
   }).join('');
@@ -9745,7 +9720,7 @@ function _puLowUsageHTML(visible) {
     <div style="padding:14px 16px;border-bottom:1px solid #f3f4f6;display:flex;align-items:center;gap:10px;">
       <span style="font-size:15px;">⚠️</span>
       <span style="font-size:13px;font-weight:700;color:#111827;">Low Engagement Accounts</span>
-      <span style="font-size:11.5px;color:#9ca3af;margin-left:4px;">— accounts with DAU below threshold needing CSM attention</span>
+      <span style="font-size:11.5px;color:#9ca3af;margin-left:4px;">— accounts with DAU below threshold needing AE attention</span>
     </div>
     <table style="width:100%;border-collapse:collapse;">
       <thead>
@@ -9763,7 +9738,7 @@ function _puLowUsageHTML(visible) {
       <tbody>${trs}</tbody>
     </table>
     <div style="padding:9px 14px;font-size:11px;color:#9ca3af;border-top:1px solid #f3f4f6;">
-      Engagement score out of 30 · Accounts with score ≤ 20 flagged for CSM outreach
+      Engagement score out of 30 · Accounts with score ≤ 20 flagged for AE outreach
     </div>
   </div>`;
 }
