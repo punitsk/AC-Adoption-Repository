@@ -412,7 +412,7 @@ button { cursor: pointer; }
 /* Page header — 2-row-friendly compact layout */
 .page-header {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 6px; gap: 8px; flex-wrap: wrap;
 }
 .page-header-lead {
   display: flex; align-items: center; gap: 14px;
@@ -513,7 +513,7 @@ button { cursor: pointer; }
 .stat-card {
   background: #fff;
   border-radius: var(--r-xl);
-  padding: 10px 14px;
+  padding: 7px 10px;
   position: relative; overflow: hidden;
   border: 1px solid var(--ink-100);
   box-shadow: var(--shadow-sm);
@@ -547,16 +547,16 @@ button { cursor: pointer; }
 .stat-card.blue   { background: linear-gradient(135deg, #F8FBFF, var(--blue-50));   border: 1.5px solid var(--blue-200); }
 
 .stat-icon {
-  width: 32px; height: 32px; border-radius: var(--r-sm);
+  width: 26px; height: 26px; border-radius: var(--r-sm);
   display: flex; align-items: center; justify-content: center;
-  margin-bottom: 10px; font-size: 15px;
+  margin-bottom: 6px; font-size: 13px;
   box-shadow: var(--shadow-xs);
   position: relative; z-index: 1;
 }
 .stat-label {
-  font-size: 10.5px; font-weight: 700; color: var(--ink-400);
+  font-size: 9.5px; font-weight: 700; color: var(--ink-400);
   text-transform: uppercase; letter-spacing: .6px;
-  margin-bottom: 6px; position: relative; z-index: 1;
+  margin-bottom: 4px; position: relative; z-index: 1;
 }
 .stat-card.highlight .stat-label { color: var(--brand-200); }
 .stat-card.warn   .stat-label { color: var(--amber-700); }
@@ -565,7 +565,7 @@ button { cursor: pointer; }
 .stat-card.blue   .stat-label { color: var(--blue-700); }
 
 .stat-value {
-  font-size: 28px; font-weight: 800; line-height: 1;
+  font-size: 22px; font-weight: 800; line-height: 1;
   color: var(--ink-900); letter-spacing: -.028em;
   position: relative; z-index: 1;
   font-variant-numeric: tabular-nums;
@@ -577,7 +577,7 @@ button { cursor: pointer; }
 .stat-card.blue   .stat-value { color: var(--blue-600); }
 
 .stat-trend {
-  font-size: 11px; margin-top: 6px;
+  font-size: 10px; margin-top: 4px;
   display: flex; align-items: center; gap: 3px;
   color: var(--ink-300); font-weight: 500;
   position: relative; z-index: 1;
@@ -1440,7 +1440,7 @@ button { cursor: pointer; }
     <!-- ════════════════════════════════
          LEADERSHIP VIEW
     ════════════════════════════════ -->
-    <div id="leadership-view" class="fade-in" style="flex:1;min-height:0;overflow-y:auto;padding:14px 24px 24px;">
+    <div id="leadership-view" class="fade-in" style="flex:1;min-height:0;overflow-y:auto;padding:8px 18px 12px;">
 
       <div class="page-header">
         <div class="page-header-lead">
@@ -1466,118 +1466,116 @@ button { cursor: pointer; }
       </div>
 
       <!-- Exec: Strategic KPI Row -->
-      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:10px;" id="exec-kpi-focus-row">
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:6px;" id="exec-kpi-focus-row">
 
-        <!-- 1. Total Accounts -->
-        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+        <!-- 1. Tracked Accounts -->
+        <div style="background:#fff;border:1.5px solid #e5e7eb;border-radius:10px;padding:7px 10px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
           onclick="navToAccounts('all')" title="View all accounts"
-          onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 12px rgba(52,211,153,.12)'"
+          onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 8px rgba(52,211,153,.12)'"
           onmouseleave="this.style.borderColor='#e5e7eb';this.style.boxShadow='none'">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:10.5px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;">Tracked Accounts</span>
-            <span style="font-size:16px;">🚀</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+            <span style="font-size:9.5px;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.5px;">Tracked Accounts</span>
+            <span style="font-size:13px;">🚀</span>
           </div>
-          <div style="font-size:26px;font-weight:900;color:#1B4D3E;line-height:1;" id="exec-kpi-onboarding">—</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;">with adoption data</div>
+          <div style="font-size:22px;font-weight:900;color:#1B4D3E;line-height:1;" id="exec-kpi-onboarding">—</div>
+          <div style="font-size:9.5px;color:#6b7280;margin-top:3px;">with adoption data</div>
         </div>
 
         <!-- 2. Active Adopters -->
-        <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+        <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:7px 10px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
           onclick="navToAccounts('adopted')" title="View active accounts"
-          onmouseenter="this.style.borderColor='#F59E0B';this.style.boxShadow='0 2px 12px rgba(245,158,11,.15)'"
+          onmouseenter="this.style.borderColor='#F59E0B';this.style.boxShadow='0 2px 8px rgba(245,158,11,.15)'"
           onmouseleave="this.style.borderColor='#FDE68A';this.style.boxShadow='none'">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:10.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">Active Adopters</span>
-            <span style="font-size:16px;">📈</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+            <span style="font-size:9.5px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;">Active Adopters</span>
+            <span style="font-size:13px;">📈</span>
           </div>
-          <div style="font-size:26px;font-weight:900;color:#D97706;line-height:1;" id="exec-kpi-adoption">—</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;" id="exec-kpi-adoption-sub">using ≥1 module actively</div>
+          <div style="font-size:22px;font-weight:900;color:#D97706;line-height:1;" id="exec-kpi-adoption">—</div>
+          <div style="font-size:9.5px;color:#6b7280;margin-top:3px;" id="exec-kpi-adoption-sub">≥1 module active</div>
         </div>
 
         <!-- 3. Not Yet Started -->
-        <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+        <div style="background:#F5F3FF;border:1.5px solid #DDD6FE;border-radius:10px;padding:7px 10px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
           onclick="navToAccounts('notstarted')" title="View accounts not yet started"
-          onmouseenter="this.style.borderColor='#818CF8';this.style.boxShadow='0 2px 12px rgba(129,140,248,.12)'"
+          onmouseenter="this.style.borderColor='#818CF8';this.style.boxShadow='0 2px 8px rgba(129,140,248,.12)'"
           onmouseleave="this.style.borderColor='#DDD6FE';this.style.boxShadow='none'">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:10.5px;font-weight:700;color:#4338CA;text-transform:uppercase;letter-spacing:.5px;">Not Yet Started</span>
-            <span style="font-size:16px;">🔍</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+            <span style="font-size:9.5px;font-weight:700;color:#4338CA;text-transform:uppercase;letter-spacing:.5px;">Not Yet Started</span>
+            <span style="font-size:13px;">🔍</span>
           </div>
-          <div style="font-size:26px;font-weight:900;color:#4F46E5;line-height:1;" id="exec-kpi-gaps">—</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;">zero modules active</div>
+          <div style="font-size:22px;font-weight:900;color:#4F46E5;line-height:1;" id="exec-kpi-gaps">—</div>
+          <div style="font-size:9.5px;color:#6b7280;margin-top:3px;">zero modules active</div>
         </div>
 
-        <!-- 4. Expansion Candidates -->
-        <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+        <!-- 4. Expansion Ready -->
+        <div style="background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:10px;padding:7px 10px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
           onclick="navToAccounts('expansion')" title="View single-product accounts"
-          onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 12px rgba(52,211,153,.12)'"
+          onmouseenter="this.style.borderColor='#34d399';this.style.boxShadow='0 2px 8px rgba(52,211,153,.12)'"
           onmouseleave="this.style.borderColor='#BBF7D0';this.style.boxShadow='none'">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:10.5px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">Expansion Ready</span>
-            <span style="font-size:16px;">🤝</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+            <span style="font-size:9.5px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">Expansion Ready</span>
+            <span style="font-size:13px;">🤝</span>
           </div>
-          <div style="font-size:26px;font-weight:900;color:#059669;line-height:1;" id="exec-kpi-upsell">—</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;">on a single product only</div>
+          <div style="font-size:22px;font-weight:900;color:#059669;line-height:1;" id="exec-kpi-upsell">—</div>
+          <div style="font-size:9.5px;color:#6b7280;margin-top:3px;">single product only</div>
         </div>
 
-
-        <!-- 6. AI Adoption -->
-        <div style="background:#F0F9FF;border:1.5px solid #BAE6FD;border-radius:13px;padding:10px 12px 9px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
+        <!-- 5. AI Adoption -->
+        <div style="background:#F0F9FF;border:1.5px solid #BAE6FD;border-radius:10px;padding:7px 10px;cursor:pointer;transition:border-color .15s,box-shadow .15s;"
           onclick="navToAccounts('ai')" title="View AI adoption accounts"
-          onmouseenter="this.style.borderColor='#0EA5E9';this.style.boxShadow='0 2px 12px rgba(14,165,233,.12)'"
+          onmouseenter="this.style.borderColor='#0EA5E9';this.style.boxShadow='0 2px 8px rgba(14,165,233,.12)'"
           onmouseleave="this.style.borderColor='#BAE6FD';this.style.boxShadow='none'">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:10.5px;font-weight:700;color:#075985;text-transform:uppercase;letter-spacing:.5px;">AI Adoption</span>
-            <span style="font-size:16px;">🤖</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px;">
+            <span style="font-size:9.5px;font-weight:700;color:#075985;text-transform:uppercase;letter-spacing:.5px;">AI Adoption</span>
+            <span style="font-size:13px;">🤖</span>
           </div>
-          <div style="font-size:26px;font-weight:900;color:#0284C7;line-height:1;" id="exec-kpi-ai">—</div>
-          <div style="font-size:10.5px;color:#6b7280;margin-top:5px;">using Gen AI or Agents</div>
+          <div style="font-size:22px;font-weight:900;color:#0284C7;line-height:1;" id="exec-kpi-ai">—</div>
+          <div style="font-size:9.5px;color:#6b7280;margin-top:3px;">Gen AI or Agents</div>
         </div>
 
       </div>
 
       <!-- Exec: Product Adoption Hero (redesigned) -->
-      <div style="background:linear-gradient(135deg,#0E2A22 0%,#1B4D3E 100%);border-radius:14px;padding:14px 18px;margin-bottom:10px;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(11,31,25,.25);">
+      <div style="background:linear-gradient(135deg,#0E2A22 0%,#1B4D3E 100%);border-radius:12px;padding:10px 14px;margin-bottom:6px;position:relative;overflow:hidden;box-shadow:0 3px 14px rgba(11,31,25,.25);">
         <!-- Decorative circles -->
-        <div style="position:absolute;right:-40px;top:-40px;width:200px;height:200px;border-radius:50%;background:rgba(52,211,153,.06);pointer-events:none;"></div>
-        <div style="position:absolute;right:80px;bottom:-50px;width:140px;height:140px;border-radius:50%;background:rgba(52,211,153,.04);pointer-events:none;"></div>
+        <div style="position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(52,211,153,.06);pointer-events:none;"></div>
 
         <!-- Header row -->
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px;position:relative;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;position:relative;">
           <div>
-            <div style="font-size:19px;font-weight:800;color:#fff;letter-spacing:-.03em;">Product Adoption Overview</div>
-            <div style="font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;" id="adopt-exec-subtitle">All accounts · from account data</div>
+            <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:-.03em;">Product Adoption Overview</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.5);margin-top:2px;" id="adopt-exec-subtitle">All accounts · from account data</div>
           </div>
-          <div style="background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);border-radius:10px;padding:8px 14px;text-align:center;">
-            <div style="font-size:24px;font-weight:900;color:#34d399;line-height:1;" id="exec-hero-pct-active">—</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.55);font-weight:600;margin-top:4px;">accounts with active modules</div>
+          <div style="background:rgba(52,211,153,.15);border:1px solid rgba(52,211,153,.3);border-radius:8px;padding:5px 12px;text-align:center;">
+            <div style="font-size:20px;font-weight:900;color:#34d399;line-height:1;" id="exec-hero-pct-active">—</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.55);font-weight:600;margin-top:2px;">with active modules</div>
           </div>
         </div>
 
         <!-- 3 headline metrics -->
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;position:relative;">
-          <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:10px;padding:10px 14px;">
-            <div style="font-size:26px;font-weight:900;color:#fff;line-height:1;" id="exec-hero-total">—</div>
-            <div style="font-size:11.5px;font-weight:700;color:rgba(255,255,255,.7);margin-top:5px;">Accounts Tracked</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;">in adoption programme</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:7px;position:relative;">
+          <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:8px;padding:7px 10px;">
+            <div style="font-size:22px;font-weight:900;color:#fff;line-height:1;" id="exec-hero-total">—</div>
+            <div style="font-size:10.5px;font-weight:700;color:rgba(255,255,255,.7);margin-top:3px;">Accounts Tracked</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;">in adoption programme</div>
           </div>
-          <div style="background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.22);border-radius:10px;padding:10px 14px;">
-            <div style="font-size:26px;font-weight:900;color:#34d399;line-height:1;" id="exec-hero-avg">—</div>
-            <div style="font-size:11.5px;font-weight:700;color:rgba(255,255,255,.7);margin-top:5px;">Avg Active Products</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;">per account</div>
+          <div style="background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.22);border-radius:8px;padding:7px 10px;">
+            <div style="font-size:22px;font-weight:900;color:#34d399;line-height:1;" id="exec-hero-avg">—</div>
+            <div style="font-size:10.5px;font-weight:700;color:rgba(255,255,255,.7);margin-top:3px;">Avg Active Products</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;">per account</div>
           </div>
-          <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:10px;padding:10px 14px;">
-            <div style="font-size:26px;font-weight:900;color:#fff;line-height:1;" id="exec-hero-3plus">—</div>
-            <div style="font-size:11.5px;font-weight:700;color:rgba(255,255,255,.7);margin-top:5px;">Using 3+ Products</div>
-            <div style="font-size:11px;color:rgba(255,255,255,.35);margin-top:3px;" id="exec-hero-3plus-sub">of portfolio</div>
+          <div style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:8px;padding:7px 10px;">
+            <div style="font-size:22px;font-weight:900;color:#fff;line-height:1;" id="exec-hero-3plus">—</div>
+            <div style="font-size:10.5px;font-weight:700;color:rgba(255,255,255,.7);margin-top:3px;">Using 3+ Products</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;" id="exec-hero-3plus-sub">of portfolio</div>
           </div>
         </div>
 
         <!-- Account Journey stacked bar -->
         <div style="position:relative;">
-          <div style="font-size:10.5px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.7px;margin-bottom:9px;">Customer Adoption Journey</div>
-          <div style="height:10px;background:rgba(255,255,255,.08);border-radius:5px;overflow:hidden;display:flex;" id="exec-hero-journey-bar"></div>
-          <div style="display:flex;gap:14px;margin-top:6px;flex-wrap:wrap;" id="exec-hero-journey-legend"></div>
+          <div style="font-size:9.5px;font-weight:700;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px;">Adoption Journey</div>
+          <div style="height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;display:flex;" id="exec-hero-journey-bar"></div>
+          <div style="display:flex;gap:10px;margin-top:5px;flex-wrap:wrap;" id="exec-hero-journey-legend"></div>
         </div>
 
         <!-- Hidden backward-compat IDs used by renderAdoptionPanels() -->
@@ -1600,20 +1598,20 @@ button { cursor: pointer; }
       </div>
 
       <!-- Exec: Adoption Coverage Chart -->
-      <div style="background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #e8eaf0;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div style="background:#fff;border-radius:10px;padding:8px 12px;border:1px solid #e8eaf0;margin-bottom:6px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;">
           <div>
-            <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">Adoption Coverage</div>
-            <div style="font-size:11px;color:#6b7280;margin-top:1px;">% of tracked accounts with Adopted or In Progress status — sorted by coverage</div>
+            <div style="font-size:12px;font-weight:800;color:#111827;letter-spacing:-.02em;">Adoption Coverage</div>
+            <div style="font-size:10.5px;color:#6b7280;margin-top:1px;">% of tracked accounts with Adopted or In Progress status</div>
           </div>
         </div>
         <div id="exec-adoption-penetration">
-          <div style="color:#9ca3af;font-size:12px;padding:8px 0;">Loading…</div>
+          <div style="color:#9ca3af;font-size:12px;padding:4px 0;">Loading…</div>
         </div>
       </div>
 
       <!-- Exec compact stats row -->
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:10px;">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px;">
         <!-- Total Accounts -->
         <div class="stat-card highlight clickable" onclick="navToAccounts('all')" title="View all accounts">
           <div class="stat-icon" style="background:rgba(255,255,255,.15);">👥</div>
@@ -1659,16 +1657,16 @@ button { cursor: pointer; }
       </div><!-- end exec compact stats row -->
 
       <!-- Exec: NPS Overview Row -->
-      <div style="margin-bottom:10px;">
+      <div style="margin-bottom:6px;">
 
         <!-- NPS Gauge Card (full width) -->
-        <div style="background:#fff;border-radius:12px;padding:14px 18px;border:1px solid #e8eaf0;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="background:#fff;border-radius:10px;padding:8px 12px;border:1px solid #e8eaf0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;">
             <div>
-              <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">Net Promoter Score</div>
-              <div style="font-size:11px;color:#6b7280;margin-top:1px;" id="nps-period-label">Year to Date</div>
+              <div style="font-size:12px;font-weight:800;color:#111827;letter-spacing:-.02em;">Net Promoter Score</div>
+              <div style="font-size:10.5px;color:#6b7280;margin-top:1px;" id="nps-period-label">Year to Date</div>
             </div>
-            <span style="font-size:10px;font-weight:700;color:#fff;background:#1B4D3E;border-radius:20px;padding:3px 10px;">YTD</span>
+            <span style="font-size:10px;font-weight:700;color:#fff;background:#1B4D3E;border-radius:20px;padding:2px 8px;">YTD</span>
             <!-- Hidden period tab buttons — kept for JS compatibility, not shown -->
             <button id="nps-tab-M" style="display:none;">M</button>
             <button id="nps-tab-Q" style="display:none;">Q</button>
