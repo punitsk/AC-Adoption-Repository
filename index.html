@@ -1091,6 +1091,14 @@ button { cursor: pointer; }
   .middle-row, .bottom-row { grid-template-columns: 1fr !important; }
   .stats-row-6 { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ── Readability: boost font-weight on light-grey inline text ── */
+[style*="color:#9ca3af"] { font-weight: 600 !important; }
+[style*="color: #9ca3af"] { font-weight: 600 !important; }
+[style*="color:#6b7280"] { font-weight: 600 !important; }
+[style*="color: #6b7280"] { font-weight: 600 !important; }
+[style*="color:#d1d5db"] { font-weight: 600 !important; }
+[style*="color: #d1d5db"] { font-weight: 600 !important; }
 </style>
 </head>
 <body>
@@ -1173,7 +1181,7 @@ button { cursor: pointer; }
       <div style="position:relative;" id="role-switcher-wrap">
         <button onclick="toggleRolePicker()" id="role-switcher-btn" style="display:flex;align-items:center;gap:7px;padding:6px 12px;border-radius:9px;border:1.5px solid #e5e7eb;background:#F5F6FA;cursor:pointer;font-size:12px;font-weight:600;color:#374151;transition:all .15s;">
           <span id="role-switcher-icon">👤</span>
-          <span id="role-switcher-label">Consultant</span>
+          <span id="role-switcher-label">Adoption Engineer</span>
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
         <div id="role-picker-dropdown" style="display:none;position:absolute;right:0;top:calc(100% + 8px);background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.12);padding:8px;min-width:200px;z-index:999;">
@@ -1196,7 +1204,7 @@ button { cursor: pointer; }
     <div class="view-toggle">
       <button class="view-btn" id="btn-consultant" onclick="switchView('consultant')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Consultant View
+        Adoption Engineer View
       </button>
       <button class="view-btn active" id="btn-leadership" onclick="switchView('leadership')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
@@ -1233,7 +1241,7 @@ button { cursor: pointer; }
           <div class="page-title">My Dashboard</div>
           <div class="context-banner" id="context-banner">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>Showing <strong id="banner-text">Kambi G. · All Products</strong> — Consultant personal dashboard</span>
+            <span>Showing <strong id="banner-text">Kambi G. · All Products</strong> — Adoption Engineer dashboard</span>
           </div>
           <div class="refresh-indicator" id="refresh-csm" onclick="refreshView('csm')" title="Click to refresh">
             <span class="refresh-dot"></span>
@@ -1805,10 +1813,6 @@ button { cursor: pointer; }
       <div style="position:relative;">
         <select id="acct-csm" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px 28px 6px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:130px;transition:border-color .15s;" onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='#e5e7eb'">
           <option value="">All Consultants</option>
-          <option value="Praveen">Kambi G.</option>
-          <option value="Sara">Pratik P.</option>
-          <option value="Raj">Mani M.</option>
-          <option value="Alex">Navya N.</option>
         </select>
         <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10px;color:#6b7280;pointer-events:none;">▾</span>
       </div>
@@ -1816,10 +1820,6 @@ button { cursor: pointer; }
       <div style="position:relative;">
         <select id="acct-product" onchange="filterAccounts()" style="appearance:none;background:#F5F6FA;border:1.5px solid #e5e7eb;border-radius:9px;padding:6px 28px 6px 12px;font-size:12.5px;font-weight:600;color:#374151;cursor:pointer;outline:none;min-width:120px;transition:border-color .15s;" onfocus="this.style.borderColor='#34d399'" onblur="this.style.borderColor='#e5e7eb'">
           <option value="">All Products</option>
-          <option value="ERP">ERP</option>
-          <option value="WMS">WMS</option>
-          <option value="SCM">SCM</option>
-          <option value="TMS">TMS</option>
         </select>
         <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10px;color:#6b7280;pointer-events:none;">▾</span>
       </div>
@@ -4009,7 +4009,14 @@ function navTo(section) {
   });
   if (section === 'accounts') {
     if (!ACCOUNTS.length && !_sfLoading) loadAccountsFromSalesforce();
-    else { renderAccountsTable(); renderAccountAdoptionGrid(); updateAccountSummaryTiles(); }
+    else {
+      // Always repopulate filters when navigating to accounts so dropdowns reflect live data
+      populateCsmFilter();
+      populateProductFilter();
+      renderAccountsTable();
+      renderAccountAdoptionGrid();
+      updateAccountSummaryTiles();
+    }
   }
   if (section === 'dashboard') {
     populateDashboardFilters();
@@ -4217,7 +4224,11 @@ async function loadAccountsFromSalesforce() {
     // Filter to real customer accounts (must have Id; Name fallback to Id if missing)
     records.forEach(r => { if (!r.Name && r.Id) r.Name = r.Id; });
     const filtered = records.filter(r => r.Id);
-    ACCOUNTS = filtered.map(sfRecordToAccount);
+    // Only keep accounts where adoption is actively being tracked:
+    // must have a product line assigned AND a CSM managing them
+    ACCOUNTS = filtered.map(sfRecordToAccount).filter(a =>
+      a.product !== 'N/A' && a.csm !== 'Unassigned'
+    );
     _sfLastSync = new Date();
     _sfLoading = false;           // clear flag BEFORE rendering so table check passes
     _setSFStatus('ok');
@@ -4449,7 +4460,11 @@ function populateCsmFilter() {
 function populateProductFilter() {
   const sel = document.getElementById('acct-product');
   if (!sel) return;
-  const products = [...new Set(ACCOUNTS.map(a => a.product).filter(p => p && p !== 'N/A'))].sort();
+  // Flatten all products (including multi-product accounts) so every product is filterable
+  const products = [...new Set(
+    ACCOUNTS.flatMap(a => Array.isArray(a.products) ? a.products : [a.product])
+            .filter(p => p && p !== 'N/A')
+  )].sort();
   const prev = sel.value;
   sel.innerHTML = '<option value="">All Products</option>' +
     products.map(p => `<option value="${p}">${p}</option>`).join('');
@@ -4540,7 +4555,7 @@ function getFilteredAccounts() {
 
   return (ACCOUNTS || []).filter(a => {
     if (search  && !a.name.toLowerCase().includes(search)) return false;
-    if (csm     && a.csm !== csm)       return false;
+    if (csm     && (a.csm || '').trim() !== csm.trim()) return false;
     if (product && !_accountHasProduct(a, product)) return false;
     if (adoptionFilter && getJourney(a.name) !== adoptionFilter) return false;
     if (window._acctRefFilter        && !a.ref) return false;
@@ -6454,7 +6469,7 @@ function renderSettingsPanel(tab) {
         <div class="settings-row">
           <div><div class="settings-row-label">Default View</div><div class="settings-row-sub">Landing view when you open the dashboard</div></div>
           <select class="settings-select">
-            <option selected>Consultant View</option>
+            <option selected>Adoption Engineer View</option>
             <option>Executive Overview</option>
           </select>
         </div>
@@ -6702,7 +6717,7 @@ renderSettingsPanel('profile');
 
 const ROLE_DEFS = {
   consultant: {
-    key:'consultant', label:'AppCentral Consultant', icon:'👤',
+    key:'consultant', label:'Adoption Engineer', icon:'🛠️',
     color:'#065f46', bg:'#D1FAE5',
     description:'Manages their own accounts, tasks, and adoption activities.',
     perms: {
@@ -6744,7 +6759,7 @@ let _applyingRole = false; // guard: prevents switchView from overwriting role d
 
 const PERM_LABELS = {
   dashboard:      'Dashboard',
-  csmView:        'Consultant View',
+  csmView:        'Adoption Engineer View',
   executiveView:  'Executive Overview',
   tasks:          'Tasks',
   accounts:       'Accounts',
@@ -6839,10 +6854,13 @@ function applyRole(roleKey) {
   if (csmBtn)  csmBtn.style.display  = p.csmView      ? '' : 'none';
 
   _applyingRole = true;  // prevent switchView from double-updating currentRole
-  if (!p.executiveView) {
+  // Adoption Engineer role defaults to its own view; all others go to leadership
+  if (roleKey === 'consultant') {
     switchView('consultant');
-  } else {
+  } else if (p.executiveView) {
     switchView('leadership');
+  } else {
+    switchView('consultant');
   }
   _applyingRole = false;
 
