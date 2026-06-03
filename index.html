@@ -1838,11 +1838,7 @@ button { cursor: pointer; }
     </div>
 
     <!-- Adoption summary tiles — update dynamically when filters change -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;">
-      <div style="background:#1B4D3E;border-radius:12px;padding:12px 16px;cursor:pointer;" onclick="resetAccountFilters()" title="All accounts">
-        <div style="font-size:10.5px;font-weight:600;color:#a7f3d0;text-transform:uppercase;letter-spacing:.5px;">Total Accounts</div>
-        <div id="sf-tile-total" style="font-size:26px;font-weight:800;color:#fff;margin-top:4px;">—</div>
-      </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;">
       <div style="background:#F0FDF4;border-radius:12px;padding:12px 16px;border:1.5px solid #BBF7D0;cursor:pointer;transition:box-shadow .15s;" onclick="document.getElementById('acct-adoption-status').value='adopted';filterAccounts();" title="Filter: Fully Adopted" onmouseenter="this.style.boxShadow='0 2px 10px rgba(5,150,105,.2)'" onmouseleave="this.style.boxShadow='none'">
         <div style="font-size:10.5px;font-weight:600;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">✅ Fully Adopted</div>
         <div id="acct-tile-adopted" style="font-size:26px;font-weight:800;color:#059669;margin-top:4px;">—</div>
@@ -4438,7 +4434,6 @@ function renderAccountsSummary() {
   const churn    = ACCOUNTS.filter(a => a.health === 'Red'    || a.health === 'Black').length;
   const totalArr = ACCOUNTS.reduce((s,a)=>s+a.arr,0);
   const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-  set('sf-tile-total',   total);
   set('sf-tile-healthy', healthy);
   set('sf-tile-atrisk',  atRisk);
   set('sf-tile-churn',   churn);
@@ -4584,9 +4579,7 @@ function filterAccounts() { _clearAcctSpecialFilters(); renderAccountsTable(); r
 
 function updateAccountSummaryTiles() {
   const filtered = getFilteredAccounts();
-  const total    = filtered.length;
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  set('sf-tile-total', total);
 
   if (!_adoptionLoaded || !Object.keys(ADOPTION_LIVE).length) return;
 
