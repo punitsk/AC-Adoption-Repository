@@ -1620,33 +1620,6 @@ button { cursor: pointer; }
         <div  id="adopt-exec-bars"           style="display:none;"></div>
       </div>
 
-      <!-- Exec: Adoption KPI Tiles -->
-      <div style="background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #e8eaf0;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div>
-            <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">Adoption KPIs</div>
-            <div style="font-size:11px;color:#6b7280;margin-top:1px;">Portfolio-level adoption health at a glance</div>
-          </div>
-          <div style="font-size:11px;color:#9ca3af;font-weight:600;" id="exec-adoption-kpi-label">All accounts</div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;" id="exec-adoption-kpi-tiles">
-          <div style="background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:14px;padding:16px 18px;text-align:center;color:#9ca3af;font-size:12px;">Loading…</div>
-        </div>
-      </div>
-
-      <!-- Exec: Customer Journey -->
-      <div style="background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #e8eaf0;margin-bottom:10px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div>
-            <div style="font-size:13px;font-weight:800;color:#111827;letter-spacing:-.02em;">Customer Journey</div>
-            <div style="font-size:11px;color:#6b7280;margin-top:1px;">Where accounts stand in their adoption journey</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;" id="exec-adoption-journey">
-          <div style="background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:14px;padding:16px;text-align:center;color:#9ca3af;font-size:12px;">Loading…</div>
-        </div>
-      </div>
-
       <!-- Exec: Adoption Coverage Chart -->
       <div style="background:#fff;border-radius:12px;padding:12px 16px;border:1px solid #e8eaf0;margin-bottom:10px;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
@@ -9374,6 +9347,7 @@ const PU_LOW_USAGE_ACCOUNTS = [
 let _puActiveTab = 'ranking';
 
 function _puFmt(n) { return n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n); }
+function _puFmtRaw(n) { return n != null ? String(n) : '—'; }
 function _puBar(pct, color) {
   return `<div style="display:flex;align-items:center;gap:8px;">
     <div style="flex:1;height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;">
@@ -9501,8 +9475,6 @@ function _puRenderKPIs(visible) {
       { label:'Top Product',          value:topProd ? topProd.icon+' '+topProd.name.split(' ')[0] : '—',
         sub:topProd ? _puFmt(topProd.mau)+' MAU · highest usage' : 'no data',
         bg:'#FFFBEB', border:'#FDE68A', vClr:'#92400e', sClr:'#d97706', small:true },
-      { label:'Avg Stickiness',       value: avgStick === '—' ? '—' : avgStick+'%',
-        sub:'DAU ÷ MAU · how often users return', bg:'#F5F3FF', border:'#DDD6FE', vClr:'#5b21b6', sClr:'#7c3aed' },
     ];
 
   } else if (_puActiveTab === 'license') {
@@ -9511,11 +9483,11 @@ function _puRenderKPIs(visible) {
     const available  = totalSeats - totalUsed;
     const lowUtil    = visible.filter(p=>Math.round((p.used/p.seats)*100)<60).length;
     tiles = [
-      { label:'Total Licensed Seats', value:_puFmt(totalSeats),
+      { label:'Total Licensed Seats', value:_puFmtRaw(totalSeats),
         sub:'contracted across all products', bg:'#F9FAFB', border:'#e5e7eb', vClr:'#111827', sClr:'#6b7280' },
-      { label:'Seats In Use',         value:_puFmt(totalUsed),
+      { label:'Seats In Use',         value:_puFmtRaw(totalUsed),
         sub:'active MAU against licensed seats', bg:'#F0FDF4', border:'#BBF7D0', vClr:'#047857', sClr:'#10b981' },
-      { label:'Available Seats',      value:_puFmt(available),
+      { label:'Available Seats',      value:_puFmtRaw(available),
         sub:'unused capacity · potential for expansion', bg:'#EFF6FF', border:'#BFDBFE', vClr:'#1d4ed8', sClr:'#3b82f6' },
       { label:'Overall Utilization',  value:utilPct+'%',
         sub: lowUtil ? lowUtil+' product'+(lowUtil>1?'s':'')+' below 60% — needs review' : 'All products above 60% ✓',
@@ -9611,9 +9583,6 @@ function _puRankingHTML(visible) {
       <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#047857;">${_puFmt(p.wau)}</td>
       <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#c2410c;">${_puFmt(p.mau)}</td>
       <td style="padding:12px 14px;min-width:140px;">${_puBar(barPct,'#1B4D3E')}</td>
-      <td style="padding:12px 14px;text-align:center;">
-        <span style="font-size:12px;font-weight:700;color:${sColor};">${stick}%</span>
-      </td>
     </tr>`;
   }).join('');
   return `<div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
@@ -9626,7 +9595,6 @@ function _puRankingHTML(visible) {
           <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#059669;text-transform:uppercase;letter-spacing:.5px;">WAU</th>
           <th style="padding:10px 14px;text-align:right;font-size:10.5px;font-weight:700;color:#c2410c;text-transform:uppercase;letter-spacing:.5px;">MAU</th>
           <th style="padding:10px 14px;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;">MAU Reach</th>
-          <th style="padding:10px 14px;text-align:center;font-size:10.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;" title="DAU÷MAU">Stickiness</th>
         </tr>
       </thead>
       <tbody>${rows}</tbody>
@@ -9692,9 +9660,9 @@ function _puLicenseHTML(visible) {
         <span style="font-size:13px;font-weight:700;color:#111827;">${p.name}</span>
         ${accountRows.length ? `<span style="font-size:10.5px;color:#9ca3af;margin-left:6px;">${accountRows.length} accounts</span>` : ''}
       </td>
-      <td style="padding:12px 14px;text-align:right;font-size:13px;color:#374151;">${_puFmt(p.seats)}</td>
-      <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#111827;">${_puFmt(p.used)}</td>
-      <td style="padding:12px 14px;text-align:right;font-size:13px;color:#6b7280;">${_puFmt(p.seats-p.used)}</td>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;color:#374151;">${_puFmtRaw(p.seats)}</td>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;font-weight:700;color:#111827;">${_puFmtRaw(p.used)}</td>
+      <td style="padding:12px 14px;text-align:right;font-size:13px;color:#6b7280;">${_puFmtRaw(p.seats-p.used)}</td>
       <td style="padding:12px 14px;min-width:160px;">${_puBar(utilPct, barColor)}</td>
       <td style="padding:12px 14px;text-align:center;">${badge}</td>
       <td style="padding:12px 14px;text-align:center;font-size:11px;color:#9ca3af;">${isExpanded?'▲ Collapse':'▼ Expand'}</td>
@@ -9724,9 +9692,9 @@ function _puLicenseHTML(visible) {
       <tfoot>
         <tr style="background:#F0FDF4;border-top:2px solid #BBF7D0;">
           <td style="padding:11px 14px;font-size:12.5px;font-weight:800;color:#065f46;">TOTAL</td>
-          <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:800;color:#111827;">${_puFmt(totSeats)}</td>
-          <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:800;color:#047857;">${_puFmt(totUsed)}</td>
-          <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:700;color:#6b7280;">${_puFmt(totOpen)}</td>
+          <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:800;color:#111827;">${_puFmtRaw(totSeats)}</td>
+          <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:800;color:#047857;">${_puFmtRaw(totUsed)}</td>
+          <td style="padding:11px 14px;text-align:right;font-size:12.5px;font-weight:700;color:#6b7280;">${_puFmtRaw(totOpen)}</td>
           <td style="padding:11px 14px;" colspan="3">${_puBar(totPct,'#1B4D3E')}</td>
         </tr>
       </tfoot>
