@@ -4170,11 +4170,12 @@ async function loadAccountsFromSalesforce() {
     // Filter to real customer accounts (must have Id; Name fallback to Id if missing)
     records.forEach(r => { if (!r.Name && r.Id) r.Name = r.Id; });
     const filtered = records.filter(r => r.Id);
-    // Only keep accounts where adoption is actively being tracked:
-    // must have a product line assigned AND a CSM managing them
-    ACCOUNTS = filtered.map(sfRecordToAccount).filter(a =>
-      a.product !== 'N/A' && a.csm !== 'Unassigned'
-    );
+    // Keep all accounts with a valid SF ID.
+    // The dashboard/accounts display is controlled by the adoptionNames filter
+    // (only accounts present in ADOPTION_LIVE are shown), so we don't pre-filter
+    // by product line or CSM here — that would cause adoption-tracked accounts
+    // without a product line or CSM set in SF to be silently dropped.
+    ACCOUNTS = filtered.map(sfRecordToAccount);
     _sfLastSync = new Date();
     _sfLoading = false;           // clear flag BEFORE rendering so table check passes
     _setSFStatus('ok');
@@ -4499,6 +4500,8 @@ function getFilteredAccounts() {
   }
 
   return (ACCOUNTS || []).filter(a => {
+    // When adoption data is loaded, only show accounts that are tracked in the adoption program
+    if (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0 && !ADOPTION_LIVE[a.name]) return false;
     if (search  && !a.name.toLowerCase().includes(search)) return false;
     if (csm     && (a.csm || '').trim() !== csm.trim()) return false;
     if (product && !_accountHasProduct(a, product)) return false;
@@ -10258,7 +10261,7 @@ function _puShipLiveHTML() {
   </div>
   <div style="margin-top:10px;padding:7px 12px;font-size:10.5px;color:#9ca3af;display:flex;justify-content:space-between;">
     <span>Source: SHIP MCP Server · ${headingLabel} · Jun 1 – Jul 7, 2026</span>
-    <span>${plData.accounts.toLocaleString()} accounts · ${plData.shipments.toLocaleString()} shipments</span>
+    <span>${plAccountCount.toLocaleString()} accounts · ${plShipments.toLocaleString()} shipments</span>
   </div>`;
 }
 
