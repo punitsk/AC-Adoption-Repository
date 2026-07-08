@@ -9540,7 +9540,7 @@ function _puRenderTab() {
   if (_puActiveTab === 'lowusage') el.innerHTML = _puLowUsageHTML(visible);
   if (_puActiveTab === 'features') el.innerHTML = _puFeaturesHTML(visible);
   if (_puActiveTab === 'm2mlive')  { el.innerHTML = _puM2MLivePlaceholder(); _loadM2MLiveTab(); }
-  if (_puActiveTab === 'shiplive') el.innerHTML = _puShipLiveHTML();
+  if (_puActiveTab === 'shiplive') { _loadSFAccounts(); el.innerHTML = _puShipLiveHTML(); }
 }
 
 function _puRankingHTML(visible) {
@@ -9978,6 +9978,58 @@ function _loadM2MLiveTab() {
   });
 }
 
+// ── Salesforce Live Accounts (via Logic App) ────────────────────────────────
+const SF_ACCOUNTS_URL = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/Get_Account_Details/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=sOnf2NLxBHW18BNvRDnePTeqMMrwqD743xzcuwpVT6w';
+let _sfAccountsCache = null;
+let _sfAccountsLoading = false;
+
+async function _loadSFAccounts() {
+  if (_sfAccountsCache !== null || _sfAccountsLoading) return;
+  _sfAccountsLoading = true;
+  try {
+    const resp = await fetch(SF_ACCOUNTS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    const data = await resp.json();
+    _sfAccountsCache = data?.AccountDetails?.records || [];
+    console.log('[SF] Loaded', _sfAccountsCache.length, 'accounts');
+    // Re-render Ship Live tab if it's currently active
+    if (_puActiveTab === 'shiplive') {
+      const el = document.getElementById('pu-content');
+      if (el) el.innerHTML = _puShipLiveHTML();
+    }
+  } catch(e) {
+    console.warn('[SF] Could not load accounts:', e.message);
+    _sfAccountsCache = [];
+  } finally {
+    _sfAccountsLoading = false;
+  }
+}
+
+function _sfNorm(s) {
+  return s.toLowerCase()
+    .replace(/\b(mfg|manufacturing|inc|incorporated|llc|ltd|co|corp|corporation|company|the|and|of|a)\b/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+function _sfMatch(code) {
+  if (!_sfAccountsCache || !_sfAccountsCache.length || code.length < 5) return null;
+  const cN = _sfNorm(code);
+  let best = null, bestScore = 0;
+  for (const acc of _sfAccountsCache) {
+    const sfN = _sfNorm(acc.Name);
+    let score = 0;
+    if (cN === sfN) score = 100;
+    else if (cN.length >= 8 && sfN.startsWith(cN.slice(0, 8))) score = 92;
+    else if (cN.length >= 6 && sfN.startsWith(cN.slice(0, 6))) score = 87;
+    else if (cN.length >= 8 && sfN.includes(cN)) score = 83;
+    if (score > bestScore) { bestScore = score; best = acc; }
+  }
+  return bestScore >= 87 ? best : null;
+}
+
 // ── SHIP Live Data (from MCP server, Jun 1–Jul 7 2026) ──────────────────────
 // Company name overrides for known M2M tenants
 const SHIP_COMPANY_NAMES = {
@@ -10009,6 +10061,7 @@ const _SHIP_CARRIERS_DATA = [
 
 function _setShipPL(pl) {
   _shipActivePL = pl;
+  _loadSFAccounts(); // kick off SF load if not yet done
   const el = document.getElementById('pu-content');
   if (el) el.innerHTML = _puShipLiveHTML();
 }
@@ -10054,6 +10107,14 @@ function _puShipLiveHTML() {
   const tenants = plData.tenants || [];
   const maxTotal = tenants.length > 0 ? tenants[0].total : 1;
 
+  const sfLoading = _sfAccountsCache === null;
+  const sfBadge = sfLoading
+    ? `<span style="font-size:9px;background:#FEF3C7;color:#92400e;padding:1px 6px;border-radius:6px;font-weight:600;">SF loading…</span>`
+    : `<span style="font-size:9px;background:#D1FAE5;color:#065f46;padding:1px 6px;border-radius:6px;font-weight:600;">SF ${_sfAccountsCache.length} accounts</span>`;
+
+  const TEMP_COLOR = {'Red':'#EF4444','Yellow':'#F59E0B','Green':'#10B981'};
+  const TEMP_ICON  = {'Red':'🔴','Yellow':'🟡','Green':'🟢'};
+
   const tenantRows = tenants.map((t,i) => {
     const pct = Math.round((t.total / maxTotal) * 100);
     const rankColors = ['#F59E0B','#94A3B8','#CD7F32'];
@@ -10061,18 +10122,33 @@ function _puShipLiveHTML() {
       ? `<span style="width:20px;height:20px;border-radius:50%;background:${rankColors[i]};color:#fff;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;">${i+1}</span>`
       : `<span style="font-size:11px;color:#9ca3af;font-weight:600;width:20px;display:inline-block;text-align:center;">${i+1}</span>`;
     const freightBadge = t.freight > 0 ? `<span style="font-size:9px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px;margin-left:4px;">+LTL</span>` : '';
-    const displayName = SHIP_COMPANY_NAMES[t.code] || (t.code.charAt(0).toUpperCase() + t.code.slice(1));
+
+    // Salesforce enrichment
+    const sfAcc = _sfMatch(t.code);
+    const displayName = sfAcc ? sfAcc.Name
+      : (SHIP_COMPANY_NAMES[t.code] || (t.code.charAt(0).toUpperCase() + t.code.slice(1)));
     const isPending = displayName.includes('pending');
+    const tempIcon  = sfAcc && sfAcc.Temperament__c ? TEMP_ICON[sfAcc.Temperament__c] || '' : '';
+    const arrVal    = sfAcc && sfAcc.Annual_Recurring_Revenue_USD__c
+      ? `<span style="font-size:10px;background:#EFF6FF;color:#1d4ed8;padding:1px 6px;border-radius:5px;font-weight:600;">$${(sfAcc.Annual_Recurring_Revenue_USD__c/1000).toFixed(0)}K ARR</span>` : '';
+    const journey   = sfAcc && sfAcc.Customer_Journey_Stage__c
+      ? `<span style="font-size:9px;color:#6b7280;margin-left:4px;">${sfAcc.Customer_Journey_Stage__c}</span>` : '';
+    const sfPL      = sfAcc && sfAcc.Primary_Product_Line_Profile__c
+      ? `<span style="font-size:9px;background:#F3E8FF;color:#6d28d9;padding:1px 5px;border-radius:4px;margin-left:3px;">${sfAcc.Primary_Product_Line_Profile__c}</span>` : '';
+
     return `<tr style="border-top:1px solid #f3f4f6;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background=''">
       <td style="padding:6px 10px;width:28px;">${badge}</td>
       <td style="padding:6px 10px;">
-        <div style="font-size:12px;font-weight:600;color:${isPending?'#9ca3af':'#374151'};">${displayName}${freightBadge}</div>
-        <div style="font-size:10px;color:#d1d5db;">${t.code}</div>
+        <div style="font-size:12px;font-weight:600;color:${isPending?'#9ca3af':'#374151'};display:flex;align-items:center;flex-wrap:wrap;gap:3px;">
+          ${tempIcon} ${displayName}${freightBadge}${sfPL}
+        </div>
+        <div style="font-size:10px;color:#d1d5db;margin-top:2px;">${t.code}${journey}</div>
       </td>
       <td style="padding:6px 10px;text-align:right;font-size:12px;color:#6b7280;">${t.parcel.toLocaleString()}</td>
       <td style="padding:6px 10px;text-align:right;font-size:12px;color:#6b7280;">${t.freight > 0 ? t.freight.toLocaleString() : '—'}</td>
       <td style="padding:6px 10px;text-align:right;font-size:12px;font-weight:700;color:#111827;">${t.total.toLocaleString()}</td>
-      <td style="padding:6px 14px;min-width:110px;">${_puBar(pct,'#10B981')}</td>
+      <td style="padding:6px 8px;">${arrVal}</td>
+      <td style="padding:6px 14px;min-width:90px;">${_puBar(pct,'#10B981')}</td>
     </tr>`;
   }).join('');
 
@@ -10104,7 +10180,10 @@ function _puShipLiveHTML() {
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
       <div style="padding:10px 14px;background:#F0FDF4;border-bottom:1px solid #d1fae5;display:flex;align-items:center;justify-content:space-between;">
         <span style="font-size:12px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">${headingLabel} — Top Accounts on SHIP</span>
-        <span style="font-size:10px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:8px;font-weight:600;">MCP Live · Top 20</span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          ${sfBadge}
+          <span style="font-size:10px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:8px;font-weight:600;">MCP Live · Top 20</span>
+        </div>
       </div>
       <div style="overflow-y:auto;max-height:400px;">
         <table style="width:100%;border-collapse:collapse;">
@@ -10115,6 +10194,7 @@ function _puShipLiveHTML() {
               <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Parcel</th>
               <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Freight</th>
               <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Total</th>
+              <th style="padding:6px 8px;text-align:left;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">ARR</th>
               <th style="padding:6px 14px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Volume</th>
             </tr>
           </thead>
