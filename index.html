@@ -4161,7 +4161,8 @@ async function loadAccountsFromSalesforce() {
   _sfLoading = true;
   _setSFStatus('syncing');
   try {
-    const res = await fetch(SF_API_URL, { method:'GET' });
+    // Use POST (same as Ship Live tab) — GET returns incomplete results after Logic App filter removal
+    const res = await fetch(SF_API_URL, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({}) });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const records = data?.AccountDetails?.records || [];
@@ -10049,6 +10050,138 @@ let _shipActivePL = 'All';
 
 const SHIP_BY_PRODUCT_LINE = {"All":{"accounts":1714,"shipments":3255065,"tenants":[{"code":"mcnmckexpertek","total":81485,"parcel":80032,"freight":1453},{"code":"etsexpress","total":54326,"parcel":54144,"freight":182},{"code":"alere","total":42420,"parcel":42420,"freight":0},{"code":"torginol","total":27103,"parcel":26545,"freight":558},{"code":"aui","total":24902,"parcel":24577,"freight":325},{"code":"rogers","total":24414,"parcel":24414,"freight":0},{"code":"prostat","total":23544,"parcel":23544,"freight":0},{"code":"apair","total":23531,"parcel":23531,"freight":0},{"code":"cci1680","total":21354,"parcel":21354,"freight":0},{"code":"truecitrus","total":20601,"parcel":20601,"freight":0},{"code":"srpcompanies","total":19846,"parcel":19846,"freight":0},{"code":"quorum","total":19706,"parcel":18860,"freight":846},{"code":"fungiperfecti","total":19331,"parcel":19331,"freight":0},{"code":"gsc","total":19206,"parcel":19206,"freight":0},{"code":"scrubin","total":19068,"parcel":19068,"freight":0},{"code":"cas","total":18151,"parcel":18151,"freight":0},{"code":"mezzanine","total":17785,"parcel":17785,"freight":0},{"code":"clinicaltechnol","total":16584,"parcel":16584,"freight":0},{"code":"amtouch","total":15466,"parcel":15466,"freight":0},{"code":"simplysouthern","total":15360,"parcel":15303,"freight":57}]}};
 
+// Full tenant pool for product-line-filtered views.
+// Deduped union of all tenants across all ERP source categories, sorted by total shipments.
+// Used when a specific Aptean product line is selected (SF match tags them).
+const _SHIP_TENANT_POOL = [
+  {code:"mcnmckexpertek",total:81485,parcel:80032,freight:1453},
+  {code:"etsexpress",total:54326,parcel:54144,freight:182},
+  {code:"alere",total:42420,parcel:42420,freight:0},
+  {code:"torginol",total:27103,parcel:26545,freight:558},
+  {code:"aui",total:24902,parcel:24577,freight:325},
+  {code:"rogers",total:24414,parcel:24414,freight:0},
+  {code:"prostat",total:23544,parcel:23544,freight:0},
+  {code:"apair",total:23531,parcel:23531,freight:0},
+  {code:"cci1680",total:21354,parcel:21354,freight:0},
+  {code:"truecitrus",total:20601,parcel:20601,freight:0},
+  {code:"srpcompanies",total:19846,parcel:19846,freight:0},
+  {code:"quorum",total:19706,parcel:18860,freight:846},
+  {code:"fungiperfecti",total:19331,parcel:19331,freight:0},
+  {code:"gsc",total:19206,parcel:19206,freight:0},
+  {code:"scrubin",total:19068,parcel:19068,freight:0},
+  {code:"cas",total:18151,parcel:18151,freight:0},
+  {code:"mezzanine",total:17785,parcel:17785,freight:0},
+  {code:"clinicaltechnol",total:16584,parcel:16584,freight:0},
+  {code:"amtouch",total:15466,parcel:15466,freight:0},
+  {code:"simplysouthern",total:15360,parcel:15303,freight:57},
+  {code:"panorcorp",total:14888,parcel:14910,freight:0},
+  {code:"nationaldistrib",total:13885,parcel:13948,freight:0},
+  {code:"briowt",total:13080,parcel:13080,freight:0},
+  {code:"reidy",total:12396,parcel:12411,freight:0},
+  {code:"champsports",total:12002,parcel:12002,freight:0},
+  {code:"oneupusa",total:12066,parcel:12066,freight:0},
+  {code:"vyperindustrial",total:11740,parcel:11778,freight:0},
+  {code:"okabashi",total:11217,parcel:11251,freight:0},
+  {code:"ecollartech",total:11485,parcel:11540,freight:0},
+  {code:"tylercandles",total:10922,parcel:10922,freight:0},
+  {code:"oneal",total:10914,parcel:10923,freight:0},
+  {code:"bethelfarmslllp",total:10031,parcel:10055,freight:0},
+  {code:"equiptech",total:10169,parcel:10196,freight:0},
+  {code:"sohostudiocorp",total:15196,parcel:15345,freight:0},
+  {code:"oaktree",total:11128,parcel:11128,freight:0},
+  {code:"atricureinc",total:10118,parcel:10284,freight:0},
+  {code:"foamfactory",total:9568,parcel:9568,freight:0},
+  {code:"abbottlabel",total:9271,parcel:9271,freight:0},
+  {code:"sebo",total:9092,parcel:9092,freight:0},
+  {code:"zodax",total:8483,parcel:8483,freight:0},
+  {code:"minuteman",total:8551,parcel:8551,freight:0},
+  {code:"surelochardware",total:8327,parcel:8327,freight:0},
+  {code:"bdparata",total:8249,parcel:8249,freight:0},
+  {code:"beatrice",total:8234,parcel:8234,freight:0},
+  {code:"bcg",total:8075,parcel:8075,freight:0},
+  {code:"bodysolidinc",total:7698,parcel:7698,freight:0},
+  {code:"feradyneout",total:7452,parcel:7452,freight:0},
+  {code:"sinesystems",total:7326,parcel:7326,freight:0},
+  {code:"jmesales",total:8474,parcel:8474,freight:0},
+  {code:"supre",total:7991,parcel:7991,freight:0},
+  {code:"ventamatic",total:8115,parcel:8115,freight:0},
+  {code:"practiconinc",total:7114,parcel:7114,freight:0},
+  {code:"impact",total:7254,parcel:7254,freight:0},
+  {code:"redwood",total:7177,parcel:7177,freight:0},
+  {code:"belairlighting",total:7079,parcel:7079,freight:0},
+  {code:"icostore",total:7104,parcel:7104,freight:0},
+  {code:"leedstone",total:6690,parcel:6690,freight:0},
+  {code:"grandbrass",total:6675,parcel:6675,freight:0},
+  {code:"arcabrasives",total:6651,parcel:6651,freight:0},
+  {code:"peninsulaglass",total:6623,parcel:6623,freight:0},
+  {code:"accent",total:6724,parcel:6724,freight:0},
+  {code:"catholicsupply",total:6394,parcel:6394,freight:0},
+  {code:"pacificwestern",total:6222,parcel:6222,freight:0},
+  {code:"ncoastbearings",total:6224,parcel:6224,freight:0},
+  {code:"afp",total:5931,parcel:5931,freight:0},
+  {code:"interglobalinc",total:5624,parcel:5624,freight:0},
+  {code:"ecpcorporation",total:5436,parcel:5436,freight:0},
+  {code:"gooddirections",total:5327,parcel:5327,freight:0},
+  {code:"septicsolutions",total:5568,parcel:5568,freight:0},
+  {code:"proamgolf",total:6182,parcel:6182,freight:0},
+  {code:"bulldogtools",total:5286,parcel:5286,freight:0},
+  {code:"controldevices",total:5046,parcel:5046,freight:0},
+  {code:"warnertech",total:5335,parcel:5335,freight:0},
+  {code:"nskamerica",total:5252,parcel:5252,freight:0},
+  {code:"alleghenypp",total:5102,parcel:5102,freight:0},
+  {code:"toolpro",total:5727,parcel:5727,freight:0},
+  {code:"sfbb",total:4720,parcel:4720,freight:0},
+  {code:"mtcbio",total:4894,parcel:4894,freight:0},
+  {code:"caffeumbria",total:4562,parcel:4562,freight:0},
+  {code:"rcfinefoods",total:4971,parcel:4971,freight:0},
+  {code:"tricam",total:4923,parcel:4923,freight:0},
+  {code:"shorepower",total:5158,parcel:5158,freight:0},
+  {code:"underhillint",total:4195,parcel:4195,freight:0},
+  {code:"jigsawmedical",total:4034,parcel:4034,freight:0},
+  {code:"peerlessindustr",total:5077,parcel:5077,freight:0},
+  {code:"xpowerinc",total:3978,parcel:3978,freight:0},
+  {code:"marlowwhite",total:4717,parcel:4717,freight:0},
+  {code:"ih",total:4673,parcel:4673,freight:0},
+  {code:"oxygenpools",total:3688,parcel:3688,freight:0},
+  {code:"diagmc",total:3411,parcel:3411,freight:0},
+  {code:"ckworldwide",total:3324,parcel:3324,freight:0},
+  {code:"deltatrak",total:3306,parcel:3306,freight:0},
+  {code:"amphenol",total:3265,parcel:3265,freight:0},
+  {code:"oorthopedic",total:3800,parcel:3800,freight:0},
+  {code:"modernsalon",total:3341,parcel:3341,freight:0},
+  {code:"amcsm",total:3326,parcel:3326,freight:0},
+  {code:"brillianceled",total:3221,parcel:3221,freight:0},
+  {code:"adusa",total:3122,parcel:3122,freight:0},
+  {code:"dalemedicalprod",total:3075,parcel:3075,freight:0},
+  {code:"putco",total:3050,parcel:3050,freight:0},
+  {code:"alschutzman",total:3018,parcel:3018,freight:0},
+  {code:"pmt",total:3059,parcel:3059,freight:0},
+  {code:"easternmetal",total:2964,parcel:2964,freight:0},
+  {code:"secomfg",total:2856,parcel:2856,freight:0},
+  {code:"cottermanco",total:2926,parcel:2926,freight:0},
+  {code:"tritonproducts",total:2886,parcel:2886,freight:0},
+  {code:"reliablehighper",total:2857,parcel:2857,freight:0},
+  {code:"enginepower",total:2812,parcel:2812,freight:0},
+  {code:"viaircorp",total:2720,parcel:2720,freight:0},
+  {code:"tiledoctor",total:2670,parcel:2670,freight:0},
+  {code:"oneida",total:2788,parcel:2788,freight:0},
+  {code:"sf1828688",total:1774,parcel:1774,freight:0},
+  {code:"rexcutproducts",total:1263,parcel:1263,freight:0},
+  {code:"pipp",total:1241,parcel:1241,freight:0},
+  {code:"capitoldistribu",total:1068,parcel:1068,freight:0},
+  {code:"cgbrettingmanuf",total:819,parcel:819,freight:0},
+  {code:"compasswire",total:749,parcel:749,freight:0},
+  {code:"presssealcorpor",total:510,parcel:510,freight:0},
+  {code:"competitiontire",total:503,parcel:503,freight:0},
+  {code:"sf1009660",total:374,parcel:374,freight:0},
+  {code:"lematicinc",total:363,parcel:363,freight:0},
+  {code:"sesco",total:225,parcel:225,freight:0},
+  {code:"prfc",total:852,parcel:852,freight:0},
+  {code:"talbertmanufact",total:167,parcel:167,freight:0},
+  {code:"plexpack",total:165,parcel:165,freight:0},
+  {code:"kalleusainc",total:158,parcel:158,freight:0}
+];
+
 const _SHIP_CARRIERS_DATA = [
   {name:'UPS',           pct:92, shipments:1486100, color:'#1a56db'},
   {name:'FedEx Express', pct:79, shipments:1296491, color:'#6d28d9'},
@@ -10091,13 +10224,22 @@ function _puShipLiveHTML() {
   }
 
   // Compute stats for active product line
+  // For "All": use the top-20 overall list (pre-sorted).
+  // For a specific PL: search the full tenant pool, SF-match each, filter by PL, sort by total.
   const allTenants = allData.tenants || [];
-  const filteredTenants = _shipActivePL === 'All' || !sfLoaded
-    ? allTenants
-    : allTenants.filter(t => {
-        const sfAcc = _sfMatch(t.code);
-        return sfAcc && sfAcc.Primary_Product_Line_Profile__c === _shipActivePL;
-      });
+  let filteredTenants;
+  if (_shipActivePL === 'All' || !sfLoaded) {
+    filteredTenants = allTenants;
+  } else {
+    // Match every tenant in the full pool against SF and keep those tagged to this PL
+    const matched = _SHIP_TENANT_POOL.filter(t => {
+      const sfAcc = _sfMatch(t.code);
+      return sfAcc && sfAcc.Primary_Product_Line_Profile__c === _shipActivePL;
+    });
+    // Sort by total shipments descending, cap at 20
+    matched.sort((a,b) => b.total - a.total);
+    filteredTenants = matched.slice(0, 20);
+  }
 
   const plAccountCount = _shipActivePL === 'All'
     ? allData.accounts
