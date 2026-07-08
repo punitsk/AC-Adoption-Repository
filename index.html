@@ -9979,57 +9979,23 @@ function _loadM2MLiveTab() {
 }
 
 // ── SHIP Live Data (from MCP server, Jun 1–Jul 7 2026) ──────────────────────
+// Made2Manage tenants using SHIP (filtered from usage_by_source where Source='Made2Manage')
 const SHIP_TOP_TENANTS = [
-  {code:"mcnmckexpertek",parcel:80032,freight:1453,total:81485},
-  {code:"etsexpress",parcel:54144,freight:182,total:54326},
-  {code:"alere",parcel:42420,freight:0,total:42420},
-  {code:"torginol",parcel:26545,freight:558,total:27103},
-  {code:"aui",parcel:24577,freight:325,total:24902},
-  {code:"rogers",parcel:24414,freight:0,total:24414},
-  {code:"prostat",parcel:23544,freight:0,total:23544},
-  {code:"apair",parcel:23531,freight:0,total:23531},
-  {code:"cci1680",parcel:21354,freight:0,total:21354},
-  {code:"truecitrus",parcel:20601,freight:0,total:20601},
-  {code:"sscmicrotek",parcel:19872,freight:0,total:19872},
-  {code:"greatsouth",parcel:18945,freight:234,total:19179},
-  {code:"blueridgecorp",parcel:17823,freight:0,total:17823},
-  {code:"nexgenparts",parcel:16411,freight:512,total:16923},
-  {code:"hgrinc",parcel:15678,freight:0,total:15678},
-  {code:"formalwear",parcel:15012,freight:0,total:15012},
-  {code:"premierbev",parcel:14389,freight:0,total:14389},
-  {code:"synapsemed",parcel:13901,freight:0,total:13901},
-  {code:"skiers",parcel:13245,freight:0,total:13245},
-  {code:"bodysolidinc",parcel:12890,freight:0,total:12890},
-  {code:"nccarpet",parcel:11234,freight:1820,total:13054},
-  {code:"valtrainc",parcel:10123,freight:2753,total:12876},
-  {code:"poshnosh",parcel:12074,freight:0,total:12074},
-  {code:"hemacare",parcel:11233,freight:141,total:11374},
-  {code:"ocwhitecompany",parcel:10988,freight:372,total:11360},
-  {code:"norwall",parcel:10256,freight:105,total:10361},
-  {code:"rineharttarget",parcel:10182,freight:179,total:10361},
-  {code:"gus",parcel:10055,freight:0,total:10055},
-  {code:"intellitronix",parcel:9876,freight:0,total:9876},
-  {code:"icc",parcel:9712,freight:94,total:9806},
-  {code:"cdsanlytical",parcel:9234,freight:89,total:9323},
-  {code:"accent",parcel:8901,freight:6724,total:15625},
-  {code:"afp",parcel:8456,freight:5931,total:14387},
-  {code:"ltron",parcel:9101,freight:134,total:9235},
-  {code:"fsp",parcel:8890,freight:2420,total:11310},
-  {code:"danluckow",parcel:8234,freight:103,total:8337},
-  {code:"schultzcommunic",parcel:8156,freight:16,total:8172},
-  {code:"pinchprovisions",parcel:7934,freight:18,total:7952},
-  {code:"cgsanltical",parcel:7812,freight:0,total:7812},
-  {code:"midwest_supply",parcel:7456,freight:234,total:7690},
-  {code:"titusville",parcel:7234,freight:0,total:7234},
-  {code:"crestline",parcel:6901,freight:512,total:7413},
-  {code:"suncoast",parcel:6789,freight:0,total:6789},
-  {code:"craftsman",parcel:6512,freight:178,total:6690},
-  {code:"olympia_tools",parcel:6234,freight:0,total:6234},
-  {code:"kencraft",parcel:5901,freight:89,total:5990},
-  {code:"allenpaper",parcel:5678,freight:0,total:5678},
-  {code:"westernfab",parcel:5456,freight:234,total:5690},
-  {code:"deltaparts",parcel:5234,freight:0,total:5234},
-  {code:"trisource",parcel:4890,freight:0,total:4890}
+  {code:"oorthopedic",    company:"Oorthopedic",             parcel:3800, freight:0, total:3800},
+  {code:"secomfg",        company:"Seco Mfg",                parcel:2856, freight:0, total:2856},
+  {code:"sf1828688",      company:"(Name pending — SF ID)",  parcel:1774, freight:0, total:1774},
+  {code:"rexcutproducts", company:"Rexcut Products",         parcel:1263, freight:0, total:1263},
+  {code:"pipp",           company:"PIPP",                    parcel:1241, freight:0, total:1241},
+  {code:"cgbrettingmanuf",company:"CG Bretting Mfg",         parcel:819,  freight:0, total:819},
+  {code:"compasswire",    company:"Compass Wire",            parcel:749,  freight:0, total:749},
+  {code:"presssealcorpor",company:"Press Seal Corp",         parcel:510,  freight:0, total:510},
+  {code:"competitiontire",company:"Competition Tire",        parcel:503,  freight:0, total:503},
+  {code:"sf1009660",      company:"(Name pending — SF ID)",  parcel:374,  freight:0, total:374},
+  {code:"lematicinc",     company:"Lematic Inc",             parcel:363,  freight:0, total:363},
+  {code:"sesco",          company:"SESCO",                   parcel:225,  freight:0, total:225},
+  {code:"talbertmanufact",company:"Talbert Mfg",             parcel:167,  freight:0, total:167},
+  {code:"plexpack",       company:"Plexpack",                parcel:165,  freight:0, total:165},
+  {code:"kalleusainc",    company:"Kalle USA Inc",           parcel:158,  freight:0, total:158},
 ];
 
 const SHIP_CARRIERS = [
@@ -10046,11 +10012,12 @@ const SHIP_CARRIERS = [
 ];
 
 const SHIP_LIVE_STATS = {
-  activeAccounts: 1832,
-  totalShipments: 3255065,
+  activeAccounts: 15,
+  totalShipments: 14983,
   newActivations: 59,
   churn: 17,
-  dataRange: 'Jun 1 – Jul 7, 2026'
+  dataRange: 'Jun 1 – Jul 7, 2026',
+  filter: 'Made2Manage'
 };
 
 function _puShipLiveHTML() {
@@ -10059,13 +10026,13 @@ function _puShipLiveHTML() {
   if (kpiEl) {
     kpiEl.innerHTML = `
       <div style="background:#fff;border:1px solid #a7f3d0;border-radius:12px;padding:14px 18px;">
-        <div style="font-size:10.5px;color:#059669;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Active Accounts</div>
+        <div style="font-size:10.5px;color:#059669;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">M2M Accounts on SHIP</div>
         <div style="font-size:26px;font-weight:800;color:#059669;">${SHIP_LIVE_STATS.activeAccounts.toLocaleString()}</div>
-        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Live plan tenants</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Made2Manage product line</div>
       </div>
       <div style="background:#fff;border:1px solid #bae6fd;border-radius:12px;padding:14px 18px;">
-        <div style="font-size:10.5px;color:#0369a1;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Total Shipments</div>
-        <div style="font-size:26px;font-weight:800;color:#0369A1;">${(SHIP_LIVE_STATS.totalShipments/1000000).toFixed(2)}M</div>
+        <div style="font-size:10.5px;color:#0369a1;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">M2M Shipments</div>
+        <div style="font-size:26px;font-weight:800;color:#0369A1;">${SHIP_LIVE_STATS.totalShipments.toLocaleString()}</div>
         <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Jun 1 – Jul 7, 2026</div>
       </div>
       <div style="background:#fff;border:1px solid #ddd6fe;border-radius:12px;padding:14px 18px;">
@@ -10088,9 +10055,14 @@ function _puShipLiveHTML() {
       ? `<span style="width:20px;height:20px;border-radius:50%;background:${rankColors[i]};color:#fff;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;">${i+1}</span>`
       : `<span style="font-size:11px;color:#9ca3af;font-weight:600;width:20px;display:inline-block;text-align:center;">${i+1}</span>`;
     const freightBadge = t.freight > 0 ? `<span style="font-size:9px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px;margin-left:4px;">+LTL</span>` : '';
+    const isPending = t.company && t.company.includes('pending');
+    const displayName = t.company || t.code;
     return `<tr style="border-top:1px solid #f3f4f6;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background=''">
       <td style="padding:6px 10px;width:28px;">${badge}</td>
-      <td style="padding:6px 10px;font-size:12px;font-weight:600;color:#374151;">${t.code}${freightBadge}</td>
+      <td style="padding:6px 10px;">
+        <div style="font-size:12px;font-weight:600;color:${isPending?'#9ca3af':'#374151'};">${displayName}${freightBadge}</div>
+        <div style="font-size:10px;color:#d1d5db;">${t.code}</div>
+      </td>
       <td style="padding:6px 10px;text-align:right;font-size:12px;color:#6b7280;">${t.parcel.toLocaleString()}</td>
       <td style="padding:6px 10px;text-align:right;font-size:12px;color:#6b7280;">${t.freight > 0 ? t.freight.toLocaleString() : '—'}</td>
       <td style="padding:6px 10px;text-align:right;font-size:12px;font-weight:700;color:#111827;">${t.total.toLocaleString()}</td>
@@ -10117,15 +10089,15 @@ function _puShipLiveHTML() {
     <!-- Top Tenants by Shipment Volume -->
     <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
       <div style="padding:10px 14px;background:#F0FDF4;border-bottom:1px solid #d1fae5;display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:12px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">Top 50 Tenants by Shipment Volume</span>
-        <span style="font-size:10px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:8px;font-weight:600;">MCP Live Data</span>
+        <span style="font-size:12px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">Made2Manage Accounts on SHIP</span>
+        <span style="font-size:10px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:8px;font-weight:600;">🏭 M2M Filter · MCP Live</span>
       </div>
       <div style="overflow-y:auto;max-height:420px;">
         <table style="width:100%;border-collapse:collapse;">
           <thead style="position:sticky;top:0;z-index:1;">
             <tr style="background:#F9FAFB;border-bottom:1px solid #f3f4f6;">
               <th style="padding:6px 10px;width:28px;"></th>
-              <th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Tenant Code</th>
+              <th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Company</th>
               <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Parcel</th>
               <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Freight</th>
               <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Total</th>
@@ -10156,8 +10128,8 @@ function _puShipLiveHTML() {
 
   </div>
   <div style="margin-top:10px;padding:7px 12px;font-size:10.5px;color:#9ca3af;display:flex;justify-content:space-between;">
-    <span>Source: SHIP MCP Server (ship-mcp-int.azurewebsites.net) · ${SHIP_LIVE_STATS.dataRange}</span>
-    <span>1,714 tenants tracked · 3.26M shipments processed</span>
+    <span>Source: SHIP MCP Server · Filtered: Made2Manage product line · ${SHIP_LIVE_STATS.dataRange}</span>
+    <span>15 M2M accounts · 14,983 shipments · 2 tenant names pending SF ID mapping</span>
   </div>`;
 }
 
