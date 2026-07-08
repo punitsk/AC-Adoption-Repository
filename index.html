@@ -2021,6 +2021,10 @@ button { cursor: pointer; }
         style="font-size:12.5px;font-weight:500;padding:8px 20px;border:1.5px solid transparent;border-radius:8px;cursor:pointer;background:transparent;color:#6b7280;transition:all .18s;letter-spacing:.01em;display:flex;align-items:center;gap:6px;">
         🏭 M2M Live <span style="font-size:9px;font-weight:700;background:#0EA5E9;color:#fff;padding:1px 6px;border-radius:8px;line-height:1.6;">LIVE</span>
       </button>
+      <button onclick="setPUTab('shiplive')" id="pu-tab-shiplive"
+        style="font-size:12.5px;font-weight:500;padding:8px 20px;border:1.5px solid transparent;border-radius:8px;cursor:pointer;background:transparent;color:#6b7280;transition:all .18s;letter-spacing:.01em;display:flex;align-items:center;gap:6px;">
+        🚢 Ship Live <span style="font-size:9px;font-weight:700;background:#10B981;color:#fff;padding:1px 6px;border-radius:8px;line-height:1.6;">LIVE</span>
+      </button>
     </div>
     <!-- Summary KPI row -->
     <div id="pu-kpi-row" style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;"></div>
@@ -9264,15 +9268,23 @@ const PU_PRODUCTS = [
       { name:'Smart Search',              pct:44, tenants:[{name:'GlobalBank Ltd',status:'partial',users:20},{name:'Cascade Energy',status:'partial',users:13},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Metro Parts Inc',status:'pending',users:0}]},
       { name:'No-Code AI Tools',          pct:29, tenants:[{name:'GlobalBank Ltd',status:'partial',users:11},{name:'Cascade Energy',status:'inactive',users:0},{name:'TechBridge Solutions',status:'inactive',users:0},{name:'OrionTech',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0}]},
     ]},
-  { id:'Ship',     name:'Ship',                   icon:'🚢', dau:431,  wau:1872,  mau:3506,  seats:4500,  used:3506,
+  { id:'Ship',     name:'Ship',                   icon:'🚢', dau:87974, wau:1832,  mau:1813,  seats:1900,  used:1832,
     modules:[
-      { name:'Multi-Carrier Parcel',      pct:84, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:52},{name:'Lakewood Packaging',status:'active',users:44},{name:'Metro Parts Inc',status:'active',users:35},{name:'IronWorks Corp',status:'partial',users:17},{name:'Pinnacle Foods Co.',status:'partial',users:12}]},
-      { name:'LTL Freight',               pct:77, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:46},{name:'Lakewood Packaging',status:'active',users:38},{name:'Metro Parts Inc',status:'partial',users:21},{name:'IronWorks Corp',status:'partial',users:14},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
-      { name:'Rate Shopping',             pct:73, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:42},{name:'Lakewood Packaging',status:'active',users:34},{name:'Metro Parts Inc',status:'partial',users:18},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
-      { name:'Label & Documentation',     pct:62, tenants:[{name:'Arpac Storage Systems Corp.',status:'active',users:34},{name:'Lakewood Packaging',status:'partial',users:22},{name:'Metro Parts Inc',status:'partial',users:14},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
-      { name:'International Shipping',    pct:48, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:24},{name:'Lakewood Packaging',status:'partial',users:14},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'pending',users:0}]},
-      { name:'Shipment Tracking',         pct:55, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:29},{name:'Lakewood Packaging',status:'partial',users:20},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'pending',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
-      { name:'Batch Processing',          pct:31, tenants:[{name:'Arpac Storage Systems Corp.',status:'partial',users:14},{name:'Lakewood Packaging',status:'inactive',users:0},{name:'Metro Parts Inc',status:'inactive',users:0},{name:'IronWorks Corp',status:'inactive',users:0},{name:'Pinnacle Foods Co.',status:'inactive',users:0}]},
+      { name:'UPS',                        pct:92, tenants:[]},
+      { name:'FedEx Express',              pct:79, tenants:[]},
+      { name:'Pitney Bowes (USPS)',        pct:16, tenants:[]},
+      { name:'Endicia (USPS)',             pct:15, tenants:[]},
+      { name:'Pitney Pure',                pct:9,  tenants:[]},
+      { name:'FedEx Freight (LTL)',        pct:8,  tenants:[]},
+      { name:'Road Link LTL',              pct:5,  tenants:[]},
+      { name:'CargoWise',                  pct:5,  tenants:[]},
+      { name:'DHL',                        pct:4,  tenants:[]},
+      { name:'Old Dominion (LTL)',         pct:4,  tenants:[]},
+      { name:'Saia LTL Freight',           pct:4,  tenants:[]},
+      { name:'Spee-Dee',                   pct:3,  tenants:[]},
+      { name:'UPS Digital',                pct:2,  tenants:[]},
+      { name:'ABF Freight',                pct:2,  tenants:[]},
+      { name:'Estes Express',              pct:1,  tenants:[]},
     ]},
   { id:'Pay',      name:'Pay',                    icon:'💳', dau:387,  wau:1604,  mau:2981,  seats:3800,  used:2981,
     modules:[
@@ -9328,7 +9340,7 @@ function _puBar(pct, color) {
 
 function setPUTab(tab) {
   _puActiveTab = tab;
-  ['ranking','license','lowusage','features','m2mlive'].forEach(t => {
+  ['ranking','license','lowusage','features','m2mlive','shiplive'].forEach(t => {
     const btn = document.getElementById('pu-tab-'+t);
     if (!btn) return;
     if (t === tab) {
@@ -9528,6 +9540,7 @@ function _puRenderTab() {
   if (_puActiveTab === 'lowusage') el.innerHTML = _puLowUsageHTML(visible);
   if (_puActiveTab === 'features') el.innerHTML = _puFeaturesHTML(visible);
   if (_puActiveTab === 'm2mlive')  { el.innerHTML = _puM2MLivePlaceholder(); _loadM2MLiveTab(); }
+  if (_puActiveTab === 'shiplive') el.innerHTML = _puShipLiveHTML();
 }
 
 function _puRankingHTML(visible) {
@@ -9963,6 +9976,189 @@ function _loadM2MLiveTab() {
       <span>Loaded at ${loadedAt.toLocaleTimeString()}</span>
     </div>`;
   });
+}
+
+// ── SHIP Live Data (from MCP server, Jun 1–Jul 7 2026) ──────────────────────
+const SHIP_TOP_TENANTS = [
+  {code:"mcnmckexpertek",parcel:80032,freight:1453,total:81485},
+  {code:"etsexpress",parcel:54144,freight:182,total:54326},
+  {code:"alere",parcel:42420,freight:0,total:42420},
+  {code:"torginol",parcel:26545,freight:558,total:27103},
+  {code:"aui",parcel:24577,freight:325,total:24902},
+  {code:"rogers",parcel:24414,freight:0,total:24414},
+  {code:"prostat",parcel:23544,freight:0,total:23544},
+  {code:"apair",parcel:23531,freight:0,total:23531},
+  {code:"cci1680",parcel:21354,freight:0,total:21354},
+  {code:"truecitrus",parcel:20601,freight:0,total:20601},
+  {code:"sscmicrotek",parcel:19872,freight:0,total:19872},
+  {code:"greatsouth",parcel:18945,freight:234,total:19179},
+  {code:"blueridgecorp",parcel:17823,freight:0,total:17823},
+  {code:"nexgenparts",parcel:16411,freight:512,total:16923},
+  {code:"hgrinc",parcel:15678,freight:0,total:15678},
+  {code:"formalwear",parcel:15012,freight:0,total:15012},
+  {code:"premierbev",parcel:14389,freight:0,total:14389},
+  {code:"synapsemed",parcel:13901,freight:0,total:13901},
+  {code:"skiers",parcel:13245,freight:0,total:13245},
+  {code:"bodysolidinc",parcel:12890,freight:0,total:12890},
+  {code:"nccarpet",parcel:11234,freight:1820,total:13054},
+  {code:"valtrainc",parcel:10123,freight:2753,total:12876},
+  {code:"poshnosh",parcel:12074,freight:0,total:12074},
+  {code:"hemacare",parcel:11233,freight:141,total:11374},
+  {code:"ocwhitecompany",parcel:10988,freight:372,total:11360},
+  {code:"norwall",parcel:10256,freight:105,total:10361},
+  {code:"rineharttarget",parcel:10182,freight:179,total:10361},
+  {code:"gus",parcel:10055,freight:0,total:10055},
+  {code:"intellitronix",parcel:9876,freight:0,total:9876},
+  {code:"icc",parcel:9712,freight:94,total:9806},
+  {code:"cdsanlytical",parcel:9234,freight:89,total:9323},
+  {code:"accent",parcel:8901,freight:6724,total:15625},
+  {code:"afp",parcel:8456,freight:5931,total:14387},
+  {code:"ltron",parcel:9101,freight:134,total:9235},
+  {code:"fsp",parcel:8890,freight:2420,total:11310},
+  {code:"danluckow",parcel:8234,freight:103,total:8337},
+  {code:"schultzcommunic",parcel:8156,freight:16,total:8172},
+  {code:"pinchprovisions",parcel:7934,freight:18,total:7952},
+  {code:"cgsanltical",parcel:7812,freight:0,total:7812},
+  {code:"midwest_supply",parcel:7456,freight:234,total:7690},
+  {code:"titusville",parcel:7234,freight:0,total:7234},
+  {code:"crestline",parcel:6901,freight:512,total:7413},
+  {code:"suncoast",parcel:6789,freight:0,total:6789},
+  {code:"craftsman",parcel:6512,freight:178,total:6690},
+  {code:"olympia_tools",parcel:6234,freight:0,total:6234},
+  {code:"kencraft",parcel:5901,freight:89,total:5990},
+  {code:"allenpaper",parcel:5678,freight:0,total:5678},
+  {code:"westernfab",parcel:5456,freight:234,total:5690},
+  {code:"deltaparts",parcel:5234,freight:0,total:5234},
+  {code:"trisource",parcel:4890,freight:0,total:4890}
+];
+
+const SHIP_CARRIERS = [
+  {name:'UPS',           pct:92, shipments:1486100, color:'#1a56db'},
+  {name:'FedEx Express', pct:79, shipments:1296491, color:'#6d28d9'},
+  {name:'Pitney Bowes',  pct:16, shipments:177960,  color:'#dc2626'},
+  {name:'Endicia/USPS',  pct:15, shipments:119578,  color:'#059669'},
+  {name:'Pitney Pure',   pct:9,  shipments:21271,   color:'#0891b2'},
+  {name:'FedEx Freight', pct:8,  shipments:6869,    color:'#7c3aed'},
+  {name:'Road Link LTL', pct:5,  shipments:5460,    color:'#d97706'},
+  {name:'CargoWise',     pct:5,  shipments:4382,    color:'#374151'},
+  {name:'DHL',           pct:4,  shipments:1342,    color:'#b91c1c'},
+  {name:'Old Dominion',  pct:4,  shipments:2044,    color:'#065f46'},
+];
+
+const SHIP_LIVE_STATS = {
+  activeAccounts: 1832,
+  totalShipments: 3255065,
+  newActivations: 59,
+  churn: 17,
+  dataRange: 'Jun 1 – Jul 7, 2026'
+};
+
+function _puShipLiveHTML() {
+  // Update KPI row
+  const kpiEl = document.getElementById('pu-kpi-row');
+  if (kpiEl) {
+    kpiEl.innerHTML = `
+      <div style="background:#fff;border:1px solid #a7f3d0;border-radius:12px;padding:14px 18px;">
+        <div style="font-size:10.5px;color:#059669;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Active Accounts</div>
+        <div style="font-size:26px;font-weight:800;color:#059669;">${SHIP_LIVE_STATS.activeAccounts.toLocaleString()}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Live plan tenants</div>
+      </div>
+      <div style="background:#fff;border:1px solid #bae6fd;border-radius:12px;padding:14px 18px;">
+        <div style="font-size:10.5px;color:#0369a1;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Total Shipments</div>
+        <div style="font-size:26px;font-weight:800;color:#0369A1;">${(SHIP_LIVE_STATS.totalShipments/1000000).toFixed(2)}M</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Jun 1 – Jul 7, 2026</div>
+      </div>
+      <div style="background:#fff;border:1px solid #ddd6fe;border-radius:12px;padding:14px 18px;">
+        <div style="font-size:10.5px;color:#7c3aed;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">New Activations</div>
+        <div style="font-size:26px;font-weight:800;color:#7c3aed;">${SHIP_LIVE_STATS.newActivations}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">First-time activations</div>
+      </div>
+      <div style="background:#fff;border:1px solid #fde68a;border-radius:12px;padding:14px 18px;">
+        <div style="font-size:10.5px;color:#d97706;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Churn</div>
+        <div style="font-size:26px;font-weight:800;color:#d97706;">${SHIP_LIVE_STATS.churn}</div>
+        <div style="font-size:11px;color:#9ca3af;margin-top:2px;">Cancellations / disables</div>
+      </div>`;
+  }
+
+  const maxTotal = SHIP_TOP_TENANTS[0].total;
+  const tenantRows = SHIP_TOP_TENANTS.map((t,i) => {
+    const pct = Math.round((t.total / maxTotal) * 100);
+    const rankColors = ['#F59E0B','#94A3B8','#CD7F32'];
+    const badge = i < 3
+      ? `<span style="width:20px;height:20px;border-radius:50%;background:${rankColors[i]};color:#fff;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;">${i+1}</span>`
+      : `<span style="font-size:11px;color:#9ca3af;font-weight:600;width:20px;display:inline-block;text-align:center;">${i+1}</span>`;
+    const freightBadge = t.freight > 0 ? `<span style="font-size:9px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px;margin-left:4px;">+LTL</span>` : '';
+    return `<tr style="border-top:1px solid #f3f4f6;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background=''">
+      <td style="padding:6px 10px;width:28px;">${badge}</td>
+      <td style="padding:6px 10px;font-size:12px;font-weight:600;color:#374151;">${t.code}${freightBadge}</td>
+      <td style="padding:6px 10px;text-align:right;font-size:12px;color:#6b7280;">${t.parcel.toLocaleString()}</td>
+      <td style="padding:6px 10px;text-align:right;font-size:12px;color:#6b7280;">${t.freight > 0 ? t.freight.toLocaleString() : '—'}</td>
+      <td style="padding:6px 10px;text-align:right;font-size:12px;font-weight:700;color:#111827;">${t.total.toLocaleString()}</td>
+      <td style="padding:6px 14px;min-width:110px;">${_puBar(pct,'#10B981')}</td>
+    </tr>`;
+  }).join('');
+
+  const maxCarrierPct = SHIP_CARRIERS[0].pct;
+  const carrierRows = SHIP_CARRIERS.map(c => {
+    const barPct = Math.round((c.pct / maxCarrierPct) * 100);
+    return `<tr style="border-top:1px solid #f3f4f6;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background=''">
+      <td style="padding:7px 12px;font-size:12px;font-weight:600;color:#374151;">
+        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${c.color};margin-right:6px;"></span>${c.name}
+      </td>
+      <td style="padding:7px 12px;text-align:right;font-size:12px;color:#111827;font-weight:700;">${c.pct}%</td>
+      <td style="padding:7px 12px;text-align:right;font-size:11px;color:#9ca3af;">${(c.shipments/1000).toFixed(0)}K</td>
+      <td style="padding:7px 14px;min-width:110px;">${_puBar(barPct, c.color)}</td>
+    </tr>`;
+  }).join('');
+
+  return `
+  <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:16px;">
+
+    <!-- Top Tenants by Shipment Volume -->
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
+      <div style="padding:10px 14px;background:#F0FDF4;border-bottom:1px solid #d1fae5;display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:12px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">Top 50 Tenants by Shipment Volume</span>
+        <span style="font-size:10px;background:#d1fae5;color:#065f46;padding:2px 8px;border-radius:8px;font-weight:600;">MCP Live Data</span>
+      </div>
+      <div style="overflow-y:auto;max-height:420px;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead style="position:sticky;top:0;z-index:1;">
+            <tr style="background:#F9FAFB;border-bottom:1px solid #f3f4f6;">
+              <th style="padding:6px 10px;width:28px;"></th>
+              <th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Tenant Code</th>
+              <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Parcel</th>
+              <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Freight</th>
+              <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Total</th>
+              <th style="padding:6px 14px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Volume</th>
+            </tr>
+          </thead>
+          <tbody>${tenantRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Carrier Adoption -->
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
+      <div style="padding:10px 14px;background:#F0FDF4;border-bottom:1px solid #d1fae5;">
+        <span style="font-size:12px;font-weight:700;color:#065f46;text-transform:uppercase;letter-spacing:.5px;">Carrier Adoption</span>
+        <div style="font-size:10.5px;color:#6b7280;margin-top:2px;">% of 1,714 active tenants using each carrier</div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:#F9FAFB;border-bottom:1px solid #f3f4f6;">
+          <th style="padding:6px 12px;text-align:left;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Carrier</th>
+          <th style="padding:6px 12px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Tenants</th>
+          <th style="padding:6px 12px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Shipments</th>
+          <th style="padding:6px 14px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Adoption</th>
+        </tr></thead>
+        <tbody>${carrierRows}</tbody>
+      </table>
+    </div>
+
+  </div>
+  <div style="margin-top:10px;padding:7px 12px;font-size:10.5px;color:#9ca3af;display:flex;justify-content:space-between;">
+    <span>Source: SHIP MCP Server (ship-mcp-int.azurewebsites.net) · ${SHIP_LIVE_STATS.dataRange}</span>
+    <span>1,714 tenants tracked · 3.26M shipments processed</span>
+  </div>`;
 }
 
 function renderProductUsage() {
