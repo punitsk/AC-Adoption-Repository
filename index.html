@@ -4324,7 +4324,10 @@ async function loadAdoptionFromSalesforce() {
       // Match account by Salesforce ID → get display name from ACCOUNTS
       const recId = norm15(rec.Account__c);
       const acct  = (ACCOUNTS || []).find(a => norm15(a.id) === recId);
-      const accountName = acct ? acct.name : null;
+      // Fallback: Salesforce relationship queries often include Account__r.Name directly
+      // Use it when the ID match misses (e.g. 15-char vs 18-char format mismatch)
+      const accountName = acct ? acct.name
+        : (rec.Account__r?.Name || rec.Account__c_Name || rec.AccountName || null);
 
       if (!accountName) { skipped++; return; } // account not in synced list
 
@@ -10182,6 +10185,58 @@ const _SHIP_TENANT_POOL = [
   {code:"kalleusainc",total:158,parcel:158,freight:0}
 ];
 
+// Direct ERP-source → tenant list for Aptean-native products.
+// SHIP's Source field directly identifies these as Aptean product customers —
+// no SF fuzzy match needed. Used when the selected product line matches an Aptean ERP source.
+const _SHIP_ERP_DIRECT = {
+  'Made2Manage': [
+    {code:"oorthopedic",total:3800,parcel:3800,freight:0},
+    {code:"secomfg",total:2856,parcel:2856,freight:0},
+    {code:"sf1828688",total:1774,parcel:1774,freight:0},
+    {code:"rexcutproducts",total:1263,parcel:1263,freight:0},
+    {code:"pipp",total:1241,parcel:1241,freight:0},
+    {code:"cgbrettingmanuf",total:819,parcel:819,freight:0},
+    {code:"compasswire",total:749,parcel:749,freight:0},
+    {code:"presssealcorpor",total:510,parcel:510,freight:0},
+    {code:"competitiontire",total:503,parcel:503,freight:0},
+    {code:"sf1009660",total:374,parcel:374,freight:0},
+    {code:"lematicinc",total:363,parcel:363,freight:0},
+    {code:"sesco",total:225,parcel:225,freight:0},
+    {code:"talbertmanufact",total:167,parcel:167,freight:0},
+    {code:"plexpack",total:165,parcel:165,freight:0},
+    {code:"kalleusainc",total:158,parcel:158,freight:0}
+  ],
+  // Macola shows as "Encompix" in SF product line
+  'Encompix': [
+    {code:"okabashi",total:11217,parcel:11251,freight:0},
+    {code:"feradyneout",total:7452,parcel:7452,freight:0},
+    {code:"sinesystems",total:7326,parcel:7326,freight:0},
+    {code:"pacificwestern",total:6222,parcel:6222,freight:0},
+    {code:"afp",total:5931,parcel:5931,freight:0},
+    {code:"interglobalinc",total:5624,parcel:5624,freight:0},
+    {code:"ecpcorporation",total:5436,parcel:5436,freight:0},
+    {code:"gooddirections",total:5327,parcel:5327,freight:0},
+    {code:"controldevices",total:5046,parcel:5046,freight:0},
+    {code:"sfbb",total:4720,parcel:4720,freight:0},
+    {code:"diagmc",total:3411,parcel:3411,freight:0},
+    {code:"ckworldwide",total:3324,parcel:3324,freight:0},
+    {code:"deltatrak",total:3306,parcel:3306,freight:0},
+    {code:"amphenol",total:3265,parcel:3265,freight:0},
+    {code:"dalemedicalprod",total:3075,parcel:3075,freight:0},
+    {code:"putco",total:3050,parcel:3050,freight:0},
+    {code:"alschutzman",total:3018,parcel:3018,freight:0},
+    {code:"cottermanco",total:2926,parcel:2926,freight:0},
+    {code:"enginepower",total:2812,parcel:2812,freight:0},
+    {code:"oneida",total:2788,parcel:2788,freight:0}
+  ],
+  'Aptean Pack & Ship': [
+    {code:"rogers",total:24414,parcel:24414,freight:0},
+    {code:"bcg",total:8075,parcel:8075,freight:0},
+    {code:"capitoldistribu",total:1068,parcel:1068,freight:0},
+    {code:"prfc",total:852,parcel:852,freight:0}
+  ]
+};
+
 const _SHIP_CARRIERS_DATA = [
   {name:'UPS',           pct:92, shipments:1486100, color:'#1a56db'},
   {name:'FedEx Express', pct:79, shipments:1296491, color:'#6d28d9'},
@@ -10230,13 +10285,17 @@ function _puShipLiveHTML() {
   let filteredTenants;
   if (_shipActivePL === 'All' || !sfLoaded) {
     filteredTenants = allTenants;
+  } else if (_SHIP_ERP_DIRECT[_shipActivePL]) {
+    // Aptean-native ERP: SHIP's Source field directly identifies these customers.
+    // No SF fuzzy match needed — use the pre-built ERP-source tenant list.
+    filteredTenants = _SHIP_ERP_DIRECT[_shipActivePL];
   } else {
-    // Match every tenant in the full pool against SF and keep those tagged to this PL
+    // Non-native ERP product lines (Ross, Respond, Intuitive, etc.):
+    // try SF fuzzy match on the full tenant pool.
     const matched = _SHIP_TENANT_POOL.filter(t => {
       const sfAcc = _sfMatch(t.code);
       return sfAcc && sfAcc.Primary_Product_Line_Profile__c === _shipActivePL;
     });
-    // Sort by total shipments descending, cap at 20
     matched.sort((a,b) => b.total - a.total);
     filteredTenants = matched.slice(0, 20);
   }
