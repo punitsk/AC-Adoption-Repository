@@ -3627,17 +3627,36 @@ function renderDashboard() {
   const legacyProdMap = { erp:'ERP', wms:'WMS', scm:'SCM', tms:'TMS' };
   const prodFilter = productSel === 'all' ? null : (legacyProdMap[productSel] || productSel);
 
-  // Show all adoption-tracked accounts (those with a product line in SF).
-  // ADOPTION_LIVE (module-level status) is used for coverage detail, not for
-  // determining which accounts appear in the dashboard — that would hide tracked
-  // accounts that haven't had module adoption recorded yet.
+  // Helper: does this account have at least one active (adopted/adopting/demo) module?
+  const _hasActiveAdoption = (name) => {
+    const rec = ADOPTION_LIVE[name];
+    if (!rec) return false;
+    return (rec?.adoption?.sections || []).some(sec =>
+      (sec.fields || []).some(f => {
+        const l = (f.status || '').toLowerCase().trim();
+        return l === 'adopted' || l === 'adopting' || l === 'demo';
+      })
+    );
+  };
+
+  // Only show accounts that have adoption data populated AND have at least one
+  // active module (adopted or in-progress). Accounts not in ADOPTION_LIVE or
+  // with all-not-started status are excluded from the dashboard and accounts tab.
+  const _adoptionActive = _adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0;
+  const _dashFilter = (a) => {
+    if (_adoptionActive && !_hasActiveAdoption(a.name)) return false;
+    return true;
+  };
+
   const csmAccts = ACCOUNTS.filter(a => {
+    if (!_dashFilter(a)) return false;
     if (csmSel !== 'all' && a.csm !== csmSel) return false;
     if (prodFilter && !_accountHasProduct(a, prodFilter)) return false;
     return true;
   });
 
   const allAccts = ACCOUNTS.filter(a => {
+    if (!_dashFilter(a)) return false;
     if (csmSel !== 'all' && a.csm !== csmSel) return false;
     if (prodFilter && !_accountHasProduct(a, prodFilter)) return false;
     return true;
@@ -4497,6 +4516,18 @@ function getFilteredAccounts() {
   }
 
   return (ACCOUNTS || []).filter(a => {
+    // Only show accounts with adoption data populated AND at least one active module.
+    // Accounts not in ADOPTION_LIVE, or with all-not-started status, are excluded.
+    if (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) {
+      if (!ADOPTION_LIVE[a.name]) return false;
+      const isActive = (ADOPTION_LIVE[a.name]?.adoption?.sections || []).some(sec =>
+        (sec.fields || []).some(f => {
+          const l = (f.status || '').toLowerCase().trim();
+          return l === 'adopted' || l === 'adopting' || l === 'demo';
+        })
+      );
+      if (!isActive) return false;
+    }
     if (search  && !a.name.toLowerCase().includes(search)) return false;
     if (csm     && (a.csm || '').trim() !== csm.trim()) return false;
     if (product && !_accountHasProduct(a, product)) return false;
@@ -9094,21 +9125,32 @@ function renderExecAdoptionMetrics() {
     const pf = legMap[productVal] || productVal;
     filteredAccounts = filteredAccounts.filter(a => a.product === pf || a.product === productVal);
   }
-  // totalCount = all adoption-tracked accounts (those with product lines), not just those
-  // with ADOPTION_LIVE module data. ADOPTION_LIVE drives module-specific panels separately.
+  // Only count accounts with adoption data populated AND at least one active module.
+  // Accounts not in ADOPTION_LIVE or with all-not-started status are excluded.
+  if (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) {
+    filteredAccounts = filteredAccounts.filter(a => {
+      const rec = ADOPTION_LIVE[a.name];
+      if (!rec) return false;
+      return (rec?.adoption?.sections || []).some(sec =>
+        (sec.fields || []).some(f => {
+          const l = (f.status || '').toLowerCase().trim();
+          return l === 'adopted' || l === 'adopting' || l === 'demo';
+        })
+      );
+    });
+  }
   const totalCount = filteredAccounts.length;
 
-  // 1. Tracked Accounts (all accounts with a product line in SF)
+  // 1. Tracked Accounts (accounts with active adoption in ADOPTION_LIVE)
   sfEl('exec-kpi-onboarding') && (sfEl('exec-kpi-onboarding').textContent = totalCount || '—');
 
-  // 2. Active Adopters (accounts with ≥1 active module, from ADOPTION_LIVE)
-  const adoptionPct = totalCount > 0 ? Math.round((m.accountsWithAnyActive / totalCount) * 100) : 0;
+  // 2. Active Adopters = same as totalCount (all visible accounts have active modules)
+  const adoptionPct = totalCount > 0 ? Math.round((m.accountsWithAnyActive / m.total) * 100) : 0;
   sfEl('exec-kpi-adoption')     && (sfEl('exec-kpi-adoption').textContent     = m.accountsWithAnyActive || '—');
   sfEl('exec-kpi-adoption-sub') && (sfEl('exec-kpi-adoption-sub').textContent = adoptionPct + '% adoption rate');
 
-  // 3. Not Yet Started = tracked accounts that don't have any active module yet
-  const notYetStarted = Math.max(0, totalCount - m.accountsWithAnyActive);
-  sfEl('exec-kpi-gaps') && (sfEl('exec-kpi-gaps').textContent = notYetStarted || '—');
+  // 3. Not Yet Started = accounts in ADOPTION_LIVE that haven't started any module
+  sfEl('exec-kpi-gaps') && (sfEl('exec-kpi-gaps').textContent = (m.journey.notStarted || 0) || '—');
 
   // 4. Expansion Ready (single-product accounts)
   if (sfEl('exec-kpi-upsell')) {
