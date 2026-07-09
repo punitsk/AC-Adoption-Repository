@@ -4313,51 +4313,90 @@ async function loadAdoptionFromSalesforce() {
       { f:'Workspaces__c',            label:'Workspaces',           c:'Workspaces_Comment__c',           d:'Workspaces_Last_Updated_Date__c' },
     ];
 
-    // Normalise SF IDs to 15-char for matching
-    const norm15 = id => id ? String(id).substring(0, 15).toLowerCase() : '';
+    // ── Build fast lookups from ACCOUNTS ──
+    const norm15  = id => id ? String(id).substring(0, 15).toLowerCase() : '';
+    const normStr = s  => s  ? s.toLowerCase().replace(/[^a-z0-9]/g, '')  : '';
+
+    const acctById      = {};   // norm15(id) → account object
+    const acctByName    = {};   // normStr(name) → account object
+    (ACCOUNTS || []).forEach(a => {
+      if (a.id)   acctById[norm15(a.id)]     = a;
+      if (a.name) acctByName[normStr(a.name)] = a;
+    });
+
+    // Also index the Ship Live SF cache (loaded independently via POST) as extra source
+    (_sfAccountsCache || []).forEach(sf => {
+      const k = norm15(sf.Id || sf.id || '');
+      if (k && !acctById[k]) {
+        const proxy = { id: sf.Id || sf.id, name: sf.Name || sf.name || sf.Id, product: sf.Primary_Product_Line_Profile__c || 'N/A', csm: sf.CSM__c || 'Unassigned', am: '', health: 'Green', arr: 0, nps: null, lastDays: 0, renewal: '', ref: false };
+        acctById[k] = proxy;
+        if (proxy.name) acctByName[normStr(proxy.name)] = proxy;
+      }
+    });
+
+    console.log('[ADOPT] Matching', records.length, 'adoption records against', Object.keys(acctById).length, 'SF accounts');
 
     ADOPTION_LIVE = {};
-    let skipped = 0;
-    records.forEach(rec => {
-      // Match account by Salesforce ID → get display name from ACCOUNTS
-      const recId = norm15(rec.Account__c);
-      const acct  = (ACCOUNTS || []).find(a => norm15(a.id) === recId);
-      // Fallback: Salesforce relationship queries often include Account__r.Name directly
-      // Use it when the ID match misses (e.g. 15-char vs 18-char format mismatch)
-      const accountName = acct ? acct.name
-        : (rec.Account__r?.Name || rec.Account__c_Name || rec.AccountName || null);
+    const _synthAccts = [];   // accounts in adoption data but not in ACCOUNTS
+    let nIdMatch = 0, nNameMatch = 0, nSynth = 0, nSkipped = 0;
 
-      if (!accountName) { skipped++; return; } // account not in synced list
+    records.forEach(rec => {
+      // ── Strategy 1: SF ID match ──
+      let acct = rec.Account__c ? acctById[norm15(rec.Account__c)] : null;
+      if (acct) nIdMatch++;
+
+      // ── Strategy 2: relationship name match ──
+      const relName = rec.Account__r?.Name || rec.Account__c_Name || rec.AccountName || rec.Name || '';
+      if (!acct && relName) {
+        acct = acctByName[normStr(relName)];
+        if (acct) nNameMatch++;
+      }
+
+      // ── Strategy 3: use whatever name we have; create synthetic ACCOUNTS entry ──
+      const accountName = acct ? acct.name : (relName.trim() || null);
+
+      // ── Strategy 4 (last resort): use the raw SF ID as display key + create synthetic entry ──
+      const finalName = accountName || (rec.Account__c ? ('SF:' + rec.Account__c) : null);
+
+      if (!finalName) { nSkipped++; return; }
+
+      // Ensure this account exists in ACCOUNTS so the dashboard can display it
+      if (!acct) {
+        const inAccounts   = (ACCOUNTS || []).some(a => a.name === finalName);
+        const inSynth      = _synthAccts.some(a => a.name === finalName);
+        if (!inAccounts && !inSynth) {
+          _synthAccts.push({
+            id: rec.Account__c || finalName,
+            name: finalName,
+            product: 'N/A', csm: 'Unassigned', am: '',
+            health: 'Green', arr: 0, nps: null, lastDays: 0, renewal: '', ref: false
+          });
+          nSynth++;
+        }
+      }
 
       const sectionLabel = rec.Bundle__c || 'AppCentral';
+      if (!ADOPTION_LIVE[finalName]) ADOPTION_LIVE[finalName] = { adoption: { sections: [] } };
 
-      if (!ADOPTION_LIVE[accountName]) {
-        ADOPTION_LIVE[accountName] = { adoption: { sections: [] } };
-      }
+      let sec = ADOPTION_LIVE[finalName].adoption.sections.find(s => s.label === sectionLabel);
+      if (!sec) { sec = { label: sectionLabel, fields: [] }; ADOPTION_LIVE[finalName].adoption.sections.push(sec); }
 
-      // Find or create section for this Bundle
-      let sec = ADOPTION_LIVE[accountName].adoption.sections.find(s => s.label === sectionLabel);
-      if (!sec) {
-        sec = { label: sectionLabel, fields: [] };
-        ADOPTION_LIVE[accountName].adoption.sections.push(sec);
-      }
-
-      // Add each module column that has a non-null status
       ADOPT_MODULES.forEach(m => {
         const status = rec[m.f];
         if (!status) return;
-        sec.fields.push({
-          module:  m.label,
-          label:   m.label, // alias used by exec/grid functions
-          status:  status,
-          comment: rec[m.c] || '',
-          updated: rec[m.d] || ''
-        });
+        sec.fields.push({ module: m.label, label: m.label, status, comment: rec[m.c] || '', updated: rec[m.d] || '' });
       });
     });
 
+    // Merge synthetic accounts into ACCOUNTS so they appear in the dashboard/table
+    if (_synthAccts.length > 0) {
+      ACCOUNTS = [...(ACCOUNTS || []), ..._synthAccts];
+      console.log('[ADOPT] Added', _synthAccts.length, 'synthetic ACCOUNTS entries for adoption records with no SF match');
+    }
+
     _adoptionLoaded = true;
-    console.log('[ADOPT] Built ADOPTION_LIVE for', Object.keys(ADOPTION_LIVE).length, 'accounts (' + skipped + ' skipped — ID not in synced accounts)');
+    console.log('[ADOPT] ADOPTION_LIVE:', Object.keys(ADOPTION_LIVE).length, 'accounts |',
+      nIdMatch, 'ID match,', nNameMatch, 'name match,', nSynth, 'synthetic,', nSkipped, 'skipped (no ID or name)');
 
     // Re-render adoption panel with live data
     renderAdoptionPanels();
