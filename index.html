@@ -3627,25 +3627,19 @@ function renderDashboard() {
   const legacyProdMap = { erp:'ERP', wms:'WMS', scm:'SCM', tms:'TMS' };
   const prodFilter = productSel === 'all' ? null : (legacyProdMap[productSel] || productSel);
 
-  // Only count accounts where adoption data has been populated
-  // When adoption data is loaded, restrict to accounts present in ADOPTION_LIVE
-  const adoptionNames = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0)
-    ? new Set(Object.keys(ADOPTION_LIVE))
-    : null;
-
-  // Filter accounts for Adoption Engineer view (by CSM + product + adoption data)
+  // Show all adoption-tracked accounts (those with a product line in SF).
+  // ADOPTION_LIVE (module-level status) is used for coverage detail, not for
+  // determining which accounts appear in the dashboard — that would hide tracked
+  // accounts that haven't had module adoption recorded yet.
   const csmAccts = ACCOUNTS.filter(a => {
     if (csmSel !== 'all' && a.csm !== csmSel) return false;
     if (prodFilter && !_accountHasProduct(a, prodFilter)) return false;
-    if (adoptionNames && !adoptionNames.has(a.name)) return false;
     return true;
   });
 
-  // All accounts (for Executive view, respecting CSM + product + adoption data filters)
   const allAccts = ACCOUNTS.filter(a => {
     if (csmSel !== 'all' && a.csm !== csmSel) return false;
     if (prodFilter && !_accountHasProduct(a, prodFilter)) return false;
-    if (adoptionNames && !adoptionNames.has(a.name)) return false;
     return true;
   });
 
@@ -4171,12 +4165,11 @@ async function loadAccountsFromSalesforce() {
     // Filter to real customer accounts (must have Id; Name fallback to Id if missing)
     records.forEach(r => { if (!r.Name && r.Id) r.Name = r.Id; });
     const filtered = records.filter(r => r.Id);
-    // Keep all accounts with a valid SF ID.
-    // The dashboard/accounts display is controlled by the adoptionNames filter
-    // (only accounts present in ADOPTION_LIVE are shown), so we don't pre-filter
-    // by product line or CSM here — that would cause adoption-tracked accounts
-    // without a product line or CSM set in SF to be silently dropped.
-    ACCOUNTS = filtered.map(sfRecordToAccount);
+    // Only keep accounts that have an Aptean product line assigned in SF.
+    // This defines "adoption-tracked accounts" — accounts without a product line
+    // are not part of the AppCentral adoption program and should not appear in
+    // the dashboard or accounts table.
+    ACCOUNTS = filtered.map(sfRecordToAccount).filter(a => a.product && a.product !== 'N/A');
     _sfLastSync = new Date();
     _sfLoading = false;           // clear flag BEFORE rendering so table check passes
     _setSFStatus('ok');
@@ -4504,8 +4497,6 @@ function getFilteredAccounts() {
   }
 
   return (ACCOUNTS || []).filter(a => {
-    // When adoption data is loaded, only show accounts that are tracked in the adoption program
-    if (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0 && !ADOPTION_LIVE[a.name]) return false;
     if (search  && !a.name.toLowerCase().includes(search)) return false;
     if (csm     && (a.csm || '').trim() !== csm.trim()) return false;
     if (product && !_accountHasProduct(a, product)) return false;
@@ -9103,25 +9094,21 @@ function renderExecAdoptionMetrics() {
     const pf = legMap[productVal] || productVal;
     filteredAccounts = filteredAccounts.filter(a => a.product === pf || a.product === productVal);
   }
-  // Only count accounts where adoption data is populated
-  const adoptionNamesKpi = (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0)
-      ? new Set(Object.keys(ADOPTION_LIVE))
-      : null;
-  if (adoptionNamesKpi) {
-    filteredAccounts = filteredAccounts.filter(a => adoptionNamesKpi.has(a.name));
-  }
+  // totalCount = all adoption-tracked accounts (those with product lines), not just those
+  // with ADOPTION_LIVE module data. ADOPTION_LIVE drives module-specific panels separately.
   const totalCount = filteredAccounts.length;
 
-  // 1. Tracked Accounts (accounts with adoption data)
+  // 1. Tracked Accounts (all accounts with a product line in SF)
   sfEl('exec-kpi-onboarding') && (sfEl('exec-kpi-onboarding').textContent = totalCount || '—');
 
-  // 2. Active Adopters (accounts with ≥1 active module) + adoption rate %
+  // 2. Active Adopters (accounts with ≥1 active module, from ADOPTION_LIVE)
   const adoptionPct = totalCount > 0 ? Math.round((m.accountsWithAnyActive / totalCount) * 100) : 0;
   sfEl('exec-kpi-adoption')     && (sfEl('exec-kpi-adoption').textContent     = m.accountsWithAnyActive || '—');
   sfEl('exec-kpi-adoption-sub') && (sfEl('exec-kpi-adoption-sub').textContent = adoptionPct + '% adoption rate');
 
-  // 3. Not Yet Started
-  sfEl('exec-kpi-gaps') && (sfEl('exec-kpi-gaps').textContent = m.journey.notStarted ?? '—');
+  // 3. Not Yet Started = tracked accounts that don't have any active module yet
+  const notYetStarted = Math.max(0, totalCount - m.accountsWithAnyActive);
+  sfEl('exec-kpi-gaps') && (sfEl('exec-kpi-gaps').textContent = notYetStarted || '—');
 
   // 4. Expansion Ready (single-product accounts)
   if (sfEl('exec-kpi-upsell')) {
