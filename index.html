@@ -10073,6 +10073,27 @@ function _sfMatch(code) {
   return bestScore >= 87 ? best : null;
 }
 
+// Reverse match: given an SF account name, find the best matching tenant in the SHIP pool.
+// Used when filtering by product line — we start from known SF accounts and look for their tenants,
+// which is far more reliable than guessing from opaque tenant codes.
+function _sfAccountToTenant(sfAccName, pool) {
+  const aN = _sfNorm(sfAccName);
+  if (!aN || aN.length < 4) return null;
+  let best = null, bestScore = 0;
+  for (const t of pool) {
+    const tN = _sfNorm(t.code);
+    let score = 0;
+    if (aN === tN) score = 100;
+    else if (aN.length >= 8 && tN.startsWith(aN.slice(0, 8))) score = 92;
+    else if (aN.length >= 6 && tN.startsWith(aN.slice(0, 6))) score = 88;
+    else if (tN.length >= 8 && aN.startsWith(tN.slice(0, 8))) score = 91;
+    else if (tN.length >= 6 && aN.startsWith(tN.slice(0, 6))) score = 87;
+    else if (aN.length >= 8 && tN.includes(aN.slice(0, 8))) score = 82;
+    if (score > bestScore) { bestScore = score; best = t; }
+  }
+  return bestScore >= 87 ? best : null;
+}
+
 // ── SHIP Live Data (from MCP server, Jun 1–Jul 7 2026) ──────────────────────
 // Company name overrides for known M2M tenants
 const SHIP_COMPANY_NAMES = {
@@ -10326,13 +10347,21 @@ function _puShipLiveHTML() {
     // No SF fuzzy match needed — use the pre-built ERP-source tenant list.
     filteredTenants = _SHIP_ERP_DIRECT[_shipActivePL];
   } else {
-    // Non-native ERP product lines (Ross, Respond, Intuitive, etc.):
-    // try SF fuzzy match on the full tenant pool.
-    const matched = _SHIP_TENANT_POOL.filter(t => {
-      const sfAcc = _sfMatch(t.code);
-      return sfAcc && sfAcc.Primary_Product_Line_Profile__c === _shipActivePL;
+    // Non-native product lines (Ross, Respond, Intuitive, etc.):
+    // Reverse-match: start from SF accounts with the selected product line,
+    // then find their matching SHIP tenant. Far more reliable than forward-matching
+    // opaque tenant codes against SF account names.
+    const plSFAccounts = (_sfAccountsCache || []).filter(a => a.Primary_Product_Line_Profile__c === _shipActivePL);
+    const seen = new Set();
+    const matched = [];
+    plSFAccounts.forEach(sfAcc => {
+      const tenant = _sfAccountToTenant(sfAcc.Name, _SHIP_TENANT_POOL);
+      if (tenant && !seen.has(tenant.code)) {
+        seen.add(tenant.code);
+        matched.push({ ...tenant, _sfAcc: sfAcc }); // attach SF account for row enrichment
+      }
     });
-    matched.sort((a,b) => b.total - a.total);
+    matched.sort((a, b) => b.total - a.total);
     filteredTenants = matched.slice(0, 20);
   }
 
@@ -10398,8 +10427,8 @@ function _puShipLiveHTML() {
       : `<span style="font-size:11px;color:#9ca3af;font-weight:600;width:20px;display:inline-block;text-align:center;">${i+1}</span>`;
     const freightBadge = t.freight > 0 ? `<span style="font-size:9px;background:#fef3c7;color:#92400e;padding:1px 5px;border-radius:4px;margin-left:4px;">+LTL</span>` : '';
 
-    // Salesforce enrichment
-    const sfAcc = _sfMatch(t.code);
+    // Salesforce enrichment — prefer pre-attached sfAcc (from reverse match), else forward-match
+    const sfAcc = t._sfAcc || _sfMatch(t.code);
     const displayName = sfAcc ? sfAcc.Name
       : (SHIP_COMPANY_NAMES[t.code] || (t.code.charAt(0).toUpperCase() + t.code.slice(1)));
     const isPending = displayName.includes('pending');
@@ -10408,17 +10437,24 @@ function _puShipLiveHTML() {
       ? `<span style="font-size:10px;background:#EFF6FF;color:#1d4ed8;padding:1px 6px;border-radius:5px;font-weight:600;">$${(sfAcc.Annual_Recurring_Revenue_USD__c/1000).toFixed(0)}K ARR</span>` : '';
     const journey   = sfAcc && sfAcc.Customer_Journey_Stage__c
       ? `<span style="font-size:9px;color:#6b7280;margin-left:4px;">${sfAcc.Customer_Journey_Stage__c}</span>` : '';
-    const sfPL      = sfAcc && sfAcc.Primary_Product_Line_Profile__c
-      ? `<span style="font-size:9px;background:#F3E8FF;color:#6d28d9;padding:1px 5px;border-radius:4px;margin-left:3px;">${sfAcc.Primary_Product_Line_Profile__c}</span>` : '';
+
+    // Product line for dedicated column — use SF match, fall back to active filter pill
+    const plText = (sfAcc && sfAcc.Primary_Product_Line_Profile__c)
+      ? sfAcc.Primary_Product_Line_Profile__c
+      : (_shipActivePL !== 'All' ? _shipActivePL : '');
+    const plCell = plText
+      ? `<span style="font-size:10px;background:#F3E8FF;color:#6d28d9;padding:2px 7px;border-radius:6px;font-weight:600;white-space:nowrap;">${plText}</span>`
+      : `<span style="color:#e5e7eb;font-size:11px;">—</span>`;
 
     return `<tr style="border-top:1px solid #f3f4f6;" onmouseover="this.style.background='#F9FAFB'" onmouseout="this.style.background=''">
       <td style="padding:6px 10px;width:28px;">${badge}</td>
       <td style="padding:6px 10px;">
         <div style="font-size:12px;font-weight:600;color:${isPending?'#9ca3af':'#374151'};display:flex;align-items:center;flex-wrap:wrap;gap:3px;">
-          ${tempIcon} ${displayName}${freightBadge}${sfPL}
+          ${tempIcon} ${displayName}${freightBadge}
         </div>
         <div style="font-size:10px;color:#d1d5db;margin-top:2px;">${t.code}${journey}</div>
       </td>
+      <td style="padding:6px 10px;">${plCell}</td>
       <td style="padding:6px 10px;text-align:right;font-size:12px;color:#6b7280;">${t.parcel.toLocaleString()}</td>
       <td style="padding:6px 10px;text-align:right;font-size:12px;color:#6b7280;">${t.freight > 0 ? t.freight.toLocaleString() : '—'}</td>
       <td style="padding:6px 10px;text-align:right;font-size:12px;font-weight:700;color:#111827;">${t.total.toLocaleString()}</td>
@@ -10466,6 +10502,7 @@ function _puShipLiveHTML() {
             <tr style="background:#F9FAFB;border-bottom:1px solid #f3f4f6;">
               <th style="padding:6px 10px;width:28px;"></th>
               <th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Company</th>
+              <th style="padding:6px 10px;text-align:left;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Product Line</th>
               <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Parcel</th>
               <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Freight</th>
               <th style="padding:6px 10px;text-align:right;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;">Total</th>
