@@ -4398,10 +4398,11 @@ async function loadAdoptionFromSalesforce() {
     console.log('[ADOPT] ADOPTION_LIVE:', Object.keys(ADOPTION_LIVE).length, 'accounts |',
       nIdMatch, 'ID match,', nNameMatch, 'name match,', nSynth, 'synthetic,', nSkipped, 'skipped (no ID or name)');
 
-    // Re-render adoption panel with live data
+    // Re-render all adoption-dependent panels now that data is ready.
+    // renderDashboard() is included so KPI tiles flip from "…" to real counts.
     renderAdoptionPanels();
-    // Refresh accounts table to show active module counts
     renderAccountsTable();
+    if (typeof renderDashboard === 'function') renderDashboard();
 
   } catch(err) {
     console.log('[ADOPT] ❌ ERROR — ' + err.message);
@@ -4640,6 +4641,10 @@ function renderAccountsTable() {
   if (!tbody) return;
   if (_sfLoading) {
     tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">⏳ Loading accounts from Salesforce…</td></tr>`;
+    return;
+  }
+  if (!_adoptionLoaded) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:48px 16px;color:#9ca3af;font-size:13px;">⏳ Loading adoption data…</td></tr>`;
     return;
   }
   if (!ACCOUNTS.length) {
@@ -9133,31 +9138,40 @@ function renderExecAdoptionMetrics() {
 
   // ── Executive Strategic KPI tiles ──
   const sfEl = id => document.getElementById(id);
-  // Apply csm/product filter to ACCOUNTS — then restrict to accounts with adoption data only
-  let filteredAccounts = ACCOUNTS || [];
-  if (csmVal && csmVal !== 'all')         filteredAccounts = filteredAccounts.filter(a => a.csm === csmVal);
-  if (productVal && productVal !== 'all') {
-    const legMap = { 'ERP':'Intuity ERP','WMS':'Intuity WMS','SCM':'Aptean SCM','TMS':'Aptean TMS' };
-    const pf = legMap[productVal] || productVal;
-    filteredAccounts = filteredAccounts.filter(a => a.product === pf || a.product === productVal);
+  const loadingDot = '<span style="color:#9ca3af;font-size:14px;font-weight:400;">…</span>';
+
+  // Pre-compute filtered adoption accounts. When adoption data hasn't arrived yet,
+  // show "…" in the tiles so we never flash the raw 2000-account ACCOUNTS count.
+  let filteredAccounts = [];
+  let totalCount = 0;
+  if (_adoptionLoaded) {
+    filteredAccounts = (ACCOUNTS || []).slice();
+    if (csmVal && csmVal !== 'all') filteredAccounts = filteredAccounts.filter(a => a.csm === csmVal);
+    if (productVal && productVal !== 'all') {
+      const legMap = { 'ERP':'Intuity ERP','WMS':'Intuity WMS','SCM':'Aptean SCM','TMS':'Aptean TMS' };
+      const pf = legMap[productVal] || productVal;
+      filteredAccounts = filteredAccounts.filter(a => a.product === pf || a.product === productVal);
+    }
+    if (Object.keys(ADOPTION_LIVE).length > 0) {
+      filteredAccounts = filteredAccounts.filter(a => !!ADOPTION_LIVE[a.name]);
+    }
+    totalCount = filteredAccounts.length;
   }
-  // Gate to accounts that are in the adoption program (present in ADOPTION_LIVE).
-  // All ADOPTION_LIVE accounts count as "tracked" regardless of module journey status.
-  if (_adoptionLoaded && Object.keys(ADOPTION_LIVE).length > 0) {
-    filteredAccounts = filteredAccounts.filter(a => !!ADOPTION_LIVE[a.name]);
-  }
-  const totalCount = filteredAccounts.length;
 
   // 1. Tracked Accounts = all accounts in adoption program (ADOPTION_LIVE)
-  sfEl('exec-kpi-onboarding') && (sfEl('exec-kpi-onboarding').textContent = totalCount || '—');
+  if (sfEl('exec-kpi-onboarding')) sfEl('exec-kpi-onboarding').innerHTML =
+    _adoptionLoaded ? (totalCount || '—') : loadingDot;
 
   // 2. Active Adopters = accounts with ≥1 active module
   const adoptionPct = totalCount > 0 ? Math.round((m.accountsWithAnyActive / totalCount) * 100) : 0;
-  sfEl('exec-kpi-adoption')     && (sfEl('exec-kpi-adoption').textContent     = m.accountsWithAnyActive || '—');
-  sfEl('exec-kpi-adoption-sub') && (sfEl('exec-kpi-adoption-sub').textContent = adoptionPct + '% adoption rate');
+  if (sfEl('exec-kpi-adoption')) sfEl('exec-kpi-adoption').innerHTML =
+    _adoptionLoaded ? (m.accountsWithAnyActive || '—') : loadingDot;
+  sfEl('exec-kpi-adoption-sub') && (sfEl('exec-kpi-adoption-sub').textContent =
+    _adoptionLoaded ? (adoptionPct + '% adoption rate') : 'loading adoption data…');
 
   // 3. Not Yet Started = tracked accounts with no active modules yet
-  sfEl('exec-kpi-gaps') && (sfEl('exec-kpi-gaps').textContent = Math.max(0, totalCount - m.accountsWithAnyActive) || '—');
+  if (sfEl('exec-kpi-gaps')) sfEl('exec-kpi-gaps').innerHTML =
+    _adoptionLoaded ? (Math.max(0, totalCount - m.accountsWithAnyActive) || '—') : loadingDot;
 
   // 4. Expansion Ready (single-product accounts)
   if (sfEl('exec-kpi-upsell')) {
@@ -10807,6 +10821,10 @@ function renderDepthCard(tilesId, labelId, tableId, d) {
 
 // Auto-load Salesforce accounts on startup
 loadAccountsFromSalesforce();
+
+// Pre-warm the Ship Live SF cache in the background so product line pills are
+// ready when the user navigates to the Ship Live tab (same endpoint, separate cache).
+setTimeout(() => _loadSFAccounts(), 2000);
 
 // ARR Growth toggle
 const growthData = {
