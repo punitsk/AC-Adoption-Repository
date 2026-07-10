@@ -4160,37 +4160,48 @@ async function loadAccountsFromSalesforce() {
   _sfLoading = true;
   _setSFStatus('syncing');
   try {
-    // Use POST (same as Ship Live tab) — GET returns incomplete results after Logic App filter removal
     const res = await fetch(SF_API_URL, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({}) });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const records = data?.AccountDetails?.records || [];
     _sfTotalSize  = data?.AccountDetails?.totalSize || 0;
     if (!records.length) throw new Error('No records returned');
-    // Filter to real customer accounts (must have Id; Name fallback to Id if missing)
     records.forEach(r => { if (!r.Name && r.Id) r.Name = r.Id; });
     const filtered = records.filter(r => r.Id);
-    // Keep all valid SF accounts so adoption record IDs can match any of them.
-    // The dashboard and accounts table are gated by ADOPTION_LIVE — only accounts
-    // with adoption data will appear in the UI. Loading all here prevents ID
-    // mismatches that would silently drop adoption-tracked accounts.
     ACCOUNTS = filtered.map(sfRecordToAccount);
     _sfLastSync = new Date();
-    _sfLoading = false;           // clear flag BEFORE rendering so table check passes
+
+    // ── Share raw records with Ship Live cache (same endpoint, no second call needed) ──
+    // Only populate if _loadSFAccounts() hasn't already started its own fetch.
+    if (_sfAccountsCache === null && !_sfAccountsLoading) {
+      _sfAccountsCache = filtered;   // raw SF records with all fields Ship Live needs
+      // Precompute which product lines have SHIP tenant matches
+      _shipPLsWithData = new Set(['All', ...Object.keys(_SHIP_ERP_DIRECT)]);
+      filtered.forEach(sfAcc => {
+        const pl = sfAcc.Primary_Product_Line_Profile__c;
+        if (!pl || _shipPLsWithData.has(pl)) return;
+        if (_sfAccountToTenant(sfAcc.Name, _SHIP_TENANT_POOL)) _shipPLsWithData.add(pl);
+      });
+      console.log('[SF] Shared SF data with Ship Live cache —', filtered.length, 'records, PLs with SHIP data:', _shipPLsWithData.size);
+      if (_puActiveTab === 'shiplive') {
+        const el = document.getElementById('pu-content');
+        if (el) el.innerHTML = _puShipLiveHTML();
+      }
+    }
+
+    _sfLoading = false;
     _setSFStatus('ok');
     renderAccountsSummary();
     populateCsmFilter();
     populateProductFilter();
     renderAccountsTable();
-    renderTempChart('W');         // refresh temperament chart with live data
+    renderTempChart('W');
     renderDashboardIfActive();
     // Fire all secondary data loads in parallel — no awaits so they race concurrently
-    loadNPSFromSalesforce();        // NPS scores per account
-    loadReferenceFromSalesforce();  // Reference/logo counts
-    loadAdoptionFromSalesforce();   // Module adoption data
-    loadProjectsFromSalesforce();   // PSA projects linked to consultant accounts
-    // Note: loadCasesFromSalesforce() removed — cases are disabled for all roles
-    //       and its pagination probe loop was making 100+ sequential HTTP calls.
+    loadNPSFromSalesforce();
+    loadReferenceFromSalesforce();
+    loadAdoptionFromSalesforce();   // uses pre-fetched adoption records if available
+    loadProjectsFromSalesforce();
   } catch(err) {
     console.error('SF sync error:', err);
     const hint = err.message === 'Failed to fetch'
@@ -4198,7 +4209,7 @@ async function loadAccountsFromSalesforce() {
       : 'Accounts API — ' + err.message;
     _setSFStatus('error', hint);
   } finally {
-    _sfLoading = false;           // ensure cleared even on error
+    _sfLoading = false;
   }
 }
 
@@ -4274,24 +4285,52 @@ async function loadReferenceFromSalesforce() {
 // ── Adoption API integration ──
 // ADOPTION_LIVE holds parsed data: { "Account Name" → { adoption: { sections: [...] } } }
 var ADOPTION_LIVE = {};
-var _adoptionLoaded = false;
-var _adoptionLoading = false;
+var _adoptionLoaded   = false;
+var _adoptionLoading  = false;
+var _adoptionRawCache = null;   // raw API records pre-fetched in parallel with SF accounts
+
+// Pre-fetch adoption records in background immediately on page load — runs in parallel
+// with loadAccountsFromSalesforce() so both HTTP roundtrips complete simultaneously.
+// The actual matching against ACCOUNTS happens later inside loadAdoptionFromSalesforce().
+async function _prefetchAdoptionRaw() {
+  if (_adoptionRawCache || _adoptionLoaded || _adoptionLoading) return;
+  try {
+    const res = await fetch(ADOPTION_API_URL, { method:'GET' }).catch(() =>
+      fetch(ADOPTION_API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' })
+    );
+    if (res && res.ok) {
+      const raw = await res.json();
+      _adoptionRawCache = raw?.AdoptionDetails?.records || raw?.records || (Array.isArray(raw) ? raw : []);
+      console.log('[ADOPT] Pre-fetched', _adoptionRawCache.length, 'raw adoption records (cache ready)');
+    }
+  } catch(e) {
+    console.warn('[ADOPT] Pre-fetch failed:', e.message);
+  }
+}
 
 async function loadAdoptionFromSalesforce() {
   if (_adoptionLoading) return;
   _adoptionLoading = true;
   try {
-    let res;
-    try {
-      res = await fetch(ADOPTION_API_URL, { method:'GET' });
-    } catch(fetchErr) {
-      res = await fetch(ADOPTION_API_URL, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: '{}' });
+    let records;
+    if (_adoptionRawCache) {
+      // Use records already fetched in parallel — zero additional wait
+      records = _adoptionRawCache;
+      console.log('[ADOPT] Using pre-fetched adoption records (' + records.length + ')');
+    } else {
+      // Fallback: fetch now (pre-fetch either didn't run or failed)
+      let res;
+      try {
+        res = await fetch(ADOPTION_API_URL, { method:'GET' });
+      } catch(fetchErr) {
+        res = await fetch(ADOPTION_API_URL, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: '{}' });
+      }
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const raw = await res.json();
+      records = raw?.AdoptionDetails?.records || raw?.records || (Array.isArray(raw) ? raw : []);
     }
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const raw = await res.json();
 
     // ── Extract records from { AdoptionDetails: { records: [...] } } ──
-    const records = raw?.AdoptionDetails?.records || raw?.records || (Array.isArray(raw) ? raw : []);
     if (records.length === 0) { console.log('[ADOPT] No records — keeping static data'); return; }
 
     // ── Module definitions: each AppCentral_App_Adoption__c record is ONE ROW PER ACCOUNT
@@ -10819,12 +10858,16 @@ function renderDepthCard(tilesId, labelId, tableId, d) {
   h(tableId, rows || '<div style="color:#9ca3af;font-size:12px;">No data yet</div>');
 }
 
-// Auto-load Salesforce accounts on startup
+// Kick off both data fetches in parallel immediately on page load:
+//   1. Adoption pre-fetch — downloads raw adoption records simultaneously with SF accounts.
+//      Result is cached in _adoptionRawCache; matching against ACCOUNTS happens later
+//      inside loadAdoptionFromSalesforce() which is called once ACCOUNTS is ready.
+//   2. SF accounts — populates ACCOUNTS and shares raw records as _sfAccountsCache
+//      so Ship Live never needs a second HTTP call to the same endpoint.
+_prefetchAdoptionRaw();   // fire-and-forget; result cached in _adoptionRawCache
 loadAccountsFromSalesforce();
-
-// Pre-warm the Ship Live SF cache in the background so product line pills are
-// ready when the user navigates to the Ship Live tab (same endpoint, separate cache).
-setTimeout(() => _loadSFAccounts(), 2000);
+// NOTE: _loadSFAccounts() timeout removed — _sfAccountsCache is now populated
+// directly from the loadAccountsFromSalesforce() response (same SF endpoint).
 
 // ARR Growth toggle
 const growthData = {
