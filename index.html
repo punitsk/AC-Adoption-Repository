@@ -4075,6 +4075,68 @@ function navToAccounts(filter) {
 // ACCOUNTS DATA
 // ══════════════════════════════
 // ── Salesforce API integration ──
+
+// ── localStorage cache (stale-while-revalidate) ──
+// On every page load we show last-session data instantly (< 1 second),
+// then refresh from the API in the background. Cache TTL = 4 hours.
+const _CACHE_TTL_MS  = 4 * 60 * 60 * 1000;   // 4 hours
+const _CACHE_KEY_SF  = 'ac_cache_sf_records';  // raw SF account records
+const _CACHE_KEY_ADO = 'ac_cache_adoption';    // adoption LIVE dict
+
+function _cacheWrite(key, data) {
+  try {
+    localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data }));
+  } catch(e) { /* storage full — silently ignore */ }
+}
+
+function _cacheRead(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { ts, data } = JSON.parse(raw);
+    if (Date.now() - ts > _CACHE_TTL_MS) { localStorage.removeItem(key); return null; }
+    return data;
+  } catch(e) { return null; }
+}
+
+// Restore SF accounts from cache — returns true if stale data was applied
+function _restoreSFFromCache() {
+  const cached = _cacheRead(_CACHE_KEY_SF);
+  if (!cached || !cached.length) return false;
+  const filtered = cached;
+  ACCOUNTS = filtered.map(sfRecordToAccount);
+  _sfLastSync = null;   // mark as stale — will show "(cached)" badge
+  if (_sfAccountsCache === null) {
+    _sfAccountsCache = filtered;
+    _shipPLsWithData = new Set(['All', ...Object.keys(_SHIP_ERP_DIRECT)]);
+    filtered.forEach(sfAcc => {
+      const pl = sfAcc.Primary_Product_Line_Profile__c;
+      if (!pl || _shipPLsWithData.has(pl)) return;
+      if (_sfAccountToTenant(sfAcc.Name, _SHIP_TENANT_POOL)) _shipPLsWithData.add(pl);
+    });
+  }
+  renderAccountsSummary();
+  populateCsmFilter();
+  populateProductFilter();
+  renderAccountsTable();
+  renderDashboardIfActive();
+  console.log('[CACHE] Restored', filtered.length, 'SF accounts from localStorage cache');
+  return true;
+}
+
+// Restore adoption data from cache — call after ACCOUNTS is ready
+function _restoreAdoptionFromCache() {
+  const cached = _cacheRead(_CACHE_KEY_ADO);
+  if (!cached) return false;
+  ADOPTION_LIVE   = cached;
+  _adoptionLoaded = true;
+  renderAdoptionPanels();
+  renderAccountsTable();
+  if (typeof renderDashboard === 'function') renderDashboard();
+  console.log('[CACHE] Restored adoption data for', Object.keys(ADOPTION_LIVE).length, 'accounts from localStorage cache');
+  return true;
+}
+
 const SF_API_URL    = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/Get_Account_Details/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=sOnf2NLxBHW18BNvRDnePTeqMMrwqD743xzcuwpVT6w';
 const NPS_API_URL   = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/GetNPSdata/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=DYbRiCKo1-ZRJmt4EHDTJCl6va7PNRpC7cahvPHdgfY';
 const CASES_API_URL     = 'https://customersuccessws-hkchg4cfgfdxbdhm.eastus2-01.azurewebsites.net:443/api/Getcasedata/triggers/When_an_HTTP_request_is_received/invoke?api-version=2022-05-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=CVoCCUlI3veHGWyuykBYk_0etVLVM-fl1yrhMGCGYok';
@@ -4171,6 +4233,9 @@ async function loadAccountsFromSalesforce() {
     ACCOUNTS = filtered.map(sfRecordToAccount);
     _sfLastSync = new Date();
 
+    // ── Persist to localStorage so next page load shows data instantly ──
+    _cacheWrite(_CACHE_KEY_SF, filtered);
+
     // ── Share raw records with Ship Live cache (same endpoint, no second call needed) ──
     // Only populate if _loadSFAccounts() hasn't already started its own fetch.
     if (_sfAccountsCache === null && !_sfAccountsLoading) {
@@ -4217,7 +4282,14 @@ function _setSFStatus(state, msg) {
   const el = document.getElementById('sf-sync-status');
   if (!el) return;
   if (state === 'syncing') {
-    el.innerHTML = `<span style="color:#d97706;">⏳ Syncing from Salesforce…</span>`;
+    // If we're syncing but already have cached data, show a "refreshing" badge rather than blocking spinner
+    const hasCached = ACCOUNTS && ACCOUNTS.length > 0;
+    if (hasCached) {
+      const cachedBadge = `<span style="font-size:10px;background:#FEF3C7;color:#92400e;padding:1px 6px;border-radius:10px;font-weight:600;margin-left:4px;">cached</span>`;
+      el.innerHTML = `<span style="color:#d97706;">⟳ Refreshing in background… ${cachedBadge}</span>`;
+    } else {
+      el.innerHTML = `<span style="color:#d97706;">⏳ Syncing from Salesforce…</span>`;
+    }
   } else if (state === 'ok') {
     const t = _sfLastSync.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
     el.innerHTML = `<span style="color:#059669;">✅ ${ACCOUNTS.length} accounts synced · ${t}</span>`;
@@ -4226,12 +4298,14 @@ function _setSFStatus(state, msg) {
     const t = _sfLastSync ? _sfLastSync.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '—';
     el.innerHTML = `<span style="color:#d97706;" title="${msg}">⚠️ ${ACCOUNTS.length} accounts loaded · ${msg}</span>`;
   } else {
-    // Full failure — diagnose the error type
+    // Full failure — show cached data badge if we have it so user knows data is still visible
+    const hasCached = ACCOUNTS && ACCOUNTS.length > 0 && !_sfLastSync;
+    const cachedNote = hasCached ? ' <span style="font-size:10px;background:#FEF3C7;color:#92400e;padding:1px 5px;border-radius:8px;">showing cached data</span>' : '';
     const isCors = msg && (msg.includes('CORS') || msg.includes('network block') || msg.includes('Failed to fetch'));
     const fix = isCors
       ? ' — Add <b>Access-Control-Allow-Origin: *</b> to your Azure Logic App response headers'
       : '';
-    el.innerHTML = `<span style="color:#dc2626;" title="${msg}">❌ ${msg}${fix}</span>`;
+    el.innerHTML = `<span style="color:#dc2626;" title="${msg}">❌ ${msg}${fix}${cachedNote}</span>`;
   }
   const btn = document.getElementById('sf-sync-btn');
   if (btn) btn.disabled = state === 'syncing';
@@ -4293,7 +4367,10 @@ var _adoptionRawCache = null;   // raw API records pre-fetched in parallel with 
 // with loadAccountsFromSalesforce() so both HTTP roundtrips complete simultaneously.
 // The actual matching against ACCOUNTS happens later inside loadAdoptionFromSalesforce().
 async function _prefetchAdoptionRaw() {
-  if (_adoptionRawCache || _adoptionLoaded || _adoptionLoading) return;
+  // Guard: skip only if a fetch is already in-flight or raw records already cached.
+  // Do NOT skip when _adoptionLoaded=true (that just means cache was restored) —
+  // we still want to pre-warm raw records for the upcoming background refresh.
+  if (_adoptionRawCache || _adoptionLoading) return;
   try {
     const res = await fetch(ADOPTION_API_URL, { method:'GET' }).catch(() =>
       fetch(ADOPTION_API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' })
@@ -4436,6 +4513,9 @@ async function loadAdoptionFromSalesforce() {
     _adoptionLoaded = true;
     console.log('[ADOPT] ADOPTION_LIVE:', Object.keys(ADOPTION_LIVE).length, 'accounts |',
       nIdMatch, 'ID match,', nNameMatch, 'name match,', nSynth, 'synthetic,', nSkipped, 'skipped (no ID or name)');
+
+    // ── Persist adoption data to localStorage for instant restore next page load ──
+    _cacheWrite(_CACHE_KEY_ADO, ADOPTION_LIVE);
 
     // Re-render all adoption-dependent panels now that data is ready.
     // renderDashboard() is included so KPI tiles flip from "…" to real counts.
@@ -10858,14 +10938,27 @@ function renderDepthCard(tilesId, labelId, tableId, d) {
   h(tableId, rows || '<div style="color:#9ca3af;font-size:12px;">No data yet</div>');
 }
 
-// Kick off both data fetches in parallel immediately on page load:
-//   1. Adoption pre-fetch — downloads raw adoption records simultaneously with SF accounts.
-//      Result is cached in _adoptionRawCache; matching against ACCOUNTS happens later
-//      inside loadAdoptionFromSalesforce() which is called once ACCOUNTS is ready.
-//   2. SF accounts — populates ACCOUNTS and shares raw records as _sfAccountsCache
-//      so Ship Live never needs a second HTTP call to the same endpoint.
-_prefetchAdoptionRaw();   // fire-and-forget; result cached in _adoptionRawCache
-loadAccountsFromSalesforce();
+// ── Startup: stale-while-revalidate ──
+// 1. Instantly restore last-session data from localStorage (< 1 second perceived load).
+// 2. Simultaneously kick off live API fetches in the background.
+// 3. When API responses arrive, silently replace stale data with fresh data.
+//
+// Net effect: users see data immediately on every load after the very first one.
+// The first-ever load (empty cache) still waits for the API — but caches on success.
+
+const _hadCachedSF = _restoreSFFromCache();
+if (_hadCachedSF) {
+  // SF accounts shown instantly — also restore adoption so dashboard populates immediately
+  _restoreAdoptionFromCache();
+  // Now refresh from API in background (fire-and-forget, no await)
+  console.log('[CACHE] Stale data shown — refreshing from API in background…');
+  _prefetchAdoptionRaw();   // adoption HTTP request runs in parallel with SF below
+  loadAccountsFromSalesforce();
+} else {
+  // No cache (first-ever load) — standard parallel pre-fetch + load
+  _prefetchAdoptionRaw();   // adoption HTTP request runs in parallel with SF below
+  loadAccountsFromSalesforce();
+}
 // NOTE: _loadSFAccounts() timeout removed — _sfAccountsCache is now populated
 // directly from the loadAccountsFromSalesforce() response (same SF endpoint).
 
