@@ -4079,9 +4079,13 @@ function navToAccounts(filter) {
 // ── localStorage cache (stale-while-revalidate) ──
 // On every page load we show last-session data instantly (< 1 second),
 // then refresh from the API in the background. Cache TTL = 4 hours.
-const _CACHE_TTL_MS  = 4 * 60 * 60 * 1000;   // 4 hours
-const _CACHE_KEY_SF  = 'ac_cache_sf_records';  // raw SF account records
-const _CACHE_KEY_ADO = 'ac_cache_adoption';    // adoption LIVE dict
+//
+// IMPORTANT: We cache RAW API records, never the processed output (ADOPTION_LIVE).
+// This means matching/bug-fixes always take effect immediately on next load —
+// no risk of an old buggy match result being shown from cache.
+const _CACHE_TTL_MS  = 4 * 60 * 60 * 1000;      // 4 hours
+const _CACHE_KEY_SF  = 'ac_cache_sf_v2';          // raw SF account records
+const _CACHE_KEY_ADO = 'ac_cache_adoption_raw_v2'; // raw adoption API records (NOT processed dict)
 
 function _cacheWrite(key, data) {
   try {
@@ -4119,16 +4123,14 @@ function _restoreSFFromCache() {
   return true;
 }
 
-// Restore adoption data from cache — call after ACCOUNTS is ready
+// Restore raw adoption records from cache into _adoptionRawCache so that
+// loadAdoptionFromSalesforce() can run matching immediately without an HTTP call.
+// Returns true if records were found and loaded.
 function _restoreAdoptionFromCache() {
   const cached = _cacheRead(_CACHE_KEY_ADO);
-  if (!cached) return false;
-  ADOPTION_LIVE   = cached;
-  _adoptionLoaded = true;
-  renderAdoptionPanels();
-  renderAccountsTable();
-  if (typeof renderDashboard === 'function') renderDashboard();
-  console.log('[CACHE] Restored adoption data for', Object.keys(ADOPTION_LIVE).length, 'accounts from localStorage cache');
+  if (!cached || !cached.length) return false;
+  _adoptionRawCache = cached;   // consumed by loadAdoptionFromSalesforce()
+  console.log('[CACHE] Restored', cached.length, 'raw adoption records from localStorage — matching will run now');
   return true;
 }
 
@@ -4349,17 +4351,16 @@ async function loadReferenceFromSalesforce() {
 // ADOPTION_LIVE holds parsed data: { "Account Name" → { adoption: { sections: [...] } } }
 var ADOPTION_LIVE = {};
 var _adoptionLoaded   = false;
-var _adoptionLoading  = false;
-var _adoptionRawCache = null;   // raw API records pre-fetched in parallel with SF accounts
+var _adoptionLoading    = false;
+var _adoptionPrefetching = false;  // separate flag for HTTP pre-fetch (independent of matching)
+var _adoptionRawCache   = null;    // raw API records — single-use, consumed by loadAdoptionFromSalesforce()
 
-// Pre-fetch adoption records in background immediately on page load — runs in parallel
-// with loadAccountsFromSalesforce() so both HTTP roundtrips complete simultaneously.
-// The actual matching against ACCOUNTS happens later inside loadAdoptionFromSalesforce().
+// Pre-fetch adoption records in background — runs in parallel with loadAccountsFromSalesforce()
+// so the HTTP roundtrip is already done when matching is needed.
+// Uses its own flag (_adoptionPrefetching) so it can run while matching is in progress.
 async function _prefetchAdoptionRaw() {
-  // Guard: skip only if a fetch is already in-flight or raw records already cached.
-  // Do NOT skip when _adoptionLoaded=true (that just means cache was restored) —
-  // we still want to pre-warm raw records for the upcoming background refresh.
-  if (_adoptionRawCache || _adoptionLoading) return;
+  if (_adoptionRawCache || _adoptionPrefetching) return;  // already cached or already fetching
+  _adoptionPrefetching = true;
   try {
     const res = await fetch(ADOPTION_API_URL, { method:'GET' }).catch(() =>
       fetch(ADOPTION_API_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' })
@@ -4367,10 +4368,12 @@ async function _prefetchAdoptionRaw() {
     if (res && res.ok) {
       const raw = await res.json();
       _adoptionRawCache = raw?.AdoptionDetails?.records || raw?.records || (Array.isArray(raw) ? raw : []);
-      console.log('[ADOPT] Pre-fetched', _adoptionRawCache.length, 'raw adoption records (cache ready)');
+      console.log('[ADOPT] Pre-fetched', _adoptionRawCache.length, 'raw adoption records (ready for background refresh)');
     }
   } catch(e) {
     console.warn('[ADOPT] Pre-fetch failed:', e.message);
+  } finally {
+    _adoptionPrefetching = false;
   }
 }
 
@@ -4380,9 +4383,11 @@ async function loadAdoptionFromSalesforce() {
   try {
     let records;
     if (_adoptionRawCache) {
-      // Use records already fetched in parallel — zero additional wait
+      // Use pre-fetched/cached raw records — zero HTTP wait.
+      // Consume and clear immediately so the next call (background refresh) fetches fresh data.
       records = _adoptionRawCache;
-      console.log('[ADOPT] Using pre-fetched adoption records (' + records.length + ')');
+      _adoptionRawCache = null;
+      console.log('[ADOPT] Using cached raw adoption records (' + records.length + ')');
     } else {
       // Fallback: fetch now (pre-fetch either didn't run or failed)
       let res;
@@ -4503,8 +4508,10 @@ async function loadAdoptionFromSalesforce() {
     console.log('[ADOPT] ADOPTION_LIVE:', Object.keys(ADOPTION_LIVE).length, 'accounts |',
       nIdMatch, 'ID match,', nNameMatch, 'name match,', nSynth, 'synthetic,', nSkipped, 'skipped (no ID or name)');
 
-    // ── Persist adoption data to localStorage for instant restore next page load ──
-    _cacheWrite(_CACHE_KEY_ADO, ADOPTION_LIVE);
+    // ── Persist RAW adoption records to localStorage (not processed ADOPTION_LIVE dict) ──
+    // Storing raw records means matching always re-runs with current code on next page load,
+    // so bug fixes and logic changes take effect immediately — no stale processed data.
+    _cacheWrite(_CACHE_KEY_ADO, records);
 
     // Re-render all adoption-dependent panels now that data is ready.
     // renderDashboard() is included so KPI tiles flip from "…" to real counts.
@@ -10966,19 +10973,25 @@ function renderDepthCard(tilesId, labelId, tableId, d) {
 // 2. Simultaneously kick off live API fetches in the background.
 // 3. When API responses arrive, silently replace stale data with fresh data.
 //
-// Net effect: users see data immediately on every load after the very first one.
-// The first-ever load (empty cache) still waits for the API — but caches on success.
+// Key design: raw records are cached (not processed output), so matching always
+// re-runs with the current code — no risk of showing stale/buggy processed results.
 
 const _hadCachedSF = _restoreSFFromCache();
 if (_hadCachedSF) {
-  // SF accounts shown instantly — also restore adoption so dashboard populates immediately
-  _restoreAdoptionFromCache();
-  // Now refresh from API in background (fire-and-forget, no await)
+  // SF accounts are ready. Restore raw adoption records to _adoptionRawCache,
+  // then run matching immediately — dashboard shows correct counts from the start.
+  const _hadCachedAdoption = _restoreAdoptionFromCache();
+  if (_hadCachedAdoption) {
+    // _adoptionRawCache is now set — matching runs now, _adoptionRawCache cleared after.
+    loadAdoptionFromSalesforce();
+  }
+  // Background refresh: pre-fetch fresh adoption records while SF reloads.
+  // _adoptionRawCache was cleared by the call above so _prefetchAdoptionRaw() will fire.
   console.log('[CACHE] Stale data shown — refreshing from API in background…');
-  _prefetchAdoptionRaw();   // adoption HTTP request runs in parallel with SF below
-  loadAccountsFromSalesforce();
+  _prefetchAdoptionRaw();      // fetches fresh adoption records in parallel
+  loadAccountsFromSalesforce(); // fetches fresh SF accounts; calls loadAdoptionFromSalesforce() when done
 } else {
-  // No cache (first-ever load) — standard parallel pre-fetch + load
+  // No cache (first-ever load or cache expired) — standard parallel pre-fetch + load
   _prefetchAdoptionRaw();   // adoption HTTP request runs in parallel with SF below
   loadAccountsFromSalesforce();
 }
