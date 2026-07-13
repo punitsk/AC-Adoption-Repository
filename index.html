@@ -4080,12 +4080,12 @@ function navToAccounts(filter) {
 // On every page load we show last-session data instantly (< 1 second),
 // then refresh from the API in the background. Cache TTL = 4 hours.
 //
-// IMPORTANT: We cache RAW API records, never the processed output (ADOPTION_LIVE).
-// This means matching/bug-fixes always take effect immediately on next load —
-// no risk of an old buggy match result being shown from cache.
-const _CACHE_TTL_MS  = 4 * 60 * 60 * 1000;      // 4 hours
-const _CACHE_KEY_SF  = 'ac_cache_sf_v2';          // raw SF account records
-const _CACHE_KEY_ADO = 'ac_cache_adoption_raw_v2'; // raw adoption API records (NOT processed dict)
+// IMPORTANT: We cache RAW API records (not processed output) and precomputed
+// PL data separately so _buildShipPLData() never blocks the initial render.
+const _CACHE_TTL_MS   = 4 * 60 * 60 * 1000;       // 4 hours
+const _CACHE_KEY_SF   = 'ac_cache_sf_v2';           // raw SF account records
+const _CACHE_KEY_ADO  = 'ac_cache_adoption_raw_v2'; // raw adoption API records (NOT processed dict)
+const _CACHE_KEY_SHIP = 'ac_cache_ship_pl_v2';      // precomputed PL tenant counts (avoids O(n*m) scan on load)
 
 function _cacheWrite(key, data) {
   try {
@@ -4103,7 +4103,9 @@ function _cacheRead(key) {
   } catch(e) { return null; }
 }
 
-// Restore SF accounts from cache — returns true if stale data was applied
+// Restore SF accounts from cache — returns true if stale data was applied.
+// Does NOT call _buildShipPLData() (that scans 2000 accounts × 126 pool = expensive).
+// Instead restores precomputed PL data from its own cache key.
 function _restoreSFFromCache() {
   const cached = _cacheRead(_CACHE_KEY_SF);
   if (!cached || !cached.length) return false;
@@ -4112,7 +4114,14 @@ function _restoreSFFromCache() {
   _sfLastSync = null;   // mark as stale — will show "(cached)" badge
   if (_sfAccountsCache === null) {
     _sfAccountsCache = filtered;
-    _buildShipPLData(filtered);   // sets _shipPLsWithData + _shipPLTenantCounts
+    // Restore precomputed PL data from cache (fast) instead of recomputing (slow)
+    const shipCache = _cacheRead(_CACHE_KEY_SHIP);
+    if (shipCache && shipCache.pls && shipCache.counts) {
+      _shipPLsWithData    = new Set(shipCache.pls);
+      _shipPLTenantCounts = shipCache.counts;
+      console.log('[CACHE] Restored Ship Live PL data — ', _shipPLsWithData.size, 'PLs');
+    }
+    // If no PL cache, _shipPLsWithData stays as default Set(['All']) until live fetch runs
   }
   renderAccountsSummary();
   populateCsmFilter();
@@ -4237,12 +4246,16 @@ async function loadAccountsFromSalesforce() {
     // Only populate if _loadSFAccounts() hasn't already started its own fetch.
     if (_sfAccountsCache === null && !_sfAccountsLoading) {
       _sfAccountsCache = filtered;   // raw SF records with all fields Ship Live needs
-      _buildShipPLData(filtered);    // sets _shipPLsWithData + _shipPLTenantCounts
-      console.log('[SF] Shared SF data with Ship Live cache —', filtered.length, 'records, PLs with SHIP data:', _shipPLsWithData.size);
-      if (_puActiveTab === 'shiplive') {
-        const el = document.getElementById('pu-content');
-        if (el) el.innerHTML = _puShipLiveHTML();
-      }
+      // Defer the O(n*m) PL scan to after the main render — keeps the UI responsive.
+      // If Ship Live tab is active we render immediately after the scan finishes.
+      setTimeout(() => {
+        _buildShipPLData(filtered);  // sets _shipPLsWithData + _shipPLTenantCounts + caches result
+        console.log('[SF] Ship Live PL data built —', _shipPLsWithData.size, 'PLs with data');
+        if (_puActiveTab === 'shiplive') {
+          const el = document.getElementById('pu-content');
+          if (el) el.innerHTML = _puShipLiveHTML();
+        }
+      }, 0);
     }
 
     _sfLoading = false;
@@ -10168,15 +10181,16 @@ async function _loadSFAccounts() {
     _sfAccountsCache = data?.AccountDetails?.records || [];
     console.log('[SF] Loaded', _sfAccountsCache.length, 'accounts');
 
-    // Build _shipPLsWithData and _shipPLTenantCounts (counts actual SHIP tenant matches per PL)
-    _buildShipPLData(_sfAccountsCache);
-    console.log('[SF] PLs with SHIP data:', [..._shipPLsWithData].join(', '));
-
-    // Re-render Ship Live tab if it's currently active
-    if (_puActiveTab === 'shiplive') {
-      const el = document.getElementById('pu-content');
-      if (el) el.innerHTML = _puShipLiveHTML();
-    }
+    // Build _shipPLsWithData and _shipPLTenantCounts — deferred so it doesn't block the render
+    const _cachedForBuild = _sfAccountsCache;
+    setTimeout(() => {
+      _buildShipPLData(_cachedForBuild);
+      console.log('[SF] PLs with SHIP data:', [..._shipPLsWithData].join(', '));
+      if (_puActiveTab === 'shiplive') {
+        const el = document.getElementById('pu-content');
+        if (el) el.innerHTML = _puShipLiveHTML();
+      }
+    }, 0);
   } catch(e) {
     console.warn('[SF] Could not load accounts:', e.message);
     _sfAccountsCache = [];
@@ -10278,7 +10292,9 @@ function _buildShipPLData(filtered) {
 
   _shipPLsWithData    = newPLs;
   _shipPLTenantCounts = newCounts;
-  console.log('[SHIP] PL tenant counts:', JSON.stringify(newCounts));
+  // Cache the result so _restoreSFFromCache() can skip recomputing next load
+  _cacheWrite(_CACHE_KEY_SHIP, { pls: [...newPLs], counts: newCounts });
+  console.log('[SHIP] PL tenant counts computed and cached:', JSON.stringify(newCounts));
 }
 
 const SHIP_BY_PRODUCT_LINE = {"All":{"accounts":1714,"shipments":3255065,"tenants":[{"code":"mcnmckexpertek","total":81485,"parcel":80032,"freight":1453},{"code":"etsexpress","total":54326,"parcel":54144,"freight":182},{"code":"alere","total":42420,"parcel":42420,"freight":0},{"code":"torginol","total":27103,"parcel":26545,"freight":558},{"code":"aui","total":24902,"parcel":24577,"freight":325},{"code":"rogers","total":24414,"parcel":24414,"freight":0},{"code":"prostat","total":23544,"parcel":23544,"freight":0},{"code":"apair","total":23531,"parcel":23531,"freight":0},{"code":"cci1680","total":21354,"parcel":21354,"freight":0},{"code":"truecitrus","total":20601,"parcel":20601,"freight":0},{"code":"srpcompanies","total":19846,"parcel":19846,"freight":0},{"code":"quorum","total":19706,"parcel":18860,"freight":846},{"code":"fungiperfecti","total":19331,"parcel":19331,"freight":0},{"code":"gsc","total":19206,"parcel":19206,"freight":0},{"code":"scrubin","total":19068,"parcel":19068,"freight":0},{"code":"cas","total":18151,"parcel":18151,"freight":0},{"code":"mezzanine","total":17785,"parcel":17785,"freight":0},{"code":"clinicaltechnol","total":16584,"parcel":16584,"freight":0},{"code":"amtouch","total":15466,"parcel":15466,"freight":0},{"code":"simplysouthern","total":15360,"parcel":15303,"freight":57}]}};
