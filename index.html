@@ -4108,12 +4108,7 @@ function _restoreSFFromCache() {
   _sfLastSync = null;   // mark as stale — will show "(cached)" badge
   if (_sfAccountsCache === null) {
     _sfAccountsCache = filtered;
-    _shipPLsWithData = new Set(['All', ...Object.keys(_SHIP_ERP_DIRECT)]);
-    filtered.forEach(sfAcc => {
-      const pl = sfAcc.Primary_Product_Line_Profile__c;
-      if (!pl || _shipPLsWithData.has(pl)) return;
-      if (_sfAccountToTenant(sfAcc.Name, _SHIP_TENANT_POOL)) _shipPLsWithData.add(pl);
-    });
+    _buildShipPLData(filtered);   // sets _shipPLsWithData + _shipPLTenantCounts
   }
   renderAccountsSummary();
   populateCsmFilter();
@@ -4240,13 +4235,7 @@ async function loadAccountsFromSalesforce() {
     // Only populate if _loadSFAccounts() hasn't already started its own fetch.
     if (_sfAccountsCache === null && !_sfAccountsLoading) {
       _sfAccountsCache = filtered;   // raw SF records with all fields Ship Live needs
-      // Precompute which product lines have SHIP tenant matches
-      _shipPLsWithData = new Set(['All', ...Object.keys(_SHIP_ERP_DIRECT)]);
-      filtered.forEach(sfAcc => {
-        const pl = sfAcc.Primary_Product_Line_Profile__c;
-        if (!pl || _shipPLsWithData.has(pl)) return;
-        if (_sfAccountToTenant(sfAcc.Name, _SHIP_TENANT_POOL)) _shipPLsWithData.add(pl);
-      });
+      _buildShipPLData(filtered);    // sets _shipPLsWithData + _shipPLTenantCounts
       console.log('[SF] Shared SF data with Ship Live cache —', filtered.length, 'records, PLs with SHIP data:', _shipPLsWithData.size);
       if (_puActiveTab === 'shiplive') {
         const el = document.getElementById('pu-content');
@@ -10172,16 +10161,8 @@ async function _loadSFAccounts() {
     _sfAccountsCache = data?.AccountDetails?.records || [];
     console.log('[SF] Loaded', _sfAccountsCache.length, 'accounts');
 
-    // Precompute which product lines have real SHIP tenant matches.
-    // Start with the native ERP sources (always have data), then scan reverse matches
-    // for every other PL so we only show filter pills that will actually populate the table.
-    _shipPLsWithData = new Set(['All', ...Object.keys(_SHIP_ERP_DIRECT)]);
-    _sfAccountsCache.forEach(sfAcc => {
-      const pl = sfAcc.Primary_Product_Line_Profile__c;
-      if (!pl || _shipPLsWithData.has(pl)) return; // already known or no PL
-      const tenant = _sfAccountToTenant(sfAcc.Name, _SHIP_TENANT_POOL);
-      if (tenant) _shipPLsWithData.add(pl);
-    });
+    // Build _shipPLsWithData and _shipPLTenantCounts (counts actual SHIP tenant matches per PL)
+    _buildShipPLData(_sfAccountsCache);
     console.log('[SF] PLs with SHIP data:', [..._shipPLsWithData].join(', '));
 
     // Re-render Ship Live tab if it's currently active
@@ -10252,8 +10233,46 @@ const SHIP_COMPANY_NAMES = {
   "capitoldistribu":"Capitol Distributing","prfc":"PRFC"
 };
 
-let _shipActivePL = 'All';
-let _shipPLsWithData = new Set(['All']); // populated properly in _loadSFAccounts after SF cache loads
+let _shipActivePL      = 'All';
+let _shipPLsWithData   = new Set(['All']); // populated by _buildShipPLData()
+let _shipPLTenantCounts = {};              // pl → count of matched SHIP tenants (shown in pills)
+
+// Build both _shipPLsWithData and _shipPLTenantCounts from raw SF records.
+// Called from every place that populates _sfAccountsCache (cache restore + live fetch).
+function _buildShipPLData(filtered) {
+  const newPLs    = new Set(['All', ...Object.keys(_SHIP_ERP_DIRECT)]);
+  const newCounts = {};
+
+  // Native ERPs: tenant count is the size of their pre-built list
+  Object.keys(_SHIP_ERP_DIRECT).forEach(pl => {
+    newCounts[pl] = _SHIP_ERP_DIRECT[pl].length;
+  });
+
+  // Other PLs: group SF accounts by PL, then reverse-match each to the SHIP pool
+  const plGroups = {};
+  filtered.forEach(sfAcc => {
+    const pl = sfAcc.Primary_Product_Line_Profile__c;
+    if (!pl || _SHIP_ERP_DIRECT[pl]) return;  // skip blank and native ERPs
+    if (!plGroups[pl]) plGroups[pl] = [];
+    plGroups[pl].push(sfAcc);
+  });
+
+  Object.keys(plGroups).forEach(pl => {
+    const seen = new Set();
+    plGroups[pl].forEach(sfAcc => {
+      const t = _sfAccountToTenant(sfAcc.Name, _SHIP_TENANT_POOL);
+      if (t && !seen.has(t.code)) seen.add(t.code);
+    });
+    if (seen.size > 0) {
+      newCounts[pl] = seen.size;
+      newPLs.add(pl);
+    }
+  });
+
+  _shipPLsWithData    = newPLs;
+  _shipPLTenantCounts = newCounts;
+  console.log('[SHIP] PL tenant counts:', JSON.stringify(newCounts));
+}
 
 const SHIP_BY_PRODUCT_LINE = {"All":{"accounts":1714,"shipments":3255065,"tenants":[{"code":"mcnmckexpertek","total":81485,"parcel":80032,"freight":1453},{"code":"etsexpress","total":54326,"parcel":54144,"freight":182},{"code":"alere","total":42420,"parcel":42420,"freight":0},{"code":"torginol","total":27103,"parcel":26545,"freight":558},{"code":"aui","total":24902,"parcel":24577,"freight":325},{"code":"rogers","total":24414,"parcel":24414,"freight":0},{"code":"prostat","total":23544,"parcel":23544,"freight":0},{"code":"apair","total":23531,"parcel":23531,"freight":0},{"code":"cci1680","total":21354,"parcel":21354,"freight":0},{"code":"truecitrus","total":20601,"parcel":20601,"freight":0},{"code":"srpcompanies","total":19846,"parcel":19846,"freight":0},{"code":"quorum","total":19706,"parcel":18860,"freight":846},{"code":"fungiperfecti","total":19331,"parcel":19331,"freight":0},{"code":"gsc","total":19206,"parcel":19206,"freight":0},{"code":"scrubin","total":19068,"parcel":19068,"freight":0},{"code":"cas","total":18151,"parcel":18151,"freight":0},{"code":"mezzanine","total":17785,"parcel":17785,"freight":0},{"code":"clinicaltechnol","total":16584,"parcel":16584,"freight":0},{"code":"amtouch","total":15466,"parcel":15466,"freight":0},{"code":"simplysouthern","total":15360,"parcel":15303,"freight":57}]}};
 
@@ -10553,11 +10572,15 @@ function _puShipLiveHTML() {
   }
 
   // Product line filter pills — built from live SF data
+  // Count shown = number of SHIP tenants matched for that PL (matches what the table shows),
+  // NOT the raw SF account count (which would be misleading — e.g. 263 Ross accounts but only
+  // a handful have a matching SHIP tenant code).
   const filterPills = sfPLs.map(pl => {
     const active = pl === _shipActivePL;
     const safePl = pl.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    const countLabel = pl !== 'All' && sfLoaded
-      ? ` <span style="font-size:9.5px;opacity:.75;">(${_sfAccountsCache.filter(a=>a.Primary_Product_Line_Profile__c===pl).length})</span>` : '';
+    const tenantCount = _shipPLTenantCounts[pl];
+    const countLabel = pl !== 'All' && sfLoaded && tenantCount !== undefined
+      ? ` <span style="font-size:9.5px;opacity:.75;">(${tenantCount})</span>` : '';
     return `<button onclick="_setShipPL('${safePl}')" style="font-size:11.5px;padding:5px 13px;border-radius:20px;cursor:pointer;font-weight:${active?700:500};border:1.5px solid ${active?'#10B981':'#e5e7eb'};background:${active?'#10B981':'#fff'};color:${active?'#fff':'#374151'};transition:all .15s;">${pl}${countLabel}</button>`;
   }).join('');
 
