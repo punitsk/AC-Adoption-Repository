@@ -2379,20 +2379,20 @@ button { cursor: pointer; }
         </div>
       </div>
       <div id="proj-table-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
-        <table style="min-width:1300px;width:100%;border-collapse:collapse;table-layout:fixed;">
+        <table id="proj-table" style="min-width:1200px;width:100%;border-collapse:collapse;table-layout:auto;">
           <thead>
             <tr style="border-bottom:1.5px solid #f3f4f6;background:#F9FAFB;">
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:200px;">Project</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:160px;">Account</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:130px;">Product Line</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:140px;">Project Manager</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:90px;">Status</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:50px;">RAG</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:90px;">Start Date</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:90px;">End Date</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:100px;">Planned Go Live</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;width:120px;">Order Type</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Status Note</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:160px;position:relative;">Project</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:140px;position:relative;">Account</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:110px;position:relative;">Product Line</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:130px;position:relative;">Project Manager</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:80px;position:relative;">Status</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:45px;position:relative;">RAG</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:85px;position:relative;">Start Date</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:85px;position:relative;">End Date</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:95px;position:relative;">Planned Go Live</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:110px;position:relative;">Order Type</th>
+              <th class="proj-th" style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;min-width:160px;position:relative;">Status Note</th>
             </tr>
           </thead>
           <tbody id="proj-tbody"></tbody>
@@ -11384,13 +11384,12 @@ function _renderProjDashboard() {
     kpiRow.dataset.built = String(all.length);
     const activeCount    = all.filter(p => (p.status||'').toLowerCase() === 'active').length;
     const redCount       = all.filter(p => (p.ragStatus||'').toLowerCase() === 'red').length;
-    const closedCount    = all.filter(p => ['closed','complete','completed'].includes((p.status||'').toLowerCase())).length;
-    const draftCount     = all.filter(p => (p.status||'').toLowerCase() === 'draft').length;
+    const amberCount     = all.filter(p => (p.ragStatus||'').toLowerCase() === 'amber').length;
     const tiles = [
-      { label:'Total Projects',   value: all.length,    sub: `${draftCount} in draft`,         bg:'#F0FDF4', accent:'#065f46',  icon:'📂' },
+      { label:'Total Projects',   value: all.length,    sub: 'across all accounts',             bg:'#F0FDF4', accent:'#065f46',  icon:'📂' },
       { label:'Active',           value: activeCount,   sub: 'currently running',               bg:'#DBEAFE', accent:'#1e40af',  icon:'▶' },
       { label:'Red Status',       value: redCount,      sub: 'need attention',                  bg:'#FEE2E2', accent:'#991b1b',  icon:'🔴' },
-      { label:'Completed',        value: closedCount,   sub: 'delivered',                       bg:'#EDE9FE', accent:'#5b21b6',  icon:'✓' },
+      { label:'Amber Status',     value: amberCount,    sub: 'at risk',                         bg:'#FFFBEB', accent:'#92400e',  icon:'🟡' },
     ];
     kpiRow.innerHTML = tiles.map(t => `
       <div style="background:${t.bg};border-radius:12px;padding:16px 18px;display:flex;align-items:flex-start;gap:12px;">
@@ -11407,7 +11406,7 @@ function _renderProjDashboard() {
   const chipsEl = document.getElementById('proj-stage-chips');
   if (chipsEl && (!chipsEl.dataset.built || chipsEl.dataset.built !== String(all.length))) {
     chipsEl.dataset.built = String(all.length);
-    const stages = ['All', ...([...new Set(all.map(p=>p.status).filter(Boolean))].sort())];
+    const stages = ['All', ...([...new Set(all.map(p=>p.status).filter(s => s && s.toLowerCase() !== 'draft'))].sort())];
     chipsEl.innerHTML = stages.map(s => {
       const active = (s === 'All' && !stageF) || s === stageF;
       return `<button onclick="_setProjStageFilter('${s === 'All' ? '' : s}')"
@@ -11450,6 +11449,7 @@ function _renderProjDashboard() {
 
   // ── Filter rows ──
   let rows = all.filter(p => {
+    if ((p.status||'').toLowerCase() === 'draft') return false;
     if (stageF   && p.status !== stageF) return false;
     if (pmF      && p.pm !== pmF) return false;
     if (plF      && p.productLine !== plF) return false;
@@ -11472,8 +11472,8 @@ function _renderProjDashboard() {
   }
 
   tbody.innerHTML = rows.map(p => {
-    const st      = _projStageStyle(p.status);
-    const pmInit  = p.pm  ? p.pm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')  : '';
+    const st     = _projStageStyle(p.status);
+    const pmInit = p.pm ? p.pm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('') : '';
     // Planned Go Live: highlight if in the past (overdue)
     const pglDate = p.plannedGoLive ? new Date(p.plannedGoLive) : null;
     const pglOverdue = pglDate && pglDate < new Date() && (p.status||'').toLowerCase() === 'active';
@@ -11512,6 +11512,8 @@ function _renderProjDashboard() {
       </td>
     </tr>`;
   }).join('');
+  // Attach drag-to-resize handles (idempotent)
+  _initProjColResize();
 }
 
 // Stage chip filter state + setter
@@ -11521,6 +11523,49 @@ function _setProjStageFilter(stage) {
   const chipsEl = document.getElementById('proj-stage-chips');
   if (chipsEl) chipsEl.dataset.built = '';  // force rebuild
   _renderProjDashboard();
+}
+
+// ── Column drag-to-resize for the projects table ──
+function _initProjColResize() {
+  const table = document.getElementById('proj-table');
+  if (!table || table._resizeInited) return;
+  table._resizeInited = true;
+  table.querySelectorAll('thead th.proj-th').forEach((th, i, ths) => {
+    if (i === ths.length - 1) return; // skip last col
+    const handle = document.createElement('div');
+    handle.style.cssText = [
+      'position:absolute','right:-2px','top:0','height:100%','width:6px',
+      'cursor:col-resize','z-index:10','user-select:none',
+      'background:transparent','border-right:2px solid transparent',
+    ].join(';');
+    handle.addEventListener('mouseenter', () => handle.style.borderRightColor = '#d1d5db');
+    handle.addEventListener('mouseleave', () => { if (!handle._dragging) handle.style.borderRightColor = 'transparent'; });
+    th.appendChild(handle);
+    let startX, startW;
+    handle.addEventListener('mousedown', e => {
+      handle._dragging = true;
+      startX = e.pageX;
+      startW = th.offsetWidth;
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      function onMove(e2) {
+        const w = Math.max(50, startW + e2.pageX - startX);
+        th.style.width = w + 'px';
+        th.style.minWidth = w + 'px';
+      }
+      function onUp() {
+        handle._dragging = false;
+        handle.style.borderRightColor = 'transparent';
+        document.body.style.cursor = '';
+        document.body.style.userSelect = '';
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+      e.preventDefault();
+    });
+  });
 }
 
 // _renderProjAccounts removed — Accounts tab removed from Projects section
