@@ -11256,7 +11256,14 @@ async function loadProjectsFromSalesforce() {
 
       const id = rec.Name || ('PRJ-' + String(idx+1).padStart(3,'0'));
 
-      mapped.push({ id, name, account:accountName, csm, pm, status, ragStatus, startDate, endDate, plannedGoLive, statusNote, orderType, notes });
+      // Account display name: prefer the SF relationship field directly (pse__Account__r.Name)
+      // so we always show the real company name from PSA, not the portfolio-matched name.
+      const displayAccount = rec.pse__Account__r?.Name
+        || rec.Account__r?.Name
+        || rec.Account?.Name
+        || accountName;
+
+      mapped.push({ id, name, account:displayAccount, csm, pm, status, ragStatus, startDate, endDate, plannedGoLive, statusNote, orderType, notes });
     });
 
     console.log(`[PROJ] ${mapped.length} active portfolio projects from ${records.length} total | skipped: ${skippedClosed} closed, ${skippedNoPortfolio} not in portfolio, ${skippedTemplate} templates, ${skippedEmpty} empty`);
