@@ -11189,7 +11189,7 @@ async function loadProjectsFromSalesforce() {
     }
 
     // Closed stage values — projects in these stages are excluded
-    const CLOSED_STAGES = new Set(['closed','complete','completed','cancelled','canceled','archived']);
+    const CLOSED_STAGES = new Set(['closed','complete','completed','cancelled','canceled','archived','draft']);
 
     const mapped = [];
     let skippedTemplate = 0, skippedEmpty = 0, skippedClosed = 0, skippedNoPortfolio = 0;
