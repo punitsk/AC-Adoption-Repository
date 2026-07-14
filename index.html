@@ -2364,8 +2364,8 @@ button { cursor: pointer; }
           <select id="proj-filter-account" onchange="_renderProjDashboard()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;max-width:180px;">
             <option value="">All Accounts</option>
           </select>
-          <select id="proj-filter-csm" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
-            <option value="">All Adoption Engineers</option>
+          <select id="proj-filter-pm" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
+            <option value="">All Project Managers</option>
           </select>
           <select id="proj-filter-rag" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
             <option value="">All Statuses</option>
@@ -2381,7 +2381,7 @@ button { cursor: pointer; }
             <tr style="border-bottom:1.5px solid #f3f4f6;background:#F9FAFB;">
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Project</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Account</th>
-              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Adoption Engineer</th>
+              <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Product Line</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Project Manager</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">Status</th>
               <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;">RAG</th>
@@ -11053,18 +11053,18 @@ function setGrowth(el, view, period) {
 // ══════════════════════════════════════════════════════════
 
 var PROJECTS = [
-  { id:'PRJ-001', name:'ERP Go-Live',               account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', status:'Active',    ragStatus:'Green',  startDate:'2025-11-01', endDate:'2026-06-30', plannedGoLive:'2026-06-01', orderType:'New Implementation', statusNote:'On track for go-live. UAT completed.',                                notes:'' },
-  { id:'PRJ-002', name:'Insights Rollout',          account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', status:'Active',    ragStatus:'Green',  startDate:'2026-01-15', endDate:'',           plannedGoLive:'2026-07-15', orderType:'Add-On',             statusNote:'Training sessions scheduled with management team.',               notes:'' },
-  { id:'PRJ-003', name:'Pay Module Deployment',     account:'GlobalBank Ltd',              csm:'Pratik', pm:'', status:'Active',    ragStatus:'Red',    startDate:'2025-12-01', endDate:'',           plannedGoLive:'2026-05-01', orderType:'New Implementation', statusNote:'Customer bandwidth constraints delaying config sign-off.',         notes:'' },
-  { id:'PRJ-004', name:'ERP Implementation',        account:'GlobalBank Ltd',              csm:'Pratik', pm:'', status:'Active',    ragStatus:'Amber',  startDate:'2026-02-01', endDate:'',           plannedGoLive:'2026-09-01', orderType:'New Implementation', statusNote:'Data cleansing in progress. 2 weeks behind plan.',                notes:'' },
-  { id:'PRJ-005', name:'CRM Integration',           account:'Vertex Group',                csm:'Mani',   pm:'', status:'Closed',    ragStatus:'Green',  startDate:'2025-09-01', endDate:'2026-01-15', plannedGoLive:'2026-01-15', orderType:'Add-On',             statusNote:'Completed ahead of schedule. Customer very satisfied.',          notes:'' },
-  { id:'PRJ-006', name:'EAM Go-Live',               account:'Vertex Group',                csm:'Mani',   pm:'', status:'Active',    ragStatus:'Green',  startDate:'2026-01-10', endDate:'',           plannedGoLive:'2026-08-01', orderType:'New Implementation', statusNote:'UAT in progress. Minor defects being addressed.',                 notes:'' },
-  { id:'PRJ-007', name:'ERP Phase 2',               account:'Metro Parts Inc',             csm:'Navya',  pm:'', status:'Draft',     ragStatus:'',       startDate:'2026-03-01', endDate:'',           plannedGoLive:'',           orderType:'Upgrade',            statusNote:'On hold pending customer budget approval.',                      notes:'' },
-  { id:'PRJ-008', name:'Supply Chain Optimisation', account:'OrionTech',                   csm:'Pratik', pm:'', status:'Active',    ragStatus:'Red',    startDate:'2025-10-15', endDate:'',           plannedGoLive:'2026-04-01', orderType:'New Implementation', statusNote:'Key stakeholder left. New sponsor being onboarded.',              notes:'' },
-  { id:'PRJ-009', name:'Insights & Reporting',      account:'Metro Parts Inc',             csm:'Navya',  pm:'', status:'Active',    ragStatus:'Green',  startDate:'2026-02-20', endDate:'',           plannedGoLive:'2026-07-01', orderType:'Add-On',             statusNote:'Training materials ready. Sessions starting next week.',         notes:'' },
-  { id:'PRJ-010', name:'ERP Core Implementation',   account:'Pinnacle Foods Co.',          csm:'Mani',   pm:'', status:'Active',    ragStatus:'Green',  startDate:'2025-08-01', endDate:'',           plannedGoLive:'2026-06-15', orderType:'New Implementation', statusNote:'Go-live readiness review passed. Launch imminent.',               notes:'' },
-  { id:'PRJ-011', name:'Pay & HR Rollout',          account:'Lakewood Packaging',          csm:'Kambi',  pm:'', status:'Active',    ragStatus:'Amber',  startDate:'2026-01-05', endDate:'',           plannedGoLive:'2026-08-31', orderType:'Add-On',             statusNote:'Configuration delayed due to client data quality issues.',       notes:'' },
-  { id:'PRJ-012', name:'CRM Go-Live',               account:'TechBridge Solutions',        csm:'Pratik', pm:'', status:'Closed',    ragStatus:'Green',  startDate:'2025-07-01', endDate:'2025-12-15', plannedGoLive:'2025-12-15', orderType:'New Implementation', statusNote:'Successfully delivered on time.',                                notes:'' },
+  { id:'PRJ-001', name:'ERP Go-Live',               account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', productLine:'', status:'Active',    ragStatus:'Green',  startDate:'2025-11-01', endDate:'2026-06-30', plannedGoLive:'2026-06-01', orderType:'New Implementation', statusNote:'On track for go-live. UAT completed.',                                notes:'' },
+  { id:'PRJ-002', name:'Insights Rollout',          account:'Arpac Storage Systems Corp.', csm:'Kambi',  pm:'', productLine:'', status:'Active',    ragStatus:'Green',  startDate:'2026-01-15', endDate:'',           plannedGoLive:'2026-07-15', orderType:'Add-On',             statusNote:'Training sessions scheduled with management team.',               notes:'' },
+  { id:'PRJ-003', name:'Pay Module Deployment',     account:'GlobalBank Ltd',              csm:'Pratik', pm:'', productLine:'', status:'Active',    ragStatus:'Red',    startDate:'2025-12-01', endDate:'',           plannedGoLive:'2026-05-01', orderType:'New Implementation', statusNote:'Customer bandwidth constraints delaying config sign-off.',         notes:'' },
+  { id:'PRJ-004', name:'ERP Implementation',        account:'GlobalBank Ltd',              csm:'Pratik', pm:'', productLine:'', status:'Active',    ragStatus:'Amber',  startDate:'2026-02-01', endDate:'',           plannedGoLive:'2026-09-01', orderType:'New Implementation', statusNote:'Data cleansing in progress. 2 weeks behind plan.',                notes:'' },
+  { id:'PRJ-005', name:'CRM Integration',           account:'Vertex Group',                csm:'Mani',   pm:'', productLine:'', status:'Closed',    ragStatus:'Green',  startDate:'2025-09-01', endDate:'2026-01-15', plannedGoLive:'2026-01-15', orderType:'Add-On',             statusNote:'Completed ahead of schedule. Customer very satisfied.',          notes:'' },
+  { id:'PRJ-006', name:'EAM Go-Live',               account:'Vertex Group',                csm:'Mani',   pm:'', productLine:'', status:'Active',    ragStatus:'Green',  startDate:'2026-01-10', endDate:'',           plannedGoLive:'2026-08-01', orderType:'New Implementation', statusNote:'UAT in progress. Minor defects being addressed.',                 notes:'' },
+  { id:'PRJ-007', name:'ERP Phase 2',               account:'Metro Parts Inc',             csm:'Navya',  pm:'', productLine:'', status:'Draft',     ragStatus:'',       startDate:'2026-03-01', endDate:'',           plannedGoLive:'',           orderType:'Upgrade',            statusNote:'On hold pending customer budget approval.',                      notes:'' },
+  { id:'PRJ-008', name:'Supply Chain Optimisation', account:'OrionTech',                   csm:'Pratik', pm:'', productLine:'', status:'Active',    ragStatus:'Red',    startDate:'2025-10-15', endDate:'',           plannedGoLive:'2026-04-01', orderType:'New Implementation', statusNote:'Key stakeholder left. New sponsor being onboarded.',              notes:'' },
+  { id:'PRJ-009', name:'Insights & Reporting',      account:'Metro Parts Inc',             csm:'Navya',  pm:'', productLine:'', status:'Active',    ragStatus:'Green',  startDate:'2026-02-20', endDate:'',           plannedGoLive:'2026-07-01', orderType:'Add-On',             statusNote:'Training materials ready. Sessions starting next week.',         notes:'' },
+  { id:'PRJ-010', name:'ERP Core Implementation',   account:'Pinnacle Foods Co.',          csm:'Mani',   pm:'', productLine:'', status:'Active',    ragStatus:'Green',  startDate:'2025-08-01', endDate:'',           plannedGoLive:'2026-06-15', orderType:'New Implementation', statusNote:'Go-live readiness review passed. Launch imminent.',               notes:'' },
+  { id:'PRJ-011', name:'Pay & HR Rollout',          account:'Lakewood Packaging',          csm:'Kambi',  pm:'', productLine:'', status:'Active',    ragStatus:'Amber',  startDate:'2026-01-05', endDate:'',           plannedGoLive:'2026-08-31', orderType:'Add-On',             statusNote:'Configuration delayed due to client data quality issues.',       notes:'' },
+  { id:'PRJ-012', name:'CRM Go-Live',               account:'TechBridge Solutions',        csm:'Pratik', pm:'', productLine:'', status:'Closed',    ragStatus:'Green',  startDate:'2025-07-01', endDate:'2025-12-15', plannedGoLive:'2025-12-15', orderType:'New Implementation', statusNote:'Successfully delivered on time.',                                notes:'' },
 ];
 
 let _projActiveTab = 'dashboard';
@@ -11247,6 +11247,9 @@ async function loadProjectsFromSalesforce() {
         || rec.Status_Notes__c
         || '';
 
+      // Product Line (Practice Name)
+      const productLine = rec.Practice_Name__c || '';
+
       // Order Type
       const orderType = rec.Opportunity_Order_Type__c || '';
 
@@ -11263,7 +11266,7 @@ async function loadProjectsFromSalesforce() {
         || rec.Account?.Name
         || accountName;
 
-      mapped.push({ id, name, account:displayAccount, csm, pm, status, ragStatus, startDate, endDate, plannedGoLive, statusNote, orderType, notes });
+      mapped.push({ id, name, account:displayAccount, csm, pm, productLine, status, ragStatus, startDate, endDate, plannedGoLive, statusNote, orderType, notes });
     });
 
     console.log(`[PROJ] ${mapped.length} active portfolio projects from ${records.length} total | skipped: ${skippedClosed} closed, ${skippedNoPortfolio} not in portfolio, ${skippedTemplate} templates, ${skippedEmpty} empty`);
@@ -11294,7 +11297,7 @@ async function loadProjectsFromSalesforce() {
       _projectsLoaded = true;
       // Force KPI + chips to rebuild with fresh data
       _projActiveStageFilter = '';
-      ['proj-kpi-row','proj-stage-chips','proj-filter-csm','proj-filter-account'].forEach(id => {
+      ['proj-kpi-row','proj-stage-chips','proj-filter-pm','proj-filter-account'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.dataset.built = '';
       });
@@ -11364,7 +11367,7 @@ function _projStageStyle(stage) {
 
 function _renderProjDashboard() {
   const stageF   = _projActiveStageFilter || '';
-  const csmF     = (document.getElementById('proj-filter-csm')||{}).value    || '';
+  const pmF      = (document.getElementById('proj-filter-pm')||{}).value     || '';
   const ragF     = (document.getElementById('proj-filter-rag')||{}).value    || '';
   const accountF = (document.getElementById('proj-filter-account')||{}).value || '';
   const searchQ  = ((document.getElementById('proj-search')||{}).value || '').toLowerCase().trim();
@@ -11421,20 +11424,20 @@ function _renderProjDashboard() {
     if (prevA) acctSel.value = prevA;
   }
 
-  // ── Populate CSM filter ──
-  const csmSel = document.getElementById('proj-filter-csm');
-  if (csmSel && (!csmSel.dataset.built || csmSel.dataset.built !== String(all.length))) {
-    csmSel.dataset.built = String(all.length);
-    const prev = csmSel.value;
-    const csms = [...new Set(all.map(p=>p.csm).filter(Boolean))].sort();
-    csmSel.innerHTML = '<option value="">All Adoption Engineers</option>' +
-      csms.map(c=>`<option value="${c}"${c===prev?' selected':''}>${c||'—'}</option>`).join('');
+  // ── Populate Project Manager filter ──
+  const pmSel = document.getElementById('proj-filter-pm');
+  if (pmSel && (!pmSel.dataset.built || pmSel.dataset.built !== String(all.length))) {
+    pmSel.dataset.built = String(all.length);
+    const prev = pmSel.value;
+    const pms = [...new Set(all.map(p=>p.pm).filter(Boolean))].sort();
+    pmSel.innerHTML = '<option value="">All Project Managers</option>' +
+      pms.map(c=>`<option value="${c}"${c===prev?' selected':''}>${c||'—'}</option>`).join('');
   }
 
   // ── Filter rows ──
   let rows = all.filter(p => {
     if (stageF   && p.status !== stageF) return false;
-    if (csmF     && p.csm !== csmF) return false;
+    if (pmF      && p.pm !== pmF) return false;
     if (ragF     && (p.ragStatus||'').toLowerCase() !== ragF.toLowerCase()) return false;
     if (accountF && p.account !== accountF) return false;
     if (searchQ  && !p.account.toLowerCase().includes(searchQ) && !p.name.toLowerCase().includes(searchQ)) return false;
@@ -11455,7 +11458,6 @@ function _renderProjDashboard() {
 
   tbody.innerHTML = rows.map(p => {
     const st      = _projStageStyle(p.status);
-    const csmInit = p.csm ? p.csm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('') : '';
     const pmInit  = p.pm  ? p.pm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')  : '';
     // Planned Go Live: highlight if in the past (overdue)
     const pglDate = p.plannedGoLive ? new Date(p.plannedGoLive) : null;
@@ -11467,14 +11469,7 @@ function _renderProjDashboard() {
         ${p.notes ? `<div style="font-size:11px;color:#9ca3af;margin-top:2px;">${p.notes}</div>` : ''}
       </td>
       <td style="padding:10px 12px;font-size:13px;color:#374151;font-weight:500;white-space:nowrap;">${p.account || '—'}</td>
-      <td style="padding:10px 12px;">
-        ${p.csm
-          ? `<div style="display:flex;align-items:center;gap:6px;">
-               <div style="width:26px;height:26px;border-radius:50%;background:#D1FAE5;color:#065f46;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">${csmInit}</div>
-               <span style="font-size:13px;color:#374151;">${p.csm}</span>
-             </div>`
-          : `<span style="font-size:12px;color:#d1d5db;">—</span>`}
-      </td>
+      <td style="padding:10px 12px;font-size:12px;color:#374151;white-space:nowrap;">${p.productLine || '—'}</td>
       <td style="padding:10px 12px;">
         ${p.pm
           ? `<div style="display:flex;align-items:center;gap:6px;">
