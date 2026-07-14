@@ -2367,6 +2367,9 @@ button { cursor: pointer; }
           <select id="proj-filter-pm" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
             <option value="">All Project Managers</option>
           </select>
+          <select id="proj-filter-pl" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;max-width:180px;">
+            <option value="">All Product Lines</option>
+          </select>
           <select id="proj-filter-rag" onchange="renderProjectsSection()" style="font-size:12px;border:1.5px solid #e5e7eb;border-radius:8px;padding:5px 10px;color:#374151;background:#fff;">
             <option value="">All Statuses</option>
             <option value="Green">🟢 Green</option>
@@ -11201,10 +11204,10 @@ async function loadProjectsFromSalesforce() {
       const stageRaw = (rec.pse__Stage__c || '').toLowerCase().trim();
       if (CLOSED_STAGES.has(stageRaw)) { skippedClosed++; return; }
 
-      // 4. Resolve account & CSM — project must be linked to a portfolio account
+      // 4. All remaining projects are included regardless of portfolio
+      // (Optional: try to enrich csm from portfolio lookup, but don't gate on it)
       const resolved = _resolveProjectCSM(rec);
-      if (!resolved) { skippedNoPortfolio++; return; }
-      const { accountName, csm } = resolved;
+      const csm = resolved?.csm || '';
 
       // ── Field mapping — exact PSA (pse__) field names ──
       const name = rec.Name || ('Project ' + (idx+1));
@@ -11259,17 +11262,17 @@ async function loadProjectsFromSalesforce() {
 
       const id = rec.Name || ('PRJ-' + String(idx+1).padStart(3,'0'));
 
-      // Account display name: prefer the SF relationship field directly (pse__Account__r.Name)
-      // so we always show the real company name from PSA, not the portfolio-matched name.
+      // Account display name: pull directly from the PSA relationship field
       const displayAccount = rec.pse__Account__r?.Name
         || rec.Account__r?.Name
         || rec.Account?.Name
-        || accountName;
+        || resolved?.accountName
+        || '';
 
       mapped.push({ id, name, account:displayAccount, csm, pm, productLine, status, ragStatus, startDate, endDate, plannedGoLive, statusNote, orderType, notes });
     });
 
-    console.log(`[PROJ] ${mapped.length} active portfolio projects from ${records.length} total | skipped: ${skippedClosed} closed, ${skippedNoPortfolio} not in portfolio, ${skippedTemplate} templates, ${skippedEmpty} empty`);
+    console.log(`[PROJ] ${mapped.length} active projects from ${records.length} total | skipped: ${skippedClosed} closed, ${skippedTemplate} templates, ${skippedEmpty} empty`);
     // Debug: log up to 10 skipped-by-portfolio records so mismatches can be diagnosed
     if (skippedNoPortfolio > 0) {
       const skippedSamples = [];
@@ -11297,7 +11300,7 @@ async function loadProjectsFromSalesforce() {
       _projectsLoaded = true;
       // Force KPI + chips to rebuild with fresh data
       _projActiveStageFilter = '';
-      ['proj-kpi-row','proj-stage-chips','proj-filter-pm','proj-filter-account'].forEach(id => {
+      ['proj-kpi-row','proj-stage-chips','proj-filter-pm','proj-filter-pl','proj-filter-account'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.dataset.built = '';
       });
@@ -11368,6 +11371,7 @@ function _projStageStyle(stage) {
 function _renderProjDashboard() {
   const stageF   = _projActiveStageFilter || '';
   const pmF      = (document.getElementById('proj-filter-pm')||{}).value     || '';
+  const plF      = (document.getElementById('proj-filter-pl')||{}).value     || '';
   const ragF     = (document.getElementById('proj-filter-rag')||{}).value    || '';
   const accountF = (document.getElementById('proj-filter-account')||{}).value || '';
   const searchQ  = ((document.getElementById('proj-search')||{}).value || '').toLowerCase().trim();
@@ -11434,10 +11438,21 @@ function _renderProjDashboard() {
       pms.map(c=>`<option value="${c}"${c===prev?' selected':''}>${c||'—'}</option>`).join('');
   }
 
+  // ── Populate Product Line filter ──
+  const plSel = document.getElementById('proj-filter-pl');
+  if (plSel && (!plSel.dataset.built || plSel.dataset.built !== String(all.length))) {
+    plSel.dataset.built = String(all.length);
+    const prev = plSel.value;
+    const pls = [...new Set(all.map(p=>p.productLine).filter(Boolean))].sort();
+    plSel.innerHTML = '<option value="">All Product Lines</option>' +
+      pls.map(c=>`<option value="${c}"${c===prev?' selected':''}>${c}</option>`).join('');
+  }
+
   // ── Filter rows ──
   let rows = all.filter(p => {
     if (stageF   && p.status !== stageF) return false;
     if (pmF      && p.pm !== pmF) return false;
+    if (plF      && p.productLine !== plF) return false;
     if (ragF     && (p.ragStatus||'').toLowerCase() !== ragF.toLowerCase()) return false;
     if (accountF && p.account !== accountF) return false;
     if (searchQ  && !p.account.toLowerCase().includes(searchQ) && !p.name.toLowerCase().includes(searchQ)) return false;
