@@ -2421,8 +2421,8 @@ button { cursor: pointer; }
         <div id="proj-chart-order" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
       <div class="card" style="grid-column:1/-1;">
-        <div class="card-title" style="margin-bottom:14px;">Projects by Adoption Engineer</div>
-        <div id="proj-chart-csm" style="display:flex;flex-direction:column;gap:10px;"></div>
+        <div class="card-title" style="margin-bottom:14px;">Projects by Project Manager</div>
+        <div id="proj-chart-pm" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
       <div class="card" style="grid-column:1/-1;">
         <div class="card-title" style="margin-bottom:14px;">Projects by Account</div>
@@ -11625,21 +11625,21 @@ function _renderProjAnalytics() {
   _barChart(document.getElementById('proj-chart-order'),
     Object.entries(orderCounts).sort((a,b)=>b[1]-a[1]), null, PALETTE);
 
-  // ── Projects by Consultant ──
-  const csmCounts = {};
-  all.forEach(p => { const c = p.csm || 'Unassigned'; csmCounts[c] = (csmCounts[c]||0)+1; });
-  const maxCsm = Math.max(...Object.values(csmCounts), 1);
-  const csmEl = document.getElementById('proj-chart-csm');
-  if (csmEl) csmEl.innerHTML = Object.entries(csmCounts).sort((a,b)=>b[1]-a[1]).map(([csm, n]) => {
-    const barW   = Math.round(n / maxCsm * 100);
-    const active = all.filter(p=>(p.csm||'Unassigned')===csm && (p.status||'').toLowerCase()==='active').length;
-    const red    = all.filter(p=>(p.csm||'Unassigned')===csm && (p.ragStatus||'').toLowerCase()==='red').length;
-    const init   = csm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('');
+  // ── Projects by Project Manager ──
+  const pmCounts = {};
+  all.forEach(p => { const c = p.pm || 'Unassigned'; pmCounts[c] = (pmCounts[c]||0)+1; });
+  const maxPm = Math.max(...Object.values(pmCounts), 1);
+  const pmEl = document.getElementById('proj-chart-pm');
+  if (pmEl) pmEl.innerHTML = Object.entries(pmCounts).sort((a,b)=>b[1]-a[1]).map(([pm, n]) => {
+    const barW   = Math.round(n / maxPm * 100);
+    const active = all.filter(p=>(p.pm||'Unassigned')===pm && (p.status||'').toLowerCase()==='active').length;
+    const red    = all.filter(p=>(p.pm||'Unassigned')===pm && (p.ragStatus||'').toLowerCase()==='red').length;
+    const init   = pm.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0]?.toUpperCase()||'').join('');
     return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
-      <div style="width:30px;height:30px;border-radius:50%;background:#D1FAE5;color:#065f46;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">${init||'?'}</div>
-      <span style="font-size:13px;font-weight:600;color:#374151;min-width:130px;">${csm}</span>
+      <div style="width:30px;height:30px;border-radius:50%;background:#EDE9FE;color:#5b21b6;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;">${init||'?'}</div>
+      <span style="font-size:13px;font-weight:600;color:#374151;min-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${pm}">${pm}</span>
       <div style="flex:1;height:10px;background:#f3f4f6;border-radius:5px;overflow:hidden;">
-        <div style="width:${barW}%;height:100%;background:#1B4D3E;border-radius:5px;transition:width .5s;"></div>
+        <div style="width:${barW}%;height:100%;background:#5b21b6;border-radius:5px;transition:width .5s;"></div>
       </div>
       <span style="font-size:12px;font-weight:700;color:#111827;min-width:22px;">${n}</span>
       <span style="font-size:11px;color:#6b7280;min-width:130px;">${active} active · ${red} red</span>
